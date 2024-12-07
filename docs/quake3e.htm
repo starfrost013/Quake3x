@@ -1,4 +1,4 @@
-<html><head></head><title>Quake3e</title>
+<html><head></head><title>q3x</title>
 <p>
 This client aims to be fully compatible with original baseq3 and other mods
 while trying to be fast, reliable and bug-free.
@@ -9,7 +9,7 @@ It is based on ioquake3-r1160 (latest non-SDL revision) with upstream patches an
 <ul>
 <li>a lot of security, performance and bug fixes</li>
 <li>much improved autocompletion (map, demo, exec and other commands), in-game <b>\callvote</b> argument autocompletion</li>
-<li><b>\com_affinityMask</b> - bind Quake3e process to bitmask-specified CPU core(s)</li>
+<li><b>\com_affinityMask</b> - bind q3x process to bitmask-specified CPU core(s)</li>
 <li>raized filesystem limits, much faster startup with 1000+ pk3 files in use, level restart times were also reduced as well</li>
 <li><b>\fs_locked</b> <font color=silver><b>0</b>|1</font> - keep opened pk3 files locked or not, removes pk3 file limit when unlocked</li>
 </ul>
@@ -154,9 +154,9 @@ instead of usual <b>http://</b> or <b>ftp://</b> protocol headers<br><br>
 
 What you need to do:
 <ul>
-<li>copy <b>q3url_add.cmd</b>/<b>q3url_rem.cmd</b> in quake3e.exe directory </li>
+<li>copy <b>q3url_add.cmd</b>/<b>q3url_rem.cmd</b> in q3x.exe directory </li>
 <li>run <b>q3url_add.cmd</b> if you want to add protocol binding or <b>q3url_add.cmd</b> if you want to remove it</li>
-<li>type in your browser <a href="q3a://127.0.0.1"><b>q3a://</b>127.0.0.1</a> and follow it - if you see quake3e launching and trying to connect then everything is fine
+<li>type in your browser <a href="q3a://127.0.0.1"><b>q3a://</b>127.0.0.1</a> and follow it - if you see q3x launching and trying to connect then everything is fine
 </li>
 </ul>
 <br>
@@ -201,7 +201,7 @@ lvalue-only conditions are supported, count of conditions inside if()/elif() is 
 <br>
 <hr>
 <p><b><div id="video-pipe"></div>Redurect captured video to ffmpeg input pipe</b><br><br>
-In order to use this functionality you need to install ffmpeg package (on linux) or put ffmpeg binary near quake3e executable (on windows).<br>
+In order to use this functionality you need to install ffmpeg package (on linux) or put ffmpeg binary near q3x executable (on windows).<br>
 <br>
 Use <b>\cl_aviPipeFormat</b> to control encoder parameters passed to ffmpeg, see ffmpeg documentation for details, default value is set according to YouTube recommendations:<br>
 <pre>

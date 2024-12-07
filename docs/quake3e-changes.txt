@@ -13,7 +13,7 @@
 * Client: Strip cl_aviPipeFormat
 * Win32: report actual color bits and correct PFD count
 * X11: request alpha bits for >=24 bit color profiles
-* Docs: Create quake3e.md, update quake3e.htm
+* Docs: Create q3x.md, update q3x.htm
 * Vulkan: increase MAX_IMAGE_CHUNKS from 48 to 56
 * Vulkan: added missing texture mode setup in GL_SetDefaultState()
 * Vulkan: disabled r_ext_alpha_to_coverage for now due to rendering artifacts on beyond4-wfa map
@@ -599,7 +599,7 @@ Fixed non-working rconPassword2 on linux
 * Win32: do not minimize/restore video mode/gamma when switching out of game window in multimonitor configurations
 
 08-Dec-2017:
-* Implemented \r_renderWidth and \r_renderHeight, see docs/quake3e.htm for details
+* Implemented \r_renderWidth and \r_renderHeight, see docs/q3x.htm for details
 * Now releasing mouse with opened console in multimonitor configurations
 * Added multimonitor support for Linux, ALSA and window handling improvements
 * Removed old non-FBO bloom and its variables, so only new bloom is available from now via \r_bloom:
@@ -682,7 +682,7 @@ Fixed non-working rconPassword2 on linux
 * Fix OpenGL 1.4 version detection
 * Do light pass right before SS_UNDERWATER if possible
 * Add \video-pipe command - redirect captured video stream to ffmpeg input pipe and save as mp4
- you need to install ffmpeg package (on linux) or put ffmpeg binary near quake3e executable (on windows)
+ you need to install ffmpeg package (on linux) or put ffmpeg binary near q3x executable (on windows)
 * Add \cl_aviPipeFormat - encoder parameters used for \video-pipe, see ffmpeg documentation for details
 
 15-Sep-2017:
@@ -740,7 +740,7 @@ Fixed non-working rconPassword2 on linux
 * Add "tcGen environment firstPerson" shader stage parameter - fixes non-working environment mapping for first-person (on-hand) models
 * Increase shader loading speed
 * Add complex token parser
-* Add experimental conditional shader stages, see docs/quake3e.htm for details
+* Add experimental conditional shader stages, see docs/q3x.htm for details
 
 13-Jul-2017:
 * Experimental: unconditionally complete \callvote command and its arguments for all mods

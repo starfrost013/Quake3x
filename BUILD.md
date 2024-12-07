@@ -2,13 +2,13 @@
 
 ### windows/msvc
 
-Install Visual Studio Community Edition 2017 or later and compile `quake3e` project from solution
+Install Visual Studio Community Edition 2017 or later and compile `q3x` project from solution
 
-`code/win32/msvc2017/quake3e.sln`
+`code/win32/msvc2017/q3x.sln`
 
 Copy resulting exe from `code/win32/msvc2017/output` directory
 
-To compile with Vulkan backend - clean solution, right click on `quake3e` project, find `Project Dependencies` and select `renderervk` instead of `renderer`
+To compile with Vulkan backend - clean solution, right click on `q3x` project, find `Project Dependencies` and select `renderervk` instead of `renderer`
 
 ---
 
@@ -55,21 +55,21 @@ Copy the resulting binaries from created `build` directory or use command:
 
 ### Arch Linux
 
-The package `quake3e-git` can either be installed through your favourite AUR helper, or manually using these commands:
+The package `q3x-git` can either be installed through your favourite AUR helper, or manually using these commands:
 
 Download the snapshot from AUR:
 
-`curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/quake3e-git.tar.gz`
+`curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/q3x-git.tar.gz`
 
 Extract the snapshot:
 
-`tar xfz quake3e-git.tar.gz`
+`tar xfz q3x-git.tar.gz`
 
 Enter the extracted directory:
 
-`cd quake3e-git`
+`cd q3x-git`
 
-Build and install `quake3e-git`:
+Build and install `q3x-git`:
 
 `makepkg -risc`
 
