@@ -131,33 +131,7 @@ void QDECL Log_Write(char *fmt, ...)
 	//fprintf(logfile.fp, "\r\n");
 	fflush(logfile.fp);
 } //end of the function Log_Write
-#if 0
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void QDECL Log_WriteTimeStamped(char *fmt, ...)
-{
-	va_list ap;
 
-	if (!logfile.fp) return;
-	fprintf(logfile.fp, "%d   %02d:%02d:%02d:%02d   ",
-					logfile.numwrites,
-					(int) (botlibglobals.time / 60 / 60),
-					(int) (botlibglobals.time / 60),
-					(int) (botlibglobals.time),
-					(int) ((int) (botlibglobals.time * 100)) -
-							((int) botlibglobals.time) * 100);
-	va_start(ap, fmt);
-	vfprintf(logfile.fp, fmt, ap);
-	va_end(ap);
-	fprintf(logfile.fp, "\r\n");
-	logfile.numwrites++;
-	fflush(logfile.fp);
-} //end of the function Log_WriteTimeStamped
-#endif
 //===========================================================================
 //
 // Parameter:				-

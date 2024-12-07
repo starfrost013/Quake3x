@@ -529,29 +529,7 @@ void PC_PrintDefine(define_t *define)
 //	struct define_s *next;			//next defined macro in a list
 } //end of the function PC_PrintDefine*/
 #if DEFINEHASHING
-#if 0
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-static void PC_PrintDefineHashTable(define_t **definehash)
-{
-	int i;
-	define_t *d;
 
-	for (i = 0; i < DEFINEHASHSIZE; i++)
-	{
-		Log_Write("%4d:", i);
-		for (d = definehash[i]; d; d = d->hashnext)
-		{
-			Log_Write(" %s", d->name);
-		} //end for
-		Log_Write("\n");
-	} //end for
-} //end of the function PC_PrintDefineHashTable
-#endif
 //============================================================================
 //
 // Parameter:				-
@@ -670,48 +648,7 @@ static void PC_FreeDefine(define_t *define)
 	FreeMemory(define->name);
 	FreeMemory(define);
 } //end of the function PC_FreeDefine
-#if 0
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-static void PC_AddBuiltinDefines(source_t *source)
-{
-	int i;
-	define_t *define;
-	struct builtin
-	{
-		char *string;
-		int builtin;
-	} builtin[] = {
-		{ "__LINE__",	BUILTIN_LINE },
-		{ "__FILE__",	BUILTIN_FILE },
-		{ "__DATE__",	BUILTIN_DATE },
-		{ "__TIME__",	BUILTIN_TIME },
-//		{ "__STDC__", BUILTIN_STDC },
-		{ NULL, 0 }
-	};
 
-	for (i = 0; builtin[i].string; i++)
-	{
-		define = (define_t *) GetMemory(sizeof(define_t));
-		Com_Memset(define, 0, sizeof(define_t));
-		define->name = (char *) GetMemory(strlen(builtin[i].string) + 1);
-		strcpy(define->name, builtin[i].string);
-		define->flags |= DEFINE_FIXED;
-		define->builtin = builtin[i].builtin;
-		//add the define to the source
-#if DEFINEHASHING
-		PC_AddDefineToHash(define, source->definehash);
-#else
-		define->next = source->defines;
-		source->defines = define;
-#endif //DEFINEHASHING
-	} //end for
-} //end of the function PC_AddBuiltinDefines
-#endif
 //============================================================================
 //
 // Parameter:				-
@@ -1377,28 +1314,7 @@ static define_t *PC_DefineFromString(const char *string)
 	//
 	return NULL;
 } //end of the function PC_DefineFromString
-#if 0
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-static int PC_AddDefine(source_t *source, char *string)
-{
-	define_t *define;
 
-	define = PC_DefineFromString(string);
-	if (!define) return qfalse;
-#if DEFINEHASHING
-	PC_AddDefineToHash(define, source->definehash);
-#else //DEFINEHASHING
-	define->next = source->defines;
-	source->defines = define;
-#endif //DEFINEHASHING
-	return qtrue;
-} //end of the function PC_AddDefine
-#endif
 //============================================================================
 // add a globals define that will be added to all opened sources
 //
@@ -1416,27 +1332,7 @@ int PC_AddGlobalDefine(const char *string)
 	globaldefines = define;
 	return qtrue;
 } //end of the function PC_AddGlobalDefine
-#if 0
-//============================================================================
-// remove the given global define
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-int PC_RemoveGlobalDefine(const char *name)
-{
-	define_t *define;
 
-	define = PC_FindDefine(globaldefines, name);
-	if (define)
-	{
-		PC_FreeDefine(define);
-		return qtrue;
-	} //end if
-	return qfalse;
-} //end of the function PC_RemoveGlobalDefine
-#endif
 //============================================================================
 // remove all globals defines
 //
@@ -2909,46 +2805,7 @@ int PC_CheckTokenString(source_t *source, char *string)
 	PC_UnreadSourceToken(source, &tok);
 	return qfalse;
 } //end of the function PC_CheckTokenString
-#if 0
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-int PC_CheckTokenType(source_t *source, int type, int subtype, token_t *token)
-{
-	token_t tok;
 
-	if (!PC_ReadToken(source, &tok)) return qfalse;
-	//if the type matches
-	if (tok.type == type &&
-			(tok.subtype & subtype) == subtype)
-	{
-		Com_Memcpy(token, &tok, sizeof(token_t));
-		return qtrue;
-	} //end if
-	//
-	PC_UnreadSourceToken(source, &tok);
-	return qfalse;
-} //end of the function PC_CheckTokenType
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-int PC_SkipUntilString(source_t *source, char *string)
-{
-	token_t token;
-
-	while(PC_ReadToken(source, &token))
-	{
-		if (!strcmp(token.string, string)) return qtrue;
-	} //end while
-	return qfalse;
-} //end of the function PC_SkipUntilString
-#endif
 //============================================================================
 //
 // Parameter:				-
@@ -2969,38 +2826,7 @@ void PC_UnreadToken(source_t *source, token_t *token)
 {
 	PC_UnreadSourceToken(source, token);
 } //end of the function PC_UnreadToken
-#if 0
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-void PC_SetIncludePath(source_t *source, const char *path)
-{
-	size_t len;
 
-	Q_strncpyz( source->includepath, path, sizeof(source->includepath)-1 );
-
-	len = strlen(source->includepath);
-	//add trailing path separator
-	if (len > 0 && source->includepath[len-1] != '\\' &&
-		source->includepath[len-1] != '/')
-	{
-		strcat(source->includepath, PATHSEPERATOR_STR);
-	} //end if
-} //end of the function PC_SetIncludePath
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-void PC_SetPunctuations(source_t *source, punctuation_t *p)
-{
-	source->punctuations = p;
-} //end of the function PC_SetPunctuations
-#endif
 //============================================================================
 //
 // Parameter:			-
@@ -3035,41 +2861,7 @@ source_t *LoadSourceFile(const char *filename)
 	PC_AddGlobalDefinesToSource(source);
 	return source;
 } //end of the function LoadSourceFile
-#if 0
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-source_t *LoadSourceMemory(const char *ptr, int length, const char *name)
-{
-	source_t *source;
-	script_t *script;
 
-	PC_InitTokenHeap();
-
-	script = LoadScriptMemory(ptr, length, name);
-	if (!script) return NULL;
-	script->next = NULL;
-
-	source = (source_t *) GetMemory(sizeof(source_t));
-	Com_Memset(source, 0, sizeof(source_t));
-
-	Q_strncpyz(source->filename, name, sizeof(source->filename));
-	source->scriptstack = script;
-	source->tokens = NULL;
-	source->defines = NULL;
-	source->indentstack = NULL;
-	source->skip = 0;
-
-#if DEFINEHASHING
-	source->definehash = GetClearedMemory(DEFINEHASHSIZE * sizeof(define_t *));
-#endif //DEFINEHASHING
-	PC_AddGlobalDefinesToSource(source);
-	return source;
-} //end of the function LoadSourceMemory
-#endif
 //============================================================================
 //
 // Parameter:				-

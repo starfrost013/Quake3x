@@ -638,46 +638,6 @@ void Sys_Init( void ) {
 //=======================================================================
 
 
-/*
-==================
-SetDPIAwareness
-==================
-*/
-#if 0
-static void SetDPIAwareness( void ) 
-{
-	typedef HANDLE (WINAPI *pfnSetThreadDpiAwarenessContext)( HANDLE dpiContext );
-	typedef HRESULT (WINAPI *pfnSetProcessDpiAwareness)( int value );
-
-	pfnSetThreadDpiAwarenessContext pSetThreadDpiAwarenessContext;
-	pfnSetProcessDpiAwareness pSetProcessDpiAwareness;
-	HMODULE dll;
-
-	dll = GetModuleHandle( T("user32") );
-	if ( dll )
-	{
-		pSetThreadDpiAwarenessContext = (pfnSetThreadDpiAwarenessContext) GetProcAddress( dll, "SetThreadDpiAwarenessContext" );
-		if ( pSetThreadDpiAwarenessContext )
-		{
-			pSetThreadDpiAwarenessContext( (HANDLE)(intptr_t)-2 ); // DPI_AWARENESS_CONTEXT_SYSTEM_AWARE
-		}
-
-	}
-
-	dll = LoadLibrary( T("shcore") );
-	if ( dll )
-	{
-		pSetProcessDpiAwareness = (pfnSetProcessDpiAwareness) GetProcAddress( dll, "SetProcessDpiAwareness" );
-		if ( pSetProcessDpiAwareness )
-		{
-			pSetProcessDpiAwareness( 2 ); // PROCESS_PER_MONITOR_DPI_AWARE
-		}
-		FreeLibrary( dll );
-	}
-}
-#endif
-
-
 static const char *GetExceptionName( DWORD code )
 {
 	static char buf[ 32 ];

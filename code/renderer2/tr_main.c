@@ -42,32 +42,7 @@ refimport_t	ri;
 // entities that will have procedurally generated surfaces will just
 // point at this for their sorting surface
 static surfaceType_t	entitySurface = SF_ENTITY;
-#if 0
-/*
-================
-R_CompareVert
-================
-*/
-static qboolean R_CompareVert(srfVert_t * v1, srfVert_t * v2, qboolean checkST)
-{
-	int             i;
 
-	for(i = 0; i < 3; i++)
-	{
-		if(floor(v1->xyz[i] + 0.1) != floor(v2->xyz[i] + 0.1))
-		{
-			return qfalse;
-		}
-
-		if(checkST && ((v1->st[0] != v2->st[0]) || (v1->st[1] != v2->st[1])))
-		{
-			return qfalse;
-		}
-	}
-
-	return qtrue;
-}
-#endif
 /*
 =============
 R_CalcTexDirs
@@ -198,61 +173,7 @@ Returns CULL_IN, CULL_CLIP, or CULL_OUT
 =================
 */
 int R_CullLocalBox( const vec3_t localBounds[2] ) {
-#if 0
-	int		i, j;
-	vec3_t	transformed[8];
-	float	dists[8];
-	vec3_t	v;
-	cplane_t	*frust;
-	int			anyBack;
-	int			front, back;
 
-	if ( r_nocull->integer ) {
-		return CULL_CLIP;
-	}
-
-	// transform into world space
-	for (i = 0 ; i < 8 ; i++) {
-		v[0] = bounds[i&1][0];
-		v[1] = bounds[(i>>1)&1][1];
-		v[2] = bounds[(i>>2)&1][2];
-
-		VectorCopy( tr.or.origin, transformed[i] );
-		VectorMA( transformed[i], v[0], tr.or.axis[0], transformed[i] );
-		VectorMA( transformed[i], v[1], tr.or.axis[1], transformed[i] );
-		VectorMA( transformed[i], v[2], tr.or.axis[2], transformed[i] );
-	}
-
-	// check against frustum planes
-	anyBack = 0;
-	for (i = 0 ; i < 4 ; i++) {
-		frust = &tr.viewParms.frustum[i];
-
-		front = back = 0;
-		for (j = 0 ; j < 8 ; j++) {
-			dists[j] = DotProduct(transformed[j], frust->normal);
-			if ( dists[j] > frust->dist ) {
-				front = 1;
-				if ( back ) {
-					break;		// a point is in front
-				}
-			} else {
-				back = 1;
-			}
-		}
-		if ( !front ) {
-			// all points were behind one of the planes
-			return CULL_OUT;
-		}
-		anyBack |= back;
-	}
-
-	if ( !anyBack ) {
-		return CULL_IN;		// completely inside frustum
-	}
-
-	return CULL_CLIP;		// partially clipped
-#else
 	int             j;
 	vec3_t          transformed;
 	vec3_t          v;
@@ -278,7 +199,6 @@ int R_CullLocalBox( const vec3_t localBounds[2] ) {
 	}
 
 	return R_CullBox(worldBounds);
-#endif
 }
 
 /*
@@ -1671,39 +1591,6 @@ static void R_GenerateDrawSurfs( void ) {
 	R_AddEntitySurfaces ();
 }
 
-/*
-================
-R_DebugPolygon
-================
-*/
-static void R_DebugPolygon( int color, int numPoints, float *points ) {
-	// FIXME: implement this
-#if 0
-	int		i;
-
-	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
-
-	// draw solid shade
-
-	qglColor3f( color&1, (color>>1)&1, (color>>2)&1 );
-	qglBegin( GL_POLYGON );
-	for ( i = 0 ; i < numPoints ; i++ ) {
-		qglVertex3fv( points + i * 3 );
-	}
-	qglEnd();
-
-	// draw wireframe outline
-	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
-	qglDepthRange( 0, 0 );
-	qglColor3f( 1, 1, 1 );
-	qglBegin( GL_POLYGON );
-	for ( i = 0 ; i < numPoints ; i++ ) {
-		qglVertex3fv( points + i * 3 );
-	}
-	qglEnd();
-	qglDepthRange( 0, 1 );
-#endif
-}
 
 /*
 ====================
@@ -1724,7 +1611,7 @@ static void R_DebugGraphics( void ) {
 
 	GL_BindToTMU(tr.whiteImage, TB_COLORMAP);
 	GL_Cull( CT_FRONT_SIDED );
-	ri.CM_DrawDebugSurface( R_DebugPolygon );
+	//ri.CM_DrawDebugSurface( R_DebugPolygon );
 }
 
 

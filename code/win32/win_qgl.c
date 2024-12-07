@@ -98,31 +98,14 @@ qboolean QGL_Init( const char *dllname )
 	TCHAR buffer[1024];
 #endif
 
-#if 0
-	char systemDir[1024];
-
-#ifdef UNICODE
-	TCHAR buffer[1024];
-	GetSystemDirectory( buffer, ARRAYSIZE( buffer ) );
-	strcpy( systemDir, WtoA( buffer ) );
-#else
-	GetSystemDirectory( systemDir, sizeof( systemDir ) );
-#endif
-#endif
-
 	Com_Printf( "...initializing QGL\n" );
 
 	if ( glw_state.OpenGLLib == NULL )
 	{
 		// NOTE: this assumes that 'dllname' is lower case (and it should be)!
-#if 0
-		if ( dllname[0] != '!' )
-			Com_sprintf( libName, sizeof( libName ), "%s\\%s", systemDir, dllname );
-		else
-			Q_strncpyz( libName, dllname+1, sizeof( libName ) );
-#else
+
 		Q_strncpyz( libName, dllname, sizeof( libName ) );
-#endif
+
 		Q_strcat( libName, sizeof( libName ), ".dll" );
 		glw_state.OpenGLLib = Sys_LoadLibrary( libName );
 		if ( glw_state.OpenGLLib == NULL )

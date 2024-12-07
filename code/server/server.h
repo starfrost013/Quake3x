@@ -97,11 +97,7 @@ typedef struct {
 	byte			areabits[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
 	playerState_t	ps;
 	int				num_entities;
-#if 0
-	int				first_entity;		// into the circular sv_packet_entities[]
-										// the entities MUST be in increasing state number
-										// order, otherwise the delta compression will fail
-#endif
+
 	int				messageSent;		// time the message was transmitted
 	int				messageAcked;		// time the message was acked
 	int				messageSize;		// used to rate drop packets
@@ -332,7 +328,6 @@ void SVC_RateDropAddress( const netadr_t *from, int burst, int period );
 void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
 void SV_AddOperatorCommands( void );
-void SV_RemoveOperatorCommands( void );
 
 void SV_MasterShutdown( void );
 int SV_RateMsec( const client_t *client );

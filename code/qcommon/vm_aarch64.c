@@ -2078,9 +2078,6 @@ static uint32_t finish_sx( uint32_t pref, uint32_t reg ) {
 
 static void load_rx_opstack2( uint32_t *dst, uint32_t dst_pref, uint32_t *src, uint32_t src_pref )
 {
-#if 0
-	*dst = *src = load_rx_opstack( src_pref &= ~RCONST ); // source, target = *opstack
-#else
 	*dst = *src = load_rx_opstack( src_pref | RCONST ); // source, target = *opstack
 	if ( search_opstack( TYPE_RX, *src ) || find_free_rx() ) {
 		// *src is duplicated on opStack or there is a free register
@@ -2089,7 +2086,6 @@ static void load_rx_opstack2( uint32_t *dst, uint32_t dst_pref, uint32_t *src, u
 		// will be overwritten, wipe metadata
 		wipe_rx_meta( *dst );
 	}
-#endif
 }
 
 
@@ -2176,9 +2172,6 @@ static uint32_t load_sx_opstack( uint32_t pref )
 
 static void load_sx_opstack2( uint32_t *dst, uint32_t dst_pref, uint32_t *src, uint32_t src_pref )
 {
-#if 0
-	*dst = *src = load_sx_opstack( src_pref ); // source, target = *opstack
-#else
 	*dst = *src = load_sx_opstack( src_pref | RCONST ); // source, target = *opstack
 	if ( search_opstack( TYPE_SX, *src ) || find_free_sx() ) {
 		// *src is duplicated on opStack or there is a free register
@@ -2187,7 +2180,7 @@ static void load_sx_opstack2( uint32_t *dst, uint32_t dst_pref, uint32_t *src, u
 		// will be overwritten, wipe metadata
 		wipe_sx_meta( *dst );
 	}
-#endif
+
 }
 
 

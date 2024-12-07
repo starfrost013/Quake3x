@@ -354,14 +354,9 @@ static	void R_LoadLightmaps( const lump_t *l, const lump_t *surfs ) {
 					ri.Error(ERR_DROP, "Bad header for %s!", filename);
 
 				buf_p = p;
-
-#if 0 // HDRFILE_RGBE
-				if ((int)(end - hdrLightmap) != tr.lightmapSize * tr.lightmapSize * 4)
-					ri.Error(ERR_DROP, "Bad size for %s (%i)!", filename, size);
-#else // HDRFILE_FLOAT
+				
 				if ((int)(end - hdrLightmap) != tr.lightmapSize * tr.lightmapSize * 12)
 					ri.Error(ERR_DROP, "Bad size for %s (%i)!", filename, size);
-#endif
 			}
 			else
 			{
@@ -375,19 +370,12 @@ static	void R_LoadLightmaps( const lump_t *l, const lump_t *surfs ) {
 				{
 					vec4_t color;
 
-#if 0 // HDRFILE_RGBE
-					float exponent = exp2(buf_p[j*4+3] - 128);
-
-					color[0] = buf_p[j*4+0] * exponent;
-					color[1] = buf_p[j*4+1] * exponent;
-					color[2] = buf_p[j*4+2] * exponent;
-#else // HDRFILE_FLOAT
 					memcpy(color, &buf_p[j*12], 12);
 
 					color[0] = LittleFloat(color[0]);
 					color[1] = LittleFloat(color[1]);
 					color[2] = LittleFloat(color[2]);
-#endif
+
 					color[3] = 1.0f;
 
 					R_ColorShiftLightingFloats(color, color);

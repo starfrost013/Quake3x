@@ -1016,32 +1016,7 @@ int AAS_ClientMovementHitBBox(struct aas_clientmove_s *move,
 										frametime, SE_HITBOUNDINGBOX, 0,
 										mins, maxs, visualize);
 } //end of the function AAS_ClientMovementHitBBox
-#if 0
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
-void AAS_TestMovementPrediction(int entnum, vec3_t origin, vec3_t dir)
-{
-	vec3_t velocity, cmdmove;
-	aas_clientmove_t move;
-
-	VectorClear(velocity);
-	if (!AAS_Swimming(origin)) dir[2] = 0;
-	VectorNormalize(dir);
-	VectorScale(dir, 400, cmdmove);
-	cmdmove[2] = 224;
-	AAS_ClearShownDebugLines();
-	AAS_PredictClientMovement(&move, entnum, origin, PRESENCE_NORMAL, qtrue,
-									velocity, cmdmove, 13, 13, 0.1f, SE_HITGROUND, 0, qtrue);//SE_LEAVEGROUND);
-	if (move.stopevent & SE_LEAVEGROUND)
-	{
-		botimport.Print(PRT_MESSAGE, "leave ground\n");
-	} //end if
-} //end of the function TestMovementPrediction
-#endif
+ 
 //===========================================================================
 // calculates the horizontal velocity needed to perform a jump from start
 // to end

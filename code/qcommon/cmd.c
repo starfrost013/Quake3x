@@ -127,21 +127,6 @@ void Cbuf_NestedAdd( const char *text ) {
 		return;
 	}
 
-#if 0
-	if ( cmd_text.cursize > 0 ) {
-		const int c = cmd_text.data[cmd_text.cursize - 1];
-		// insert separator for already existing command(s)
-		if ( c != '\n' && c != ';' && text[0] != '\n' && text[0] != ';' ) {
-			if ( cmd_text.cursize < cmd_text.maxsize ) {
-				cmd_text.data[cmd_text.cursize++] = ';';
-			} else {
-				Com_Printf( S_COLOR_YELLOW "%s(%i) overflowed\n", __func__, pos );
-				nestedCmdOffset = cmd_text.cursize;
-				return;
-			}
-		}
-	}
-#endif
 
 	if ( pos > cmd_text.cursize || pos < 0 ) {
 		// insert at the text end

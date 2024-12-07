@@ -2599,11 +2599,6 @@ be freed by the game later.
 void Sys_QueEvent( int evTime, sysEventType_t evType, int value, int value2, int ptrLength, void *ptr ) {
 	sysEvent_t	*ev;
 
-#if 0
-	Com_Printf( "%-10s: evTime=%i, evTail=%i, evHead=%i\n",
-		Sys_EventName( evType ), evTime, eventTail, eventHead );
-#endif
-
 	if ( evTime == 0 ) {
 		evTime = Sys_Milliseconds();
 	}
@@ -4684,18 +4679,7 @@ static void Field_CompleteCvarValue( const char *value, const char *current )
 
 	if ( *current != '\0' )
 	{
-#if 0
-		int clen = (int) strlen( current );
-		if ( strncmp( value, current, clen ) == 0 ) // current value is a substring of new value
-		{
-			value += clen;
-			vlen -= clen;
-		}
-		else // modification, nothing to complete
-#endif
-		{
-			return;
-		}
+		return;
 	}
 
 	if ( Field_FindFirstSeparator( (char*)value ) )

@@ -1241,10 +1241,6 @@ static void SV_Status_f( void ) {
 
 	Com_Printf( "map: %s\n", sv_mapname->string );
 
-#if 0
-	Com_Printf( "cl score ping name                        address                     rate\n" );
-	Com_Printf( "-- ----- ---- --------------------------- --------------------------- -----\n" );
-#else // variable-length fields
 	Com_Printf( "cl score ping name" );
 	for ( i = 0; i < max_namelength - 4; i++ )
 		Com_Printf( " " );
@@ -1260,7 +1256,6 @@ static void SV_Status_f( void ) {
 	for ( i = 0; i < max_addrlength; i++ )
 		Com_Printf( "-" );
 	Com_Printf( " -----\n" );
-#endif
 
 	for ( i = 0, cl = svs.clients; i < sv.maxclients; i++, cl++ )
 	{
@@ -1583,31 +1578,6 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand( "filter", SV_AddFilter_f );
 	Cmd_AddCommand( "filtercmd", SV_AddFilterCmd_f );
 }
-
-
-/*
-==================
-SV_RemoveOperatorCommands
-==================
-*/
-void SV_RemoveOperatorCommands( void ) {
-#if 0
-	// removing these won't let the server start again
-	Cmd_RemoveCommand ("heartbeat");
-	Cmd_RemoveCommand ("kick");
-	Cmd_RemoveCommand ("kicknum");
-	Cmd_RemoveCommand ("clientkick");
-	Cmd_RemoveCommand ("kickall");
-	Cmd_RemoveCommand ("kickbots");
-	Cmd_RemoveCommand ("banUser");
-	Cmd_RemoveCommand ("banClient");
-	Cmd_RemoveCommand ("status");
-	Cmd_RemoveCommand ("dumpuser");
-	Cmd_RemoveCommand ("map_restart");
-	Cmd_RemoveCommand ("sectorlist");
-#endif
-}
-
 
 void SV_AddDedicatedCommands( void )
 {

@@ -1913,18 +1913,7 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 		return qfalse;
 	return qtrue;
 } //end of the function AAS_PredictRoute
-#if 0
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
-int AAS_BridgeWalkable(int areanum)
-{
-	return qfalse;
-} //end of the function AAS_BridgeWalkable
-#endif
+
 //===========================================================================
 //
 // Parameter:			-
@@ -2072,22 +2061,7 @@ static int AAS_AreaVisible(int srcarea, int destarea)
 {
 	return qfalse;
 } //end of the function AAS_AreaVisible
-#if 0
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
-float DistancePointToLine(vec3_t v1, vec3_t v2, vec3_t point)
-{
-	vec3_t vec, p2;
 
-	AAS_ProjectPointOntoVector(point, v1, v2, p2);
-	VectorSubtract(point, p2, vec);
-	return VectorLength(vec);
-} //end of the function DistancePointToLine
-#endif
 //===========================================================================
 //
 // Parameter:			-

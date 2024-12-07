@@ -668,22 +668,6 @@ static int Sys_XTimeToSysTime( Time xtime )
 	}
 
 	// test the wrap issue
-#if 0
-	// reference values for test: sys_timeBase 0x3dc7b5e9 xtime 0x541ea451 (read these from a test run)
-	// xtime will wrap in 0xabe15bae ms >~ 0x2c0056 s (33 days from Nov 5 2002 -> 8 Dec)
-	//   NOTE: date -d '1970-01-01 UTC 1039384002 seconds' +%c
-	// use sys_timeBase 0x3dc7b5e9+0x2c0056 = 0x3df3b63f
-	// after around 5s, xtime would have wrapped around
-	// we get 7132, the formula handles the wrap safely
-	unsigned long xtime_aux,base_aux;
-	int test;
-//	Com_Printf("sys_timeBase: %p\n", sys_timeBase);
-//	Com_Printf("xtime: %p\n", xtime);
-	xtime_aux = 500; // 500 ms after wrap
-	base_aux = 0x3df3b63f; // the base a few seconds before wrap
-	test = xtime_aux - (unsigned long)(base_aux*1000);
-	Com_Printf("xtime wrap test: %d\n", test);
-#endif
 
 	// some X servers (like suse 8.1's) report weird event times
 	// if the game is loading, resolving DNS, etc. we are also getting old events
@@ -788,11 +772,7 @@ void HandleEvents( void )
 				break; // XNextEvent( dpy, &event )
 
 			t = Sys_XTimeToSysTime( event.xkey.time );
-#if 0
-			Com_Printf("^5K-^7 %08X %s\n",
-				event.xkey.keycode,
-				X11_PendingInput()?"pending":"");
-#endif
+
 			XLateKey( &event.xkey, &key );
 			Sys_QueEvent( t, SE_KEY, key, qfalse, 0, NULL );
 
@@ -1417,16 +1397,7 @@ static XVisualInfo *VK_SelectVisual( int colorbits, int depthbits, int stencilbi
 
 	for ( i = 0; i < nvisuals; i++ )
 	{
-#if 0
-		printf("  %3d: screen %i  visual 0x%lx class %d (%s) depth %d bits_per_rgb %d\n",
-			i,
-			list[i].screen,
-			list[i].visualid,
-			list[i].class,
-			list[i].class == TrueColor ? "TrueColor" : "unknown",
-			list[i].depth,
-			list[i].bits_per_rgb );
-#endif
+
 		if ( list[i].depth == colorbits ) {
 			//if ( list[i] == TrueColor )
 			break;

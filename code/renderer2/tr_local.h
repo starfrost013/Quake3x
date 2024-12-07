@@ -2126,7 +2126,6 @@ SHADOWS
 ============================================================
 */
 
-void RB_ShadowTessEnd( void );
 void RB_ShadowFinish( void );
 void RB_ProjectionShadowDeform( void );
 

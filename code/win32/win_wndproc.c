@@ -114,14 +114,6 @@ void WIN_DisableAltTab( void )
 	if ( s_alttab_disabled )
 		return;
 
-#if 0
-	if ( g_wv.hWnd && glw_state.cdsFullscreen && glw_state.monitorCount > 1 ) {
-		// topmost window
-		SetWindowLong( g_wv.hWnd, GWL_EXSTYLE, WINDOW_ESTYLE_FULLSCREEN );
-		SetWindowLong( g_wv.hWnd, GWL_STYLE, WINDOW_STYLE_FULLSCREEN );
-	}
-#endif
-
 	if ( !Q_stricmp( Cvar_VariableString( "arch" ), "winnt" ) )
 		RegisterHotKey( NULL, 0, MOD_ALT, VK_TAB );
 	else
@@ -142,15 +134,6 @@ void WIN_EnableAltTab( void )
 
 	if ( !s_alttab_disabled )
 		return;
-
-#if 0
-	if ( g_wv.hWnd && glw_state.cdsFullscreen && glw_state.monitorCount > 1 ) {
-		// allow moving other windows on foreground
-		SetWindowLong( g_wv.hWnd, GWL_EXSTYLE, WINDOW_ESTYLE_NORMAL );
-		SetWindowLong( g_wv.hWnd, GWL_STYLE, WINDOW_STYLE_FULLSCREEN_MIN );
-		SetWindowPos( g_wv.hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
-	}
-#endif
 
 	if ( !Q_stricmp( Cvar_VariableString( "arch" ), "winnt" ) )
 		UnregisterHotKey( NULL, 0 );
@@ -451,27 +434,6 @@ BOOL Win_CheckHotkeyMod( void ) {
  	return TRUE;
 }
 
-
-#if 0
-static int GetTimerMsec( void ) {
-	int msec;
-	
-	if ( gw_minimized || CL_VideoRecording() )
-		return 0;
-
-	if ( com_maxfps->integer > 0 ) {
-		msec = 1000 / com_maxfps->integer;
-		if ( msec < 1 )
-			msec = 1;
-	} else {
-		msec = 16; // 62.5fps
-	}
-
-	return msec;
-}
-#endif
-
-
 static HWINEVENTHOOK hWinEventHook;
 
 static VOID CALLBACK WinEventProc( HWINEVENTHOOK h_WinEventHook, DWORD dwEvent, HWND hWnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime )
@@ -620,20 +582,7 @@ LRESULT WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM  wParam, LPARAM lParam 
 		Cvar_SetDescription( in_forceCharset, "Try to translate non-ASCII chars in keyboard input or force EN/US keyboard layout." );
 
 		break;
-#if 0
-	case WM_DISPLAYCHANGE:
-		Com_DPrintf( "WM_DISPLAYCHANGE\n" );
-		// we need to force a vid_restart if the user has changed
-		// their desktop resolution while the game is running,
-		// but don't do anything if the message is a result of
-		// our own calling of ChangeDisplaySettings
-		if ( com_insideVidInit ) {
-			break;		// we did this on purpose
-		}
-		// something else forced a mode change, so restart all our gl stuff
-		Cbuf_AddText( "vid_restart\n" );
-		break;
-#endif
+
 	case WM_DESTROY:
 		Win_RemoveHotkey();
 		if ( hWinEventHook ) {

@@ -33,16 +33,6 @@ static int c_peak_windings;
 static int c_winding_allocs;
 static int c_winding_points;
 
-#if 0
-static void pw(winding_t *w)
-{
-	int	i;
-	for ( i = 0 ; i < w->numpoints ; i++ )
-		Com_Printf( "%f, %f, %f\n", w->p[i][0], w->p[i][1], w->p[i][2] );
-}
-#endif
-
-
 /*
 =============
 AllocWinding

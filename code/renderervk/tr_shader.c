@@ -1496,11 +1496,7 @@ static void ParseSurfaceParm( const char **text ) {
 		if ( !Q_stricmp( token, infoParms[i].name ) ) {
 			shader.surfaceFlags |= infoParms[i].surfaceFlags;
 			shader.contentFlags |= infoParms[i].contents;
-#if 0
-			if ( infoParms[i].clearSolid ) {
-				si->contents &= ~CONTENTS_SOLID;
-			}
-#endif
+			
 			break;
 		}
 	}
@@ -2132,10 +2128,6 @@ static const collapse_t collapse[] = {
 	{ 0, GLS_DSTBLEND_SRC_ALPHA | GLS_SRCBLEND_DST_COLOR,
 		GL_BLEND_DST_COLOR_SRC_ALPHA, 0},
 
-#if 0
-	{ 0, GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA,
-		GL_DECAL, 0 },
-#endif
 	{ -1 }
 };
 
@@ -2348,20 +2340,6 @@ static int tcmodWeight( const textureBundle_t *bundle )
 
 	return 0;
 }
-
-#if 0
-static int rgbWeight( const textureBundle_t *bundle ) {
-
-	switch ( bundle->rgbGen ) {
-		case CGEN_EXACT_VERTEX: return 3;
-		case CGEN_VERTEX: return 3;
-		case CGEN_ENTITY: return 2;
-		case CGEN_ONE_MINUS_ENTITY: return 2;
-		case CGEN_CONST: return 1;
-		default: return 0;
-	}
-}
-#endif
 
 static const textureBundle_t *lightingBundle( int stageIndex, const textureBundle_t *selected ) {
 	const shaderStage_t *stage = &stages[ stageIndex ];
@@ -2943,27 +2921,6 @@ static void DetectNeeds( void )
 				shader.needsNormal = qtrue;
 			}
 		}
-#if 0
-		t1 = stages[i].bundle[0].tcGen;
-		t2 = stages[i].bundle[1].tcGen;
-
-		if ( t1 == TCGEN_LIGHTMAP || t2 == TCGEN_LIGHTMAP )
-		{
-			shader.needsST2 = qtrue;
-		}
-		if ( t1 == TCGEN_ENVIRONMENT_MAPPED || t1 == TCGEN_ENVIRONMENT_MAPPED_FP )
-		{
-			shader.needsNormal = qtrue;
-		}
-		if ( t2 == TCGEN_ENVIRONMENT_MAPPED || t2 == TCGEN_ENVIRONMENT_MAPPED_FP )
-		{
-			shader.needsNormal = qtrue;
-		}
-		if ( stages[i].bundle[0].alphaGen == AGEN_LIGHTING_SPECULAR || stages[i].bundle[0].rgbGen == CGEN_LIGHTING_DIFFUSE )
-		{
-			shader.needsNormal = qtrue;
-		}
-#endif
 	}
 	for ( i = 0; i < shader.numDeforms; i++ )
 	{

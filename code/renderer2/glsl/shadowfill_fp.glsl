@@ -19,7 +19,6 @@ void main()
 	gl_FragColor = comp;
  #endif
 
- #if 1
 	// 24 bit precision
 	const vec3 bitSh = vec3( 256 * 256,         256,           1);
 	const vec3 bitMsk = vec3(        0, 1.0 / 256.0, 1.0 / 256.0);
@@ -29,12 +28,7 @@ void main()
 	comp.xy = fract(comp.xy);
 	comp -= comp.xxy * bitMsk;
 	gl_FragColor = vec4(comp, 1.0);
- #endif
 
- #if 0
-	// 8 bit precision
-	gl_FragColor = vec4(depth, depth, depth, 1);
- #endif
 #else
 	gl_FragColor = vec4(0, 0, 0, 1);
 #endif

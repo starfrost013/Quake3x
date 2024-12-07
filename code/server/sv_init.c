@@ -886,7 +886,6 @@ void SV_Shutdown( const char *finalmsg ) {
 		SV_FinalMessage( finalmsg );
 	}
 
-	SV_RemoveOperatorCommands();
 	SV_MasterShutdown();
 	SV_ShutdownGameProgs();
 	SV_InitChallenger();

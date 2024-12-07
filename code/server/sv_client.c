@@ -754,10 +754,6 @@ gotnewcl:
 	// we got a newcl, so reset the reliableSequence and reliableAcknowledge
 	Com_Memset( newcl, 0, sizeof( *newcl ) );
 	clientNum = newcl - svs.clients;
-#if 0 // skip this until CS_PRIMED
-	//ent = SV_GentityNum( clientNum );
-	//newcl->gentity = ent;
-#endif
 
 	// save the challenge
 	newcl->challenge = challenge;

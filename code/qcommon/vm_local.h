@@ -230,7 +230,6 @@ int32_t VM_CallInterpreted2( vm_t *vm, int nargs, int32_t *args );
 vmSymbol_t *VM_ValueToFunctionSymbol( vm_t *vm, int value );
 int VM_SymbolToValue( vm_t *vm, const char *symbol );
 const char *VM_ValueToSymbol( vm_t *vm, int value );
-void VM_LogSyscalls( int *args );
 
 const char *VM_LoadInstructions( const byte *code_pos, int codeLength, int instructionCount, instruction_t *buf );
 const char *VM_CheckInstructions( instruction_t *buf, int instructionCount,

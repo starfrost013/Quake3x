@@ -666,26 +666,6 @@ void R_BuildWorldVBO( msurface_t *surf, int surfCount )
 	//	ri.Printf( PRINT_WARNING, "%s: out of memory\n", __func__ );
 	//else
 	//	ri.Printf( PRINT_ERROR, "%s: error %i\n", __func__, err );
-#if 0
-	// reset vbo markers
-	for ( i = 0, sf = surf; i < surfCount; i++, sf++ ) {
-		face = (srfSurfaceFace_t *) sf->data;
-		if ( face->surfaceType == SF_FACE ) {
-			face->vboItemIndex = 0;
-			continue;
-		}
-		tris = (srfTriangles_t *) sf->data;
-		if ( tris->surfaceType == SF_TRIANGLES ) {
-			tris->vboItemIndex = 0;
-			continue;
-		}
-		grid = (srfGridMesh_t *) sf->data;
-		if ( grid->surfaceType == SF_GRID ) {
-			grid->vboItemIndex = 0;
-			continue;
-		}
-	}
-#endif
 
 	// release host memory
 	ri.Hunk_FreeTempMemory( vbo->vbo_buffer );

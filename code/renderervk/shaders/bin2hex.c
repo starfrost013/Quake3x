@@ -36,14 +36,6 @@ int main( int argc, const char* argv[] ) {
 
 	in_len = ftell( f_in );
 
-#if 0
-	if ( in_len & 3 ) {
-		printf( "Incorrect size %li: %s\n", in_len, argv[1] );
-		fclose( f_in );
-		return -1;
-	}
-#endif
-
 	if ( fseek( f_in, 0, SEEK_SET ) ) {
 		printf( "Seek error for: %s\n", argv[1] );
 		fclose( f_in );
@@ -87,11 +79,6 @@ int main( int argc, const char* argv[] ) {
 	}
 
 	fputs( "\n};\n", f_out );
-
-#if 0
-	n = sprintf( buf, "const int %s_size = %i;\n", argv[3], size );
-	fwrite( buf, n, 1, f_out );
-#endif
 
 	if ( !feof( f_in ) ) {
 		printf( "Could not read entire file: %s", argv[1] );

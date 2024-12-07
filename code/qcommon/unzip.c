@@ -2325,16 +2325,6 @@ static int inflate_blocks_free OF((
     inflate_blocks_statef *,
     z_streamp));
 
-#if 0
-static void inflate_set_dictionary OF((
-    inflate_blocks_statef *s,
-    const Byte *d,  /* dictionary */
-    uInt  n));       /* dictionary length */
-
-static int inflate_blocks_sync_point OF((
-    inflate_blocks_statef *s));
-#endif
-
 /* simplify the use of the inflate_huft type with some defines */
 #define exop word.what.Exop
 #define bits word.what.Bits
@@ -2881,24 +2871,6 @@ int inflate_blocks_free(inflate_blocks_statef *s, z_streamp z)
   Tracev(("inflate:   blocks freed\n"));
   return Z_OK;
 }
-
-#if 0
-void inflate_set_dictionary(inflate_blocks_statef *s, const Byte *d, uInt n)
-{
-  zmemcpy(s->window, d, n);
-  s->read = s->write = s->window + n;
-}
-
-/* Returns true if inflate is currently at the end of a block generated
- * by Z_SYNC_FLUSH or Z_FULL_FLUSH. 
- * IN assertion: s != Z_NULL
- */
-int inflate_blocks_sync_point(inflate_blocks_statef *s)
-{
-  return s->mode == LENS;
-}
-#endif
-
 
 
 /* copy as much as possible from the sliding window to the output area */
@@ -3982,16 +3954,6 @@ static int inflate_blocks_free OF((
     inflate_blocks_statef *,
     z_streamp));
 
-#if 0
-static void inflate_set_dictionary OF((
-    inflate_blocks_statef *s,
-    const Byte *d,  /* dictionary */
-    uInt  n));       /* dictionary length */
-
-static int inflate_blocks_sync_point OF((
-    inflate_blocks_statef *s));
-#endif
-
 typedef enum {
       imMETHOD,   /* waiting for method byte */
       imFLAG,     /* waiting for flag byte */
@@ -4112,13 +4074,6 @@ int inflateInit2_(z_streamp z, int w, const char *version, int stream_size)
   inflateReset(z);
   return Z_OK;
 }
-
-#if 0
-int inflateInit_(z_streamp z, const char *version, int stream_size)
-{
-  return inflateInit2_(z, DEF_WBITS, version, stream_size);
-}
-#endif
 
 #define iNEEDBYTE {if(z->avail_in==0)return r;r=f;}
 #define iNEXTBYTE (z->avail_in--,z->total_in++,*z->next_in++)
@@ -4247,92 +4202,6 @@ int inflate(z_streamp z, int f)
   return Z_STREAM_ERROR;  /* Some dumb compilers complain without this */
 #endif
 }
-
-// defined but not used
-#if 0
-int inflateSetDictionary(z_streamp z, const Byte *dictionary, uInt dictLength)
-{
-  uInt length = dictLength;
-
-  if (z == Z_NULL || z->state == Z_NULL || z->state->mode != imDICT0)
-    return Z_STREAM_ERROR;
-
-  if (adler32(1L, dictionary, dictLength) != z->adler) return Z_DATA_ERROR;
-  z->adler = 1L;
-
-  if (length >= ((uInt)1<<z->state->wbits))
-  {
-    length = (1<<z->state->wbits)-1;
-    dictionary += dictLength - length;
-  }
-  inflate_set_dictionary(z->state->blocks, dictionary, length);
-  z->state->mode = imBLOCKS;
-  return Z_OK;
-}
-
-int inflateSync(z_streamp z)
-{
-  uInt n;       /* number of bytes to look at */
-  Byte *p;     /* pointer to bytes */
-  uInt m;       /* number of marker bytes found in a row */
-  uLong r, w;   /* temporaries to save total_in and total_out */
-
-  /* set up */
-  if (z == Z_NULL || z->state == Z_NULL)
-    return Z_STREAM_ERROR;
-  if (z->state->mode != imBAD)
-  {
-    z->state->mode = imBAD;
-    z->state->sub.marker = 0;
-  }
-  if ((n = z->avail_in) == 0)
-    return Z_BUF_ERROR;
-  p = z->next_in;
-  m = z->state->sub.marker;
-
-  /* search */
-  while (n && m < 4)
-  {
-    static const Byte mark[4] = {0, 0, 0xff, 0xff};
-    if (*p == mark[m])
-      m++;
-    else if (*p)
-      m = 0;
-    else
-      m = 4 - m;
-    p++, n--;
-  }
-
-  /* restore */
-  z->total_in += p - z->next_in;
-  z->next_in = p;
-  z->avail_in = n;
-  z->state->sub.marker = m;
-
-  /* return no joy or set up to restart on a new block */
-  if (m != 4)
-    return Z_DATA_ERROR;
-  r = z->total_in;  w = z->total_out;
-  inflateReset(z);
-  z->total_in = r;  z->total_out = w;
-  z->state->mode = imBLOCKS;
-  return Z_OK;
-}
-
-/* Returns true if inflate is currently at the end of a block generated
- * by Z_SYNC_FLUSH or Z_FULL_FLUSH. This function is used by one PPP
- * implementation to provide an additional safety check. PPP uses Z_SYNC_FLUSH
- * but removes the length bytes of the resulting empty stored block. When
- * decompressing, PPP checks that at the end of input packet, inflate is
- * waiting for these length bytes.
- */
-int inflateSyncPoint(z_streamp z)
-{
-  if (z == Z_NULL || z->state == Z_NULL || z->state->blocks == Z_NULL)
-    return Z_STREAM_ERROR;
-  return inflate_blocks_sync_point(z->state->blocks);
-}
-#endif
 
 voidp zcalloc (voidp opaque, unsigned items, unsigned size)
 {

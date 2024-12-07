@@ -399,25 +399,3 @@ void Huff_Compress(msg_t *mbuf, int offset) {
 	mbuf->cursize = (bloc>>3) + offset;
 	Com_Memcpy(mbuf->data+offset, seq, (bloc>>3));
 }
-
-#if 0
-void Huff_Init(huffman_t *huff) {
-
-	Com_Memset(&huff->compressor, 0, sizeof(huff_t));
-	Com_Memset(&huff->decompressor, 0, sizeof(huff_t));
-
-	// Initialize the tree & list with the NYT node 
-	huff->decompressor.tree = huff->decompressor.lhead = huff->decompressor.ltail = huff->decompressor.loc[NYT] = &(huff->decompressor.nodeList[huff->decompressor.blocNode++]);
-	huff->decompressor.tree->symbol = NYT;
-	huff->decompressor.tree->weight = 0;
-	huff->decompressor.lhead->next = huff->decompressor.lhead->prev = NULL;
-	huff->decompressor.tree->parent = huff->decompressor.tree->left = huff->decompressor.tree->right = NULL;
-
-	// Add the NYT (not yet transmitted) node into the tree/list */
-	huff->compressor.tree = huff->compressor.lhead = huff->compressor.loc[NYT] =  &(huff->compressor.nodeList[huff->compressor.blocNode++]);
-	huff->compressor.tree->symbol = NYT;
-	huff->compressor.tree->weight = 0;
-	huff->compressor.lhead->next = huff->compressor.lhead->prev = NULL;
-	huff->compressor.tree->parent = huff->compressor.tree->left = huff->compressor.tree->right = NULL;
-}
-#endif

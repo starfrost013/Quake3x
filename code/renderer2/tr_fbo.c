@@ -453,36 +453,7 @@ void FBO_Shutdown(void)
 			qglDeleteFramebuffers(1, &fbo->frameBuffer);
 	}
 }
-#if 0
-/*
-============
-R_FBOList_f
-============
-*/
-static void R_FBOList_f(void)
-{
-	int             i;
-	FBO_t          *fbo;
 
-	if(!glRefConfig.framebufferObject)
-	{
-		ri.Printf(PRINT_ALL, "GL_EXT_framebuffer_object is not available.\n");
-		return;
-	}
-
-	ri.Printf(PRINT_ALL, "             size       name\n");
-	ri.Printf(PRINT_ALL, "----------------------------------------------------------\n");
-
-	for(i = 0; i < tr.numFBOs; i++)
-	{
-		fbo = tr.fbos[i];
-
-		ri.Printf(PRINT_ALL, "  %4i: %4i %4i %s\n", i, fbo->width, fbo->height, fbo->name);
-	}
-
-	ri.Printf(PRINT_ALL, " %i FBOs\n", tr.numFBOs);
-}
-#endif
 void FBO_BlitFromTexture(struct image_s *src, vec4_t inSrcTexCorners, vec2_t inSrcTexScale, FBO_t *dst, ivec4_t inDstBox, struct shaderProgram_s *shaderProgram, const vec4_t inColor, int blend)
 {
 	ivec4_t dstBox;

@@ -3909,20 +3909,6 @@ void vk_initialize( void )
 
 		VK_CHECK(qvkCreatePipelineLayout(vk.device, &desc, NULL, &vk.pipeline_layout));
 
-		// flare test pipeline
-#if 0
-		set_layouts[0] = vk.set_layout_storage; // dynamic storage buffer
-
-		desc.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		desc.pNext = NULL;
-		desc.flags = 0;
-		desc.setLayoutCount = 1;
-		desc.pSetLayouts = set_layouts;
-		desc.pushConstantRangeCount = 1;
-		desc.pPushConstantRanges = &push_range;
-
-		VK_CHECK( qvkCreatePipelineLayout( vk.device, &desc, NULL, &vk.pipeline_layout_storage ) );
-#endif
 
 		// post-processing pipeline
 		set_layouts[0] = vk.set_layout_sampler; // sampler
@@ -5430,13 +5416,6 @@ VkPipeline create_pipeline( const Vk_Pipeline_Def *def, renderPass_t renderPassI
 	// depth fragment threshold
 	frag_spec_data[2].f = 0.85f;
 
-#if 0
-	if ( r_ext_alpha_to_coverage->integer && vkSamples != VK_SAMPLE_COUNT_1_BIT && frag_spec_data[0].i ) {
-		frag_spec_data[3].i = 1;
-		alphaToCoverage = VK_TRUE;
-	}
-#endif
-
 	// constant color
 	switch ( def->shader_type ) {
 		default: frag_spec_data[4].i = 0; break;
@@ -5544,17 +5523,7 @@ VkPipeline create_pipeline( const Vk_Pipeline_Def *def, renderPass_t renderPassI
 	//
 	// vertex module specialization data
 	//
-#if 0
-	spec_entries[0].constantID = 0; // clip_plane
-	spec_entries[0].offset = 0 * sizeof( int32_t );
-	spec_entries[0].size = sizeof( int32_t );
 
-	vert_spec_info.mapEntryCount = 1;
-	vert_spec_info.pMapEntries = spec_entries + 0;
-	vert_spec_info.dataSize = 1 * sizeof( int32_t );
-	vert_spec_info.pData = &vert_spec_data[0];
-	shader_stages[0].pSpecializationInfo = &vert_spec_info;
-#endif
 	shader_stages[0].pSpecializationInfo = NULL;
 
 	//
@@ -6953,22 +6922,6 @@ void vk_begin_frame( void )
 	// Ensure visibility of geometry buffers writes.
 	//record_buffer_memory_barrier( vk.cmd->command_buffer, vk.cmd->vertex_buffer, vk.cmd->vertex_buffer_offset, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_ACCESS_HOST_WRITE_BIT, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT );
 
-#if 0
-	// add explicit layout transition dependency
-	if ( vk.fboActive ) {
-		record_image_layout_transition( vk.cmd->command_buffer,
-			vk.color_image, VK_IMAGE_ASPECT_COLOR_BIT,
-			VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-			VK_ACCESS_SHADER_READ_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
-
-	} else {
-		record_image_layout_transition( vk.cmd->command_buffer,
-			vk.swapchain_images[ vk.swapchain_image_index ], VK_IMAGE_ASPECT_COLOR_BIT,
-			VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-			VK_ACCESS_MEMORY_READ_BIT, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
-	}
-#endif
-
 	if ( vk.cmd->vertex_buffer_offset > vk.stats.vertex_buffer_max ) {
 		vk.stats.vertex_buffer_max = vk.cmd->vertex_buffer_offset;
 	}
@@ -7453,21 +7406,6 @@ qboolean vk_bloom( void )
 		qvkCmdBindDescriptorSets( vk.cmd->command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk.pipeline_layout_post_process, 0, 1, &vk.bloom_image_descriptor[i+1], 0, NULL );
 		qvkCmdDraw( vk.cmd->command_buffer, 4, 1, 0, 0 );
 		vk_end_render_pass();
-#if 0
-		// horizontal blur
-		vk_begin_blur_render_pass( i+0 );
-		qvkCmdBindPipeline( vk.cmd->command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk.blur_pipeline[i+0] );
-		qvkCmdBindDescriptorSets( vk.cmd->command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk.pipeline_layout_post_process, 0, 1, &vk.bloom_image_descriptor[i+2], 0, NULL );
-		qvkCmdDraw( vk.cmd->command_buffer, 4, 1, 0, 0 );
-		vk_end_render_pass();
-
-		// vectical blur
-		vk_begin_blur_render_pass( i+1 );
-		qvkCmdBindPipeline( vk.cmd->command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk.blur_pipeline[i+1] );
-		qvkCmdBindDescriptorSets( vk.cmd->command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk.pipeline_layout_post_process, 0, 1, &vk.bloom_image_descriptor[i+1], 0, NULL );
-		qvkCmdDraw( vk.cmd->command_buffer, 4, 1, 0, 0 );
-		vk_end_render_pass();
-#endif
 	}
 
 	vk_begin_post_bloom_render_pass(); // begin post-bloom

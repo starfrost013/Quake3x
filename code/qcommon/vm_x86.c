@@ -586,13 +586,6 @@ static void emit_lea_base_index( uint32_t reg, uint32_t base, uint32_t index )
 	emit_op_reg_base_index( 0, 0x8D, reg, base, index, 1, 0 );
 }
 
-#if 0
-static void emit_lea_index_scale( uint32_t reg, uint32_t index, int scale, int32_t offset )
-{
-	emit_op_reg_index_offset( 0x8D, reg, index, scale, offset );
-}
-#endif
-
 static void emit_lea_base_index_offset( uint32_t reg, uint32_t base, uint32_t index, int32_t offset )
 {
 	emit_op_reg_base_index( 0, 0x8D, reg, base, index, 1, offset );
@@ -810,13 +803,6 @@ static void emit_load4_index( uint32_t reg, uint32_t base, uint32_t index )
 {
 	emit_op_reg_base_index( 0, 0x8B, reg, base, index, 1, 0 );
 }
-
-#if 0
-static void emit_load4_index_offset( uint32_t reg, uint32_t base, uint32_t index, int scale, int32_t offset )
-{
-	emit_op_reg_base_index( 0, 0x8B, reg, base, index, scale, offset );
-}
-#endif
 
 // R_REX prefix flag in [reg] may expand store to 8 bytes
 static void emit_store_rx( uint32_t reg, uint32_t base, int32_t offset )
@@ -1110,13 +1096,6 @@ static void emit_sar_rx( uint32_t reg )
 	Emit1( 0xF8 + ( reg & 7 ) );
 }
 
-#if 0
-static void emit_xchg_rx( uint32_t reg1, uint32_t reg2 )
-{
-	emit_op_reg( 0, 0x87, reg2, reg1 );
-}
-#endif
-
 /* FPU functions */
 
 static void emit_mov_sx( uint32_t dst, uint32_t src )
@@ -1163,14 +1142,6 @@ static void emit_load_sx_index( uint32_t reg, uint32_t base, uint32_t index )
 	emit_op_reg_base_index( 0x0F, 0x10, reg, base, index, 1, 0 );
 }
 
-#if 0
-static void emit_load_sx_index_offset( uint32_t reg, uint32_t base, uint32_t index, int scale, int32_t offset )
-{
-	Emit1( 0xF3 );
-	emit_op_reg_base_index( 0x0F, 0x10, reg, base, index, scale, offset );
-}
-#endif
-
 static void emit_store_sx( uint32_t reg, uint32_t base, int32_t offset )
 {
 	Emit1( 0xF3 );
@@ -1202,32 +1173,6 @@ static void emit_div_sx( uint32_t dst, uint32_t src )
 {
 	emit_op_reg( 0x0F, 0x5E, src, dst );
 }
-
-#if 0
-static void emit_add_sx_mem( uint32_t reg, uint32_t base, int32_t offset )
-{
-	Emit1( 0xF3 );
-	emit_op_reg_base_offset( 0x0F, 0x58, reg, base, offset );
-}
-
-static void emit_sub_sx_mem( uint32_t reg, uint32_t base, int32_t offset )
-{
-	Emit1( 0xF3 );
-	emit_op_reg_base_offset( 0x0F, 0x5C, reg, base, offset );
-}
-
-static void emit_mul_sx_mem( uint32_t reg, uint32_t base, int32_t offset )
-{
-	Emit1( 0xF3 );
-	emit_op_reg_base_offset( 0x0F, 0x59, reg, base, offset );
-}
-
-static void emit_div_sx_mem( uint32_t reg, uint32_t base, int32_t offset )
-{
-	Emit1( 0xF3 );
-	emit_op_reg_base_offset( 0x0F, 0x5E, reg, base, offset );
-}
-#endif
 
 static void emit_cvtsi2ss( uint32_t xmmreg, uint32_t intreg )
 {
@@ -1847,17 +1792,6 @@ static void discard_top( void )
 	it->type = TYPE_RAW;
 	it->safe_arg = 0;
 }
-
-#if 0
-static int is_safe_arg( void )
-{
-#ifdef DEBUG_VM
-	if ( opstack >= PROC_OPSTACK_SIZE || opstack <= 0 )
-		DROP( "bad opstack %i", opstack * 4 );
-#endif
-	return opstackv[ opstack ].safe_arg;
-}
-#endif
 
 static void inc_opstack( void )
 {
@@ -2584,9 +2518,6 @@ static uint32_t load_rx_opstack( uint32_t pref )
 
 static void load_rx_opstack2( uint32_t *dst, uint32_t dst_pref, uint32_t *src, uint32_t src_pref )
 {
-#if 0
-	*dst = *src = load_rx_opstack( src_pref & ~RCONST ); // source, target = *opstack
-#else
 	*dst = *src = load_rx_opstack( src_pref | RCONST ); // source, target = *opstack
 	if ( search_opstack( TYPE_RX, *src ) || find_free_rx() ) {
 		// *src is duplicated on opStack or there is a free register
@@ -2595,7 +2526,7 @@ static void load_rx_opstack2( uint32_t *dst, uint32_t dst_pref, uint32_t *src, u
 		// will be overwritten, wipe metadata
 		wipe_rx_meta( *dst );
 	}
-#endif
+
 }
 
 

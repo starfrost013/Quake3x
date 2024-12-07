@@ -440,18 +440,6 @@ static qboolean SNDDMA_InitWASAPI( void )
 
 	initFormat( &desiredFormat, dma.channels, dma.speed, dma.samplebits );
 
-#if 0
-	iAudioClient->lpVtbl->GetMixFormat( iAudioClient, (WAVEFORMATEX**) &mixFormat );
-	if ( mixFormat )
-	{
-		Com_Printf( "MIX FORMAT\n" );
-		Com_Printf( "subformat: %x-%x-%x-%x\n", mixFormat->SubFormat.Data1, mixFormat->SubFormat.Data2, mixFormat->SubFormat.Data3, mixFormat->SubFormat.Data4 );
-		Com_Printf( "channels: %i\n", mixFormat->Format.nChannels );
-		Com_Printf( "samples per sec: %i\n", mixFormat->Format.nSamplesPerSec );
-		Com_Printf( "bits per sample: %i\n", mixFormat->Format.wBitsPerSample );
-	}
-#endif
-
 	hr = iAudioClient->lpVtbl->IsFormatSupported( iAudioClient, AUDCLNT_SHAREMODE_SHARED, (const WAVEFORMATEX *) &desiredFormat, (WAVEFORMATEX **) &closest );
 	if ( hr != S_OK )
 	{
