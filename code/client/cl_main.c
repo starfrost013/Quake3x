@@ -3827,7 +3827,7 @@ static void CL_InitGLimp_Cvars( void )
 	Cvar_SetDescription( cl_drawBuffer, "Specifies buffer to draw from: GL_FRONT or GL_BACK." );
 #ifdef USE_RENDERER_DLOPEN
 #ifdef RENDERER_DEFAULT
-	cl_renderer = Cvar_Get( "cl_renderer", XSTRING( RENDERER_DEFAULT ), CVAR_ARCHIVE | CVAR_LATCH );
+	cl_renderer = Cvar_Get( "cl_renderer", RENDERER_DEFAULT , CVAR_ARCHIVE | CVAR_LATCH );
 #else
 	cl_renderer = Cvar_Get( "cl_renderer", "opengl", CVAR_ARCHIVE | CVAR_LATCH );
 #endif
