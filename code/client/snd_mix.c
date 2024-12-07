@@ -265,9 +265,6 @@ LExit:
 
 #endif // id386
 
-#if idx64 && (!defined (_MSC_VER) || defined(USE_WIN32_ASM))
-void S_WriteLinearBlastStereo16_SSE_x64( int*, short*, int );
-#endif
 
 void S_TransferStereo16( unsigned long *pbuf, int endtime )
 {
@@ -291,19 +288,9 @@ void S_TransferStereo16( unsigned long *pbuf, int endtime )
 		snd_linear_count <<= 1;
 
 		// write a linear blast of samples
-#if id386 && defined (_MSC_VER)  && defined (USE_WIN32_ASM)
-		if ( CPU_Flags & CPU_SSE )
-			S_WriteLinearBlastStereo16_SSE();
-		else
-		if ( CPU_Flags & CPU_MMX )
-			S_WriteLinearBlastStereo16_MMX();
-		else
-#endif
-#if idx64 && (!defined (_MSC_VER) || defined (USE_WIN32_ASM))
-		S_WriteLinearBlastStereo16_SSE_x64( snd_p, snd_out, snd_linear_count );
-#else
+
 		S_WriteLinearBlastStereo16();
-#endif
+
 		snd_p += snd_linear_count;
 		ls_paintedtime += (snd_linear_count>>1);
 	}
