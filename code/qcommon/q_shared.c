@@ -1291,7 +1291,6 @@ void Q_strncpyz( char *dest, const char *src, int destsize )
 	{
 		Com_Error(ERR_FATAL,"Q_strncpyz: destsize < 1" );
 	}
-#if 1 
 	// do not fill whole remaining buffer with zeros
 	// this is obvious behavior change but actually it may affect only buggy QVMs
 	// which passes overlapping or short buffers to cvar reading routines
@@ -1299,10 +1298,6 @@ void Q_strncpyz( char *dest, const char *src, int destsize )
 	while ( --destsize > 0 && (*dest++ = *src++) != '\0' )
 		;
 	*dest = '\0';
-#else
-	strncpy( dest, src, destsize-1 );
-	dest[ destsize-1 ] = '\0';
-#endif
 }
 
 

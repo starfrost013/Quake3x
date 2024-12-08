@@ -1376,14 +1376,13 @@ static int32_t sx_mask[NUM_SX_REGS];
 
 static qboolean find_free_rx( void ) {
 	uint32_t i, n;
-#if 1
 	for ( i = 0; i < ARRAY_LEN( rx_list_alloc ); i++ ) {
 		n = rx_list_alloc[i];
 		if ( rx_regs[n].type_mask == RTYPE_UNUSED ) {
 			return qtrue;
 		}
 	}
-#endif
+#
 	return qfalse;
 }
 

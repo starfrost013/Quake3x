@@ -142,12 +142,7 @@ void Sys_BeginProfiling( void )
 // FIXME TTimo relevant?
 static void tty_FlushIn( void )
 {
-#if 1
 	tcflush( STDIN_FILENO, TCIFLUSH );
-#else
-	char key;
-	while ( read( STDIN_FILENO, &key, 1 ) > 0 );
-#endif
 }
 
 
@@ -636,22 +631,11 @@ void Sys_Sleep( int msec ) {
 		}
 		return;
 	}
-#if 1
 	struct timespec req;
 	req.tv_sec = msec / 1000;
 	req.tv_nsec = ( msec % 1000 ) * 1000000;
 	nanosleep( &req, NULL );
-#else
-	if ( com_dedicated->integer && stdin_active ) {
-		FD_ZERO( &fdset );
-		FD_SET( STDIN_FILENO, &fdset );
-		timeout.tv_sec = msec / 1000;
-		timeout.tv_usec = (msec % 1000) * 1000;
-		select( STDIN_FILENO + 1, &fdset, NULL, NULL, &timeout );
-	} else {
-		usleep( msec * 1000 );
-	}
-#endif
+
 }
 
 

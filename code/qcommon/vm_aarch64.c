@@ -1321,7 +1321,6 @@ static void discard_top( void )
 	it->safe_arg = 0;
 }
 
-#if 1
 static int is_safe_arg( void )
 {
 #ifdef DEBUG_VM
@@ -1330,7 +1329,6 @@ static int is_safe_arg( void )
 #endif
 	return opstackv[ opstack ].safe_arg;
 }
-#endif
 
 static void inc_opstack( void )
 {

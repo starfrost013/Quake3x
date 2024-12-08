@@ -1492,7 +1492,7 @@ GLuint FBO_ScreenTexture( void )
 
 static void FBO_Bind( GLuint target, GLuint buffer )
 {
-#if 1
+
 	static GLuint draw_buffer = (GLuint)-1;
 	static GLuint read_buffer = (GLuint)-1;
 	if ( target == GL_FRAMEBUFFER ) {
@@ -1511,9 +1511,6 @@ static void FBO_Bind( GLuint target, GLuint buffer )
 			draw_buffer = buffer;
 		}
 	}
-#else
-	qglBindFramebuffer( target, buffer );
-#endif
 }
 
 

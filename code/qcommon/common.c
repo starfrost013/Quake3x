@@ -956,18 +956,12 @@ all big things are allocated on the hunk.
 #define MINFRAGMENT	64
 
 #ifdef USE_MULTI_SEGMENT
-#if 1 // forward lookup, faster allocation
 #define DIRECTION next
 // we may have up to 4 lists to group free blocks by size
 //#define TINY_SIZE	32
 #define SMALL_SIZE	64
 #define MEDIUM_SIZE	128
-#else // backward lookup, better free space consolidation
-#define DIRECTION prev
-#define TINY_SIZE	64
-#define SMALL_SIZE	128
-#define MEDIUM_SIZE	256
-#endif
+
 #endif
 
 #define USE_STATIC_TAGS
