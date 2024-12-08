@@ -78,66 +78,6 @@ jobs:
         path: bin
         if-no-files-found: error
         retention-days: 5
-
-  windows-msvc:
-    name: ${{ matrix.btype }} Windows-MSVC ${{ matrix.arch }}
-    runs-on: windows-2019
-    strategy:
-      fail-fast: false
-      matrix:
-        arch: [arm64, x86, x64]
-        btype: [Release, Debug]
-        include:
-          - arch: arm64
-            platform: ARM64
-            suffix: .arm64
-            pkg_suffix: arm64
-
-          - arch: x86
-            platform: Win32
-            pkg_suffix: x86
-
-          - arch: x64
-            platform: x64
-            suffix: .x64
-            pkg_suffix: x86_64
-
-    steps:
-
-    - uses: microsoft/setup-msbuild@v2
-
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-
-    - name: Build
-      if: ${{ github.event_name != 'release' || matrix.btype != 'Debug' }} # skip Debug configuration in Release build
-      run: |
-        mkdir bin
-
-        msbuild code\win32\msvc2017\q3x-ded.vcxproj -p:TargetName=q3x.ded,Configuration=${{ matrix.btype }},Platform=${{ matrix.platform }}
-        copy code\win32\msvc2017\output\q3x.ded.exe bin\q3x.ded${{ matrix.suffix }}.exe
-        msbuild code\win32\msvc2017\q3x-ded.vcxproj -p:TargetName=q3x.ded,Configuration=${{ matrix.btype }},Platform=${{ matrix.platform }} -t:Clean
-
-        msbuild code\win32\msvc2017\renderer.vcxproj -p:Configuration=${{ matrix.btype }},Platform=${{ matrix.platform }}
-        msbuild code\win32\msvc2017\q3x.vcxproj -p:TargetName=q3x,Configuration=${{ matrix.btype }},Platform=${{ matrix.platform }},UseWasapi=USE_WASAPI=0
-        copy code\win32\msvc2017\output\q3x.exe bin\q3x${{ matrix.suffix }}.exe
-        msbuild code\win32\msvc2017\renderer.vcxproj -p:Configuration=${{ matrix.btype }},Platform=${{ matrix.platform }} -t:Clean
-        msbuild code\win32\msvc2017\q3x.vcxproj -p:TargetName=q3x,Configuration=${{ matrix.btype }},Platform=${{ matrix.platform }},UseWasapi=USE_WASAPI=0 -t:Clean
-
-        msbuild code\win32\msvc2017\renderervk.vcxproj -p:Configuration=${{ matrix.btype }},Platform=${{ matrix.platform }}
-        msbuild code\win32\msvc2017\q3x.vcxproj -p:TargetName=q3x,Configuration=${{ matrix.btype }},Platform=${{ matrix.platform }},UseWasapi=USE_WASAPI=0
-        copy code\win32\msvc2017\output\q3x.exe bin\q3x-vulkan${{ matrix.suffix }}.exe
-        msbuild code\win32\msvc2017\renderervk.vcxproj -p:Configuration=${{ matrix.btype }},Platform=${{ matrix.platform }} -t:Clean
-        msbuild code\win32\msvc2017\q3x.vcxproj -p:TargetName=q3x,Configuration=${{ matrix.btype }},Platform=${{ matrix.platform }},UseWasapi=USE_WASAPI=0 -t:Clean
-
-    - uses: actions/upload-artifact@v4
-      if: ${{ matrix.btype == 'release' }}
-      with:
-        name: windows-msvc-${{ matrix.pkg_suffix }}
-        path: bin
-        if-no-files-found: error
-        retention-days: 5
         
   ubuntu-x86:
     name: ${{ matrix.btype }} Ubuntu ${{ matrix.arch }}

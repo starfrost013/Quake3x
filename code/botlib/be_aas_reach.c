@@ -1155,17 +1155,14 @@ static int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge(int area1num, in
 					{
 						dist1 = y3 - y1;
 						dist2 = y4 - y2;
-#if 1	// msvc.2005.x86_64 compiler crash fix
-						memcpy( p1area1, v1, sizeof( v1 ) );
-						memcpy( p2area1, v2, sizeof( v2 ) );
-						memcpy( p1area2, v3, sizeof( v3 ) );
-						memcpy( p2area2, v4, sizeof( v4 ) );
-#else	
+// "// msvc.2005.x86_64 compiler crash fix" removed here when removing msvc support
+// Let's hope it's not broken
+
 						VectorCopy(v1, p1area1);
 						VectorCopy(v2, p2area1);
 						VectorCopy(v3, p1area2);
 						VectorCopy(v4, p2area2);
-#endif
+
 					} //end if
 					else
 					{

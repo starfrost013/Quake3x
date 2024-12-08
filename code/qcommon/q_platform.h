@@ -47,9 +47,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define _WIN32_WINNT 0x0501
 #endif
 
-#if defined( _MSC_VER ) && _MSC_VER >= 1400 // MSVC++ 8.0 at least
-#define OS_STRING "win_msvc"
-#elif defined __MINGW32__
+#if defined __MINGW32__
 #define OS_STRING "win_mingw"
 #elif defined __MINGW64__
 #define OS_STRING "win_mingw64"

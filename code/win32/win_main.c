@@ -45,11 +45,6 @@ Sys_LowPhysicalMemory
 ==================
 */
 qboolean Sys_LowPhysicalMemory( void ) {
-#if	_MSC_VER < 1600 // MSVC 2008 and lower, assume win9x compatibility builds
-	MEMORYSTATUS stat;
-	GlobalMemoryStatus( &stat );
-	return (stat.dwTotalPhys <= MEM_THRESHOLD) ? qtrue : qfalse;
-#else
 	MEMORYSTATUSEX stat;
 	stat.dwLength = sizeof(stat);
 
@@ -58,7 +53,6 @@ qboolean Sys_LowPhysicalMemory( void ) {
 	}
 
 	return (stat.ullAvailPhys <= MEM_THRESHOLD) ? qtrue : qfalse;
-#endif
 }
 
 
