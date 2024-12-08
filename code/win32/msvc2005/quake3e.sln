@@ -27,8 +27,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "q3x-ded", "q3x-ded.vcproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "renderer", "renderer.vcproj", "{AB424155-FBED-4D8D-B007-5B6CF93EA395}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "renderer2", "renderer2.vcproj", "{AB424155-FBED-4D8D-B007-5B6CF93EA396}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "renderervk", "renderervk.vcproj", "{AB424155-FBED-4D8D-B007-5B6CF93EA392}"
 EndProject
 Global

@@ -1,8 +1,9 @@
 # q3x
 <html>
 <p>
-This client aims to be fully compatible with original baseq3 and other mods
-while trying to be fast, reliable and bug-free.
+A game-agnostic fork of the quake3e fork of Id Tech 3. It's intended to clean up the code, remove legacy platform support and add new features.
+<br>
+The goal is to be generally compatible with Quake III Area and Team Arena, with minimal adjustments required to move games and Quake 3 mods to the original game
 <br>
 It is based on ioquake3-r1160 (latest non-SDL revision) with upstream patches an many custom improvements.<br>
 <br>
