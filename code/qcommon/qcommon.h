@@ -416,10 +416,6 @@ void	VM_CheckBounds2( const vm_t *vm, unsigned int addr1, unsigned int addr2, un
 
 #define VM_CHECKBOUNDS VM_CheckBounds
 #define VM_CHECKBOUNDS2 VM_CheckBounds2
-#else // for performance evaluation purposes
-#define VM_CHECKBOUNDS(vm,a,b)
-#define VM_CHECKBOUNDS2(vm,a,b,c)
-
 
 void	*GVM_ArgPtr( intptr_t intValue );
 

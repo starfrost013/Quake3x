@@ -2147,12 +2147,6 @@ static int CollapseMultitexture( unsigned int st0bits, shaderStage_t *st0, shade
 	qboolean nonIdenticalColors;
 	qboolean swapLightmap;
 
-#ifndef USE_VULKAN
-	if ( !qglActiveTextureARB ) {
-		return 0;
-	}
-#endif
-
 	// make sure both stages are active
 	if ( !st0->active || !st1->active ) {
 		return 0;
@@ -2161,16 +2155,6 @@ static int CollapseMultitexture( unsigned int st0bits, shaderStage_t *st0, shade
 	if ( st0->depthFragment || (st0->stateBits & GLS_ATEST_BITS) ) {
 		return 0;
 	}
-
-#ifndef USE_VULKAN
-	// on voodoo2, don't combine different tmus
-	if ( glConfig.driverType == GLDRV_VOODOO ) {
-		if ( st0->bundle[0].image[0]->TMU ==
-			 st1->bundle[0].image[0]->TMU ) {
-			return 0;
-		}
-	}
-#endif
 
 	abits = st0bits; // st0->stateBits;
 	bbits = st1->stateBits;
@@ -2198,7 +2182,6 @@ static int CollapseMultitexture( unsigned int st0bits, shaderStage_t *st0, shade
 
 	mtEnv = collapse[i].multitextureEnv;
 
-#ifdef USE_VULKAN
 	if ( mtEnv == GL_ADD && st0->bundle[0].rgbGen != CGEN_IDENTITY ) {
 		mtEnv = GL_ADD_NONIDENTITY;
 	}
@@ -2207,17 +2190,6 @@ static int CollapseMultitexture( unsigned int st0bits, shaderStage_t *st0, shade
 		// we don't support different blend modes in 3x mode, yet
 		return 0;
 	}
-#else
-	// GL_ADD is a separate extension
-	if ( mtEnv == GL_ADD && !glConfig.textureEnvAddAvailable ) {
-		return 0;
-	}
-
-	// an add collapse can only have identity colors
-	if ( mtEnv == GL_ADD && st0->rgbGen != CGEN_IDENTITY ) {
-		return 0;
-	}
-#endif
 
 	nonIdenticalColors = qfalse;
 
@@ -2245,16 +2217,12 @@ static int CollapseMultitexture( unsigned int st0bits, shaderStage_t *st0, shade
 
 	if ( nonIdenticalColors )
 	{
-#ifdef USE_VULKAN
 		switch ( mtEnv )
 		{
 			case GL_ADD:
 			case GL_ADD_NONIDENTITY: mtEnv = GL_BLEND_ADD; break;
 			case GL_MODULATE: mtEnv = GL_BLEND_MODULATE; break;
 		}
-#else
-		return 0;
-#endif
 	}
 
 	switch ( mtEnv ) {
@@ -2276,21 +2244,17 @@ static int CollapseMultitexture( unsigned int st0bits, shaderStage_t *st0, shade
 	}
 	else
 	{
-#ifdef USE_VULKAN
 		if ( st0->mtEnv )
 			st0->bundle[2] = st1->bundle[0]; // add to third bundle
 		else
-#endif
 			st0->bundle[1] = st1->bundle[0];
 	}
 
-#ifdef USE_VULKAN
 	if ( st0->mtEnv )
 	{
 		st0->mtEnv3 = mtEnv;
 	}
 	else
-#endif
 	{
 		// set the new blend state bits
 		st0->stateBits &= ~GLS_BLEND_BITS;
@@ -2312,7 +2276,6 @@ static int CollapseMultitexture( unsigned int st0bits, shaderStage_t *st0, shade
 
 	Com_Memset( st0 + num_stages - 1, 0, sizeof( stages[0] ) );
 
-#ifdef USE_VULKAN
 	if ( vk.maxBoundDescriptorSets >= 8 && num_stages >= 3 && !st0->mtEnv3 )
 	{
 		if ( mtEnv == GL_BLEND_ONE_MINUS_ALPHA || mtEnv == GL_BLEND_ALPHA || mtEnv == GL_BLEND_MIX_ALPHA || mtEnv == GL_BLEND_MIX_ONE_MINUS_ALPHA || mtEnv == GL_BLEND_DST_COLOR_SRC_ALPHA )
@@ -2325,7 +2288,6 @@ static int CollapseMultitexture( unsigned int st0bits, shaderStage_t *st0, shade
 			return 1 + CollapseMultitexture( st0->stateBits, st0, st1, num_stages - 1 );
 		}
 	}
-#endif
 
 	return 1;
 }
@@ -3163,7 +3125,6 @@ static shader_t *FinishShader( void ) {
 		shader.fogPass = FP_LE;
 	}
 
-#ifdef USE_VULKAN
 
 #ifdef USE_FOG_COLLAPSE
 	if ( vk.maxBoundDescriptorSets >= 6 && !(shader.contentFlags & CONTENTS_FOG) && shader.fogPass != FP_NONE ) {
@@ -3218,7 +3179,6 @@ static shader_t *FinishShader( void ) {
 		fogCollapse = qtrue;
 	}
 #endif
-
 	shader.tessFlags = TESS_XYZ;
 
 	{
@@ -3462,7 +3422,6 @@ static shader_t *FinishShader( void ) {
 #endif
 		}
 	}
-#endif // USE_VULKAN
 
 #ifdef USE_PMLIGHT
 	FindLightingStages();
