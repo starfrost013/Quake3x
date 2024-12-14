@@ -4770,7 +4770,7 @@ static void FS_Startup( void ) {
 	if (fs_packFiles == 0
 	&& fs_packCount == 0)
 	{
-		Com_Error(ERR_FATAL, "Tried to load the game %s, but it wasn't installed!", fs_gamedir);
+		Com_Printf("Warning: No PK3 files found for %s. Attempting directory load.\n", fs_gamedir);
 	}
 
 #ifdef FS_MISSING
