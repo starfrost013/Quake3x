@@ -36,17 +36,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#define DEFAULT_GAME			"edawn"
 
-#define BASEGAME				"baseq3"
-#define BASEDEMO				"demoq3"
-#define BASETA					"missionpack"
+
+#define BASEGAME				"air"
+#define BASEDEMO				"airdemo"
+#define BASETA					"air2"
 #define STEAMPATH_NAME			"Quake 3 Arena"
 #define STEAMPATH_APPID			"2200"
 
 #define MAX_TEAMNAME            32
 #define MAX_MASTER_SERVERS      5	// number of supported master servers
 
-#define GAMENAME_FOR_MASTER		"Quake3Arena"
-#define HEARTBEAT_FOR_MASTER	"QuakeArena-1"
+#define GAMENAME_FOR_MASTER		"ProjectAir"
+#define HEARTBEAT_FOR_MASTER	"ProjectAir-1"
 
 #define DEMOEXT	"dm_"			// standard demo extension
 
