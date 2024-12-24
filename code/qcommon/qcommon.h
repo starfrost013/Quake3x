@@ -366,19 +366,8 @@ typedef struct vm_s vm_t;
 
 typedef enum {
 	VMI_NATIVE,
-	VMI_BYTECODE,
-	VMI_COMPILED
+	VMI_SQUIRREL,		// Squirrel Scripting in Maps
 } vmInterpret_t;
-
-typedef enum {
-	TRAP_MEMSET = 100,
-	TRAP_MEMCPY,
-	TRAP_STRNCPY,
-	TRAP_SIN,
-	TRAP_COS,
-	TRAP_ATAN2,
-	TRAP_SQRT,
-} sharedTraps_t;
 
 typedef enum {
 	VM_BAD = -1,
@@ -386,6 +375,7 @@ typedef enum {
 #ifndef USE_DEDICATED
 	VM_CGAME,
 	VM_UI,
+	VM_MAP_SQUIRREL,
 #endif
 	VM_COUNT
 } vmIndex_t;
@@ -411,11 +401,6 @@ vm_t	*VM_Restart( vm_t *vm );
 intptr_t	QDECL VM_Call( vm_t *vm, int nargs, int callNum, ... );
 
 void	VM_Debug( int level );
-void	VM_CheckBounds( const vm_t *vm, unsigned int address, unsigned int length );
-void	VM_CheckBounds2( const vm_t *vm, unsigned int addr1, unsigned int addr2, unsigned int length );
-
-#define VM_CHECKBOUNDS VM_CheckBounds
-#define VM_CHECKBOUNDS2 VM_CheckBounds2
 
 void	*GVM_ArgPtr( intptr_t intValue );
 

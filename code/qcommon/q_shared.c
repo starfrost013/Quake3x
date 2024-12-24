@@ -1213,10 +1213,6 @@ int Q_isalpha( int c )
 
 bool Q_isanumber( const char *s )
 {
-#ifdef Q3_VM
-    //FIXME: implement
-    return false;
-#else
     char *p;
 
 	if( *s == '\0' )
@@ -1225,7 +1221,6 @@ bool Q_isanumber( const char *s )
 	strtod( s, &p );
 
     return *p == '\0';
-#endif
 }
 
 

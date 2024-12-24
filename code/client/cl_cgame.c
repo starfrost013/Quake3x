@@ -407,10 +407,7 @@ static void *VM_ArgPtr( intptr_t intValue ) {
 	if ( !intValue || cgvm == NULL )
 	  return NULL;
 
-	if ( cgvm->entryPoint )
-		return (void *)(intValue);
-	else
-		return (void *)(cgvm->dataBase + (intValue & cgvm->dataMask));
+	return (void *)(intValue);
 }
 
 
@@ -477,28 +474,23 @@ static intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		Cvar_SetSafe( VMA(1), VMA(2) );
 		return 0;
 	case CG_CVAR_VARIABLESTRINGBUFFER:
-		VM_CHECKBOUNDS( cgvm, args[2], args[3] );
 		Cvar_VariableStringBufferSafe( VMA(1), VMA(2), args[3], CVAR_PRIVATE );
 		return 0;
 	case CG_ARGC:
 		return Cmd_Argc();
 	case CG_ARGV:
-		VM_CHECKBOUNDS( cgvm, args[2], args[3] );
 		Cmd_ArgvBuffer( args[1], VMA(2), args[3] );
 		return 0;
 	case CG_ARGS:
-		VM_CHECKBOUNDS( cgvm, args[1], args[2] );
 		Cmd_ArgsBuffer( VMA(1), args[2] );
 		return 0;
 
 	case CG_FS_FOPENFILE:
 		return FS_VM_OpenFile( VMA(1), VMA(2), args[3], H_CGAME );
 	case CG_FS_READ:
-		VM_CHECKBOUNDS( cgvm, args[1], args[2] );
 		FS_VM_ReadFile( VMA(1), args[2], args[3], H_CGAME );
 		return 0;
 	case CG_FS_WRITE:
-		VM_CHECKBOUNDS( cgvm, args[1], args[2] );
 		FS_VM_WriteFile( VMA(1), args[2], args[3], H_CGAME );
 		return 0;
 	case CG_FS_FCLOSEFILE:
@@ -636,11 +628,9 @@ static intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	case CG_R_LERPTAG:
 		return re.LerpTag( VMA(1), args[2], args[3], args[4], VMF(5), VMA(6) );
 	case CG_GETGLCONFIG:
-		VM_CHECKBOUNDS( cgvm, args[1], sizeof( glconfig_t ) );
 		CL_GetGlconfig( VMA(1) );
 		return 0;
 	case CG_GETGAMESTATE:
-		VM_CHECKBOUNDS( cgvm, args[1], sizeof( gameState_t ) );
 		CL_GetGameState( VMA(1) );
 		return 0;
 	case CG_GETCURRENTSNAPSHOTNUMBER:
@@ -669,28 +659,6 @@ static intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return 0;
 	case CG_KEY_GETKEY:
 		return Key_GetKey( VMA(1) );
-
-	// shared syscalls
-	case TRAP_MEMSET:
-		VM_CHECKBOUNDS( cgvm, args[1], args[3] );
-		Com_Memset( VMA(1), args[2], args[3] );
-		return args[1];
-	case TRAP_MEMCPY:
-		VM_CHECKBOUNDS2( cgvm, args[1], args[2], args[3] );
-		Com_Memcpy( VMA(1), VMA(2), args[3] );
-		return args[1];
-	case TRAP_STRNCPY:
-		VM_CHECKBOUNDS( cgvm, args[1], args[3] );
-		Q_strncpy( VMA(1), VMA(2), args[3] );
-		return args[1];
-	case TRAP_SIN:
-		return FloatAsInt( sin( VMF(1) ) );
-	case TRAP_COS:
-		return FloatAsInt( cos( VMF(1) ) );
-	case TRAP_ATAN2:
-		return FloatAsInt( atan2( VMF(1), VMF(2) ) );
-	case TRAP_SQRT:
-		return FloatAsInt( sqrt( VMF(1) ) );
 
 	case CG_FLOOR:
 		return FloatAsInt( floor( VMF(1) ) );
@@ -757,7 +725,6 @@ static intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return getCameraInfo(args[1], VMA(2), VMA(3));
 */
 	case CG_GET_ENTITY_TOKEN:
-		VM_CHECKBOUNDS( cgvm, args[1], args[2] );
 		return re.GetEntityToken( VMA(1), args[2] );
 
 	case CG_R_INPVS:
@@ -780,7 +747,6 @@ static intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return clc.demorecording;
 
 	case CG_TRAP_GETVALUE:
-		VM_CHECKBOUNDS( cgvm, args[1], args[2] );
 		return CL_GetValue( VMA(1), args[2], VMA(3) );
 
 	default:
@@ -844,12 +810,6 @@ void CL_InitCGame( void ) {
 
 	// load the dll or bytecode
 	interpret = Cvar_VariableIntegerValue( "vm_cgame" );
-	if ( cl_connectedToPureServer )
-	{
-		// if sv_pure is set we only allow qvms to be loaded
-		if ( interpret != VMI_COMPILED && interpret != VMI_BYTECODE )
-			interpret = VMI_COMPILED;
-	}
 
 	cgvm = VM_Create( VM_CGAME, CL_CgameSystemCalls, CL_DllSyscall, interpret );
 	if ( !cgvm ) {

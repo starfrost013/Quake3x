@@ -259,24 +259,6 @@ SV_LocateGameData
 */
 static void SV_LocateGameData( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *clients, int sizeofGameClient ) {
 
-	if ( !gvm->entryPoint ) {
-		if ( numGEntities > MAX_GENTITIES ) {
-			Com_Error( ERR_DROP, "%s: bad entity count %i", __func__, numGEntities );
-		} else {
-			if ( sizeofGEntity_t > gvm->exactDataLength / numGEntities ) {
-				Com_Error( ERR_DROP, "%s: bad entity size %i", __func__, sizeofGEntity_t );	
-			} else if ( (byte*)gEnts + (numGEntities * sizeofGEntity_t) > (gvm->dataBase + gvm->exactDataLength) ) {
-				Com_Error( ERR_DROP, "%s: entities located out of data segment", __func__ );
-			}
-		}
-
-		if ( sizeofGameClient > gvm->exactDataLength / MAX_CLIENTS ) {
-			Com_Error( ERR_DROP, "%s: bad game client size %i", __func__, sizeofGameClient );	
-		} else if ( (byte*)clients + (sizeofGameClient * MAX_CLIENTS) > gvm->dataBase + gvm->exactDataLength ) {
-			Com_Error( ERR_DROP, "%s: clients located out of data segment", __func__ );
-		}
-	}
-
 	sv.gentities = gEnts;
 	sv.gentitySize = sizeofGEntity_t;
 	sv.num_entities = numGEntities;
@@ -319,10 +301,7 @@ static void *VM_ArgPtr( intptr_t intValue ) {
 	if ( !intValue || gvm == NULL )
 		return NULL;
 
-	if ( gvm->entryPoint )
-		return (void *)(intValue);
-	else
-		return (void *)(gvm->dataBase + (intValue & gvm->dataMask));
+	return (void *)(intValue);
 }
 
 
@@ -380,13 +359,11 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_CVAR_VARIABLE_INTEGER_VALUE:
 		return Cvar_VariableIntegerValue( (const char *)VMA(1) );
 	case G_CVAR_VARIABLE_STRING_BUFFER:
-		VM_CHECKBOUNDS( gvm, args[2], args[3] );
 		Cvar_VariableStringBufferSafe( VMA(1), VMA(2), args[3], gvm->privateFlag );
 		return 0;
 	case G_ARGC:
 		return Cmd_Argc();
 	case G_ARGV:
-		VM_CHECKBOUNDS( gvm, args[2], args[3] );
 		Cmd_ArgvBuffer( args[1], VMA(2), args[3] );
 		return 0;
 	case G_SEND_CONSOLE_COMMAND:
@@ -398,10 +375,8 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_FS_READ:
 		if ( args[3] == 0 ) // UrT may pass this with args[2]=-1 and cause false bounds check error
 			return 0;
-		VM_CHECKBOUNDS( gvm, args[1], args[2] );
 		return FS_VM_ReadFile( VMA(1), args[2], args[3], H_QAGAME );
 	case G_FS_WRITE:
-		VM_CHECKBOUNDS( gvm, args[1], args[2] );
 		FS_VM_WriteFile( VMA(1), args[2], args[3], H_QAGAME );
 		return 0;
 	case G_FS_FCLOSE_FILE:
@@ -411,7 +386,6 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return FS_VM_SeekFile( args[1], args[2], args[3], H_QAGAME );
 
 	case G_FS_GETFILELIST:
-		VM_CHECKBOUNDS( gvm, args[3], args[4] );
 		return FS_GetFileList( VMA(1), VMA(2), VMA(3), args[4] );
 
 	case G_LOCATE_GAME_DATA:
@@ -430,7 +404,6 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		SV_UnlinkEntity( VMA(1) );
 		return 0;
 	case G_ENTITIES_IN_BOX:
-		VM_CHECKBOUNDS( gvm, args[3], args[4] * sizeof( int ) );
 		return SV_AreaEntities( VMA(1), VMA(2), VMA(3), args[4] );
 	case G_ENTITY_CONTACT:
 		return SV_EntityContact( VMA(1), VMA(2), VMA(3), /*int capsule*/ false );
@@ -456,18 +429,15 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		SV_SetConfigstring( args[1], VMA(2) );
 		return 0;
 	case G_GET_CONFIGSTRING:
-		VM_CHECKBOUNDS( gvm, args[2], args[3] );
 		SV_GetConfigstring( args[1], VMA(2), args[3] );
 		return 0;
 	case G_SET_USERINFO:
 		SV_SetUserinfo( args[1], VMA(2) );
 		return 0;
 	case G_GET_USERINFO:
-		VM_CHECKBOUNDS( gvm, args[2], args[3] );
 		SV_GetUserinfo( args[1], VMA(2), args[3] );
 		return 0;
 	case G_GET_SERVERINFO:
-		VM_CHECKBOUNDS( gvm, args[1], args[2] );
 		SV_GetServerinfo( VMA(1), args[2] );
 		return 0;
 	case G_ADJUST_AREA_PORTAL_STATE:
@@ -488,7 +458,6 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_GET_ENTITY_TOKEN:
 		{
 			char *s = (char*)COM_Parse( &sv.entityParsePoint );
-			VM_CHECKBOUNDS( gvm, args[1], args[2] );
 			//Q_strncpyz( VMA(1), s, args[2] );
 			// we can't use our optimized Q_strncpyz() function
 			// because of uninitialized memory bug in defrag mod
@@ -527,7 +496,6 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case BOTLIB_LIBVAR_SET:
 		return botlib_export->BotLibVarSet( VMA(1), VMA(2) );
 	case BOTLIB_LIBVAR_GET:
-		VM_CHECKBOUNDS( gvm, args[2], args[3] );
 		return botlib_export->BotLibVarGet( VMA(1), VMA(2), args[3] );
 
 	case BOTLIB_PC_ADD_GLOBAL_DEFINE:
@@ -537,7 +505,6 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case BOTLIB_PC_FREE_SOURCE:
 		return botlib_export->PC_FreeSourceHandle( args[1] );
 	case BOTLIB_PC_READ_TOKEN:
-		VM_CHECKBOUNDS( gvm, args[2], sizeof( pc_token_t ) );
 		return botlib_export->PC_ReadTokenHandle( args[1], VMA(2) );
 	case BOTLIB_PC_SOURCE_FILE_AND_LINE:
 		return botlib_export->PC_SourceFileAndLine( args[1], VMA(2), VMA(3) );
@@ -554,7 +521,6 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case BOTLIB_GET_SNAPSHOT_ENTITY:
 		return SV_BotGetSnapshotEntity( args[1], args[2] );
 	case BOTLIB_GET_CONSOLE_MESSAGE:
-		VM_CHECKBOUNDS( gvm, args[2], args[3] );
 		return SV_BotGetConsoleMessage( args[1], VMA(2), args[3] );
 	case BOTLIB_USER_COMMAND:
 		{
@@ -596,7 +562,6 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case BOTLIB_AAS_NEXT_BSP_ENTITY:
 		return botlib_export->aas.AAS_NextBSPEntity( args[1] );
 	case BOTLIB_AAS_VALUE_FOR_BSP_EPAIR_KEY:
-		VM_CHECKBOUNDS( gvm, args[3], args[4] );
 		return botlib_export->aas.AAS_ValueForBSPEpairKey( args[1], VMA(2), VMA(3), args[4] );
 	case BOTLIB_AAS_VECTOR_FOR_BSP_EPAIR_KEY:
 		return botlib_export->aas.AAS_VectorForBSPEpairKey( args[1], VMA(2), VMA(3) );
@@ -711,7 +676,6 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case BOTLIB_AI_CHARACTERISTIC_BINTEGER:
 		return botlib_export->ai.Characteristic_BInteger( args[1], args[2], args[3], args[4] );
 	case BOTLIB_AI_CHARACTERISTIC_STRING:
-		VM_CHECKBOUNDS( gvm, args[3], args[4] );
 		botlib_export->ai.Characteristic_String( args[1], args[2], VMA(3), args[4] );
 		return 0;
 
@@ -743,7 +707,6 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		botlib_export->ai.BotEnterChat( args[1], args[2], args[3] );
 		return 0;
 	case BOTLIB_AI_GET_CHAT_MESSAGE:
-		VM_CHECKBOUNDS( gvm, args[2], args[3] );
 		botlib_export->ai.BotGetChatMessage( args[1], VMA(2), args[3] );
 		return 0;
 	case BOTLIB_AI_STRING_CONTAINS:
@@ -751,7 +714,6 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case BOTLIB_AI_FIND_MATCH:
 		return botlib_export->ai.BotFindMatch( VMA(1), VMA(2), args[3] );
 	case BOTLIB_AI_MATCH_VARIABLE:
-		VM_CHECKBOUNDS( gvm, args[3], args[4] );
 		botlib_export->ai.BotMatchVariable( VMA(1), args[2], VMA(3), args[4] );
 		return 0;
 	case BOTLIB_AI_UNIFY_WHITE_SPACES:
@@ -794,7 +756,6 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		botlib_export->ai.BotDumpGoalStack( args[1] );
 		return 0;
 	case BOTLIB_AI_GOAL_NAME:
-		VM_CHECKBOUNDS( gvm, args[2], args[3] );
 		botlib_export->ai.BotGoalName( args[1], VMA(2), args[3] );
 		return 0;
 	case BOTLIB_AI_GET_TOP_GOAL:
@@ -899,33 +860,6 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 
 	// shared syscalls
 
-	case TRAP_MEMSET:
-		VM_CHECKBOUNDS( gvm, args[1], args[3] );
-		Com_Memset( VMA(1), args[2], args[3] );
-		return args[1];
-
-	case TRAP_MEMCPY:
-		VM_CHECKBOUNDS2( gvm, args[1], args[2], args[3] );
-		Com_Memcpy( VMA(1), VMA(2), args[3] );
-		return args[1];
-
-	case TRAP_STRNCPY:
-		VM_CHECKBOUNDS( gvm, args[1], args[3] );
-		Q_strncpy( VMA(1), VMA(2), args[3] );
-		return args[1];
-
-	case TRAP_SIN:
-		return FloatAsInt( sin( VMF(1) ) );
-
-	case TRAP_COS:
-		return FloatAsInt( cos( VMF(1) ) );
-
-	case TRAP_ATAN2:
-		return FloatAsInt( atan2( VMF(1), VMF(2) ) );
-
-	case TRAP_SQRT:
-		return FloatAsInt( sqrt( VMF(1) ) );
-
 	case G_MATRIXMULTIPLY:
 		MatrixMultiply( VMA(1), VMA(2), VMA(3) );
 		return 0;
@@ -951,7 +885,6 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return sprintf( VMA(1), "%f", VMF(2) );
 
 	case G_TRAP_GETVALUE:
-		VM_CHECKBOUNDS( gvm, args[1], args[2] );
 		return SV_GetValue( VMA(1), args[2], VMA(3) );
 
 	default:

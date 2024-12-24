@@ -1807,8 +1807,9 @@ void SV_UserinfoChanged( client_t *cl, bool updateUserinfo, bool runFilter ) {
 
 	// name for C code
 	val = Info_ValueForKey( cl->userinfo, "name" );
-	// truncate if it is too long as it may cause memory corruption in OSP mod
-	if ( gvm->forceDataMask && strlen( val ) >= sizeof( buf ) ) {
+
+	// truncate if it is too long as it may cause memory corruption 
+	if (strlen( val ) >= sizeof( buf ) ) {
 		Q_strncpyz( buf, val, sizeof( buf ) );
 		Info_SetValueForKey( cl->userinfo, "name", buf );
 		val = buf;
@@ -2040,10 +2041,9 @@ bool SV_ExecuteClientCommand( client_t *cl, const char *s ) {
 	} else {
 		// pass unknown strings to the game
 		if ( !ucmd->name && sv.state == SS_GAME && cl->state >= CS_PRIMED ) {
-			if ( gvm->forceDataMask )
-				Cmd_Args_Sanitize( "\n\r;" ); // handle ';' for OSP
-			else
-				Cmd_Args_Sanitize( "\n\r" );
+			// ; was passed due to osp mod originally
+			Cmd_Args_Sanitize( "\n\r" );
+
 			VM_Call( gvm, 1, GAME_CLIENT_COMMAND, cl - svs.clients );
 		}
 	}

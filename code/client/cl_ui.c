@@ -751,10 +751,7 @@ static void *VM_ArgPtr( intptr_t intValue ) {
 	if ( !intValue || uivm == NULL )
 	  return NULL;
 
-	if ( uivm->entryPoint )
-		return (void *)(intValue);
-	else
-		return (void *)(uivm->dataBase + (intValue & uivm->dataMask));
+	return (void *)(intValue);
 }
 
 
@@ -810,7 +807,6 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return FloatAsInt( Cvar_VariableValue( VMA(1) ) );
 
 	case UI_CVAR_VARIABLESTRINGBUFFER:
-		VM_CHECKBOUNDS( uivm, args[2], args[3] );
 		Cvar_VariableStringBufferSafe( VMA(1), VMA(2), args[3], CVAR_PRIVATE );
 		return 0;
 
@@ -827,7 +823,6 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return 0;
 
 	case UI_CVAR_INFOSTRINGBUFFER:
-		VM_CHECKBOUNDS( uivm, args[2], args[3] );
 		Cvar_InfoStringBuffer( args[1], VMA(2), args[3] );
 		return 0;
 
@@ -835,7 +830,6 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return Cmd_Argc();
 
 	case UI_ARGV:
-		VM_CHECKBOUNDS( uivm, args[2], args[3] );
 		Cmd_ArgvBuffer( args[1], VMA(2), args[3] );
 		return 0;
 
@@ -856,12 +850,10 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return FS_VM_OpenFile( VMA(1), VMA(2), args[3], H_Q3UI );
 
 	case UI_FS_READ:
-		VM_CHECKBOUNDS( uivm, args[1], args[2] );
 		FS_VM_ReadFile( VMA(1), args[2], args[3], H_Q3UI );
 		return 0;
 
 	case UI_FS_WRITE:
-		VM_CHECKBOUNDS( uivm, args[1], args[2] );
 		FS_VM_WriteFile( VMA(1), args[2], args[3], H_Q3UI );
 		return 0;
 
@@ -873,7 +865,6 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return FS_VM_SeekFile( args[1], args[2], args[3], H_Q3UI );
 
 	case UI_FS_GETFILELIST:
-		VM_CHECKBOUNDS( uivm, args[3], args[4] );
 		return FS_GetFileList( VMA(1), VMA(2), VMA(3), args[4] );
 
 	case UI_R_REGISTERMODEL:
@@ -933,12 +924,10 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return 0;
 
 	case UI_KEY_KEYNUMTOSTRINGBUF:
-		VM_CHECKBOUNDS( uivm, args[2], args[3] );
 		Key_KeynumToStringBuf( args[1], VMA(2), args[3] );
 		return 0;
 
 	case UI_KEY_GETBINDINGBUF:
-		VM_CHECKBOUNDS( uivm, args[2], args[3] );
 		Key_GetBindingBuf( args[1], VMA(2), args[3] );
 		return 0;
 
@@ -969,22 +958,18 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return 0;
 
 	case UI_GETCLIPBOARDDATA:
-		VM_CHECKBOUNDS( uivm, args[1], args[2] );
 		CL_GetClipboardData( VMA(1), args[2] );
 		return 0;
 
 	case UI_GETCLIENTSTATE:
-		VM_CHECKBOUNDS( uivm, args[1], sizeof( uiClientState_t ) );
 		GetClientState( VMA(1) );
 		return 0;
 
 	case UI_GETGLCONFIG:
-		VM_CHECKBOUNDS( uivm, args[1], sizeof( glconfig_t ) );
 		CL_GetGlconfig( VMA(1) );
 		return 0;
 
 	case UI_GETCONFIGSTRING:
-		VM_CHECKBOUNDS( uivm, args[2], args[3] );
 		return GetConfigString( args[1], VMA(2), args[3] );
 
 	case UI_LAN_LOADCACHEDSERVERS:
@@ -1010,12 +995,10 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return 0;
 
 	case UI_LAN_GETPING:
-		VM_CHECKBOUNDS( uivm, args[2], args[3] );
 		LAN_GetPing( args[1], VMA(2), args[3], VMA(4) );
 		return 0;
 
 	case UI_LAN_GETPINGINFO:
-		VM_CHECKBOUNDS( uivm, args[2], args[3] );
 		LAN_GetPingInfo( args[1], VMA(2), args[3] );
 		return 0;
 
@@ -1023,12 +1006,10 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return LAN_GetServerCount(args[1]);
 
 	case UI_LAN_GETSERVERADDRESSSTRING:
-		VM_CHECKBOUNDS( uivm, args[3], args[4] );
 		LAN_GetServerAddressString( args[1], args[2], VMA(3), args[4] );
 		return 0;
 
 	case UI_LAN_GETSERVERINFO:
-		VM_CHECKBOUNDS( uivm, args[3], args[4] );
 		LAN_GetServerInfo( args[1], args[2], VMA(3), args[4] );
 		return 0;
 
@@ -1050,7 +1031,6 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return 0;
 
 	case UI_LAN_SERVERSTATUS:
-		VM_CHECKBOUNDS( uivm, args[2], args[3] );
 		return LAN_GetServerStatus( VMA(1), VMA(2), args[3] );
 
 	case UI_LAN_COMPARESERVERS:
@@ -1060,7 +1040,6 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return Hunk_MemoryRemaining();
 
 	case UI_GET_CDKEY:
-		VM_CHECKBOUNDS( uivm, args[1], args[2] );
 		CLUI_GetCDKey( VMA(1), args[2] );
 		return 0;
 
@@ -1076,35 +1055,6 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 	case UI_R_REGISTERFONT:
 		re.RegisterFont( VMA(1), args[2], VMA(3));
 		return 0;
-
-	// shared syscalls
-
-	case TRAP_MEMSET:
-		VM_CHECKBOUNDS( uivm, args[1], args[3] );
-		Com_Memset( VMA(1), args[2], args[3] );
-		return args[1];
-
-	case TRAP_MEMCPY:
-		VM_CHECKBOUNDS2( uivm, args[1], args[2], args[3] );
-		Com_Memcpy( VMA(1), VMA(2), args[3] );
-		return args[1];
-
-	case TRAP_STRNCPY:
-		VM_CHECKBOUNDS( uivm, args[1], args[3] );
-		Q_strncpy( VMA(1), VMA(2), args[3] );
-		return args[1];
-
-	case TRAP_SIN:
-		return FloatAsInt( sin( VMF(1) ) );
-
-	case TRAP_COS:
-		return FloatAsInt( cos( VMF(1) ) );
-
-	case TRAP_ATAN2:
-		return FloatAsInt( atan2( VMF(1), VMF(2) ) );
-
-	case TRAP_SQRT:
-		return FloatAsInt( sqrt( VMF(1) ) );
 
 	case UI_FLOOR:
 		return FloatAsInt( floor( VMF(1) ) );
@@ -1169,7 +1119,6 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return 0;
 
 	case UI_TRAP_GETVALUE:
-		VM_CHECKBOUNDS( uivm, args[1], args[2] );
 		return UI_GetValue( VMA(1), args[2], VMA(3) );
 
 	default:
@@ -1238,12 +1187,6 @@ void CL_InitUI( void ) {
 
 	// load the dll or bytecode
 	interpret = Cvar_VariableIntegerValue( "vm_ui" );
-	if ( cl_connectedToPureServer )
-	{
-		// if sv_pure is set we only allow qvms to be loaded
-		if ( interpret != VMI_COMPILED && interpret != VMI_BYTECODE )
-			interpret = VMI_COMPILED;
-	}
 
 	uivm = VM_Create( VM_UI, CL_UISystemCalls, UI_DllSyscall, interpret );
 	if ( !uivm ) {

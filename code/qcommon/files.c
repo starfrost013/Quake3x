@@ -683,7 +683,7 @@ FS_AllowedExtension
 */
 bool FS_AllowedExtension( const char *fileName, bool allowPk3s, const char **ext ) 
 {
-	static const char *extlist[] =	{ "dll", "exe", "so", "dylib", "qvm", "pk3" };
+	static const char *extlist[] =	{ "dll", "exe", "so", "dylib", "pk3" };
 	const char *e;
 	int i, n;
 

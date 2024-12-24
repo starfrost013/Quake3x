@@ -51,95 +51,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define VM_RTCHECK_JUMP    4
 #define VM_RTCHECK_DATA    8
 
-typedef enum {
-	OP_UNDEF,
-
-	OP_IGNORE,
-
-	OP_BREAK,
-
-	OP_ENTER,
-	OP_LEAVE,
-	OP_CALL,
-	OP_PUSH,
-	OP_POP,
-
-	OP_CONST,
-	OP_LOCAL,
-
-	OP_JUMP,
-
-	//-------------------
-
-	OP_EQ,
-	OP_NE,
-
-	OP_LTI,
-	OP_LEI,
-	OP_GTI,
-	OP_GEI,
-
-	OP_LTU,
-	OP_LEU,
-	OP_GTU,
-	OP_GEU,
-
-	OP_EQF,
-	OP_NEF,
-
-	OP_LTF,
-	OP_LEF,
-	OP_GTF,
-	OP_GEF,
-
-	//-------------------
-
-	OP_LOAD1,
-	OP_LOAD2,
-	OP_LOAD4,
-	OP_STORE1,
-	OP_STORE2,
-	OP_STORE4,				// *(stack[top-1]) = stack[top]
-	OP_ARG,
-
-	OP_BLOCK_COPY,
-
-	//-------------------
-
-	OP_SEX8,
-	OP_SEX16,
-
-	OP_NEGI,
-	OP_ADD,
-	OP_SUB,
-	OP_DIVI,
-	OP_DIVU,
-	OP_MODI,
-	OP_MODU,
-	OP_MULI,
-	OP_MULU,
-
-	OP_BAND,
-	OP_BOR,
-	OP_BXOR,
-	OP_BCOM,
-
-	OP_LSH,
-	OP_RSHI,
-	OP_RSHU,
-
-	OP_NEGF,
-	OP_ADDF,
-	OP_SUBF,
-	OP_DIVF,
-	OP_MULF,
-
-	OP_CVIF,
-	OP_CVFI,
-
-	OP_MAX
-} opcode_t;
-
 typedef struct {
 	int32_t	value;     // 32
 	byte	op;        // 8
@@ -151,13 +62,6 @@ typedef struct {
 	unsigned fpu:1;    // load into FPU register
 	unsigned njump:1;  // near jump
 } instruction_t;
-
-typedef struct vmSymbol_s {
-	struct vmSymbol_s	*next;
-	int		symValue;
-	int		profileCount;
-	char	symName[1];		// variable sized
-} vmSymbol_t;
 
 //typedef void(*vmfunc_t)(void);
 
@@ -187,69 +91,18 @@ struct vm_s {
 	dllSyscall_t dllSyscall;
 	void (*destroy)(vm_t* self);
 
-	// for interpreted modules
-	//bool	currentlyInterpreting;
-
-	bool	compiled;
-
-	vmFunc_t	codeBase;
-	unsigned int codeSize;			// code + jump targets, needed for proper munmap()
-	unsigned int codeLength;		// just for information
-
-	int32_t		instructionCount;
 	intptr_t	*instructionPointers;
 
-	uint32_t	dataMask;
-	uint32_t	dataLength;			// data segment length
-	uint32_t	exactDataLength;	// from qvm header
-	uint32_t	dataAlloc;			// actually allocated, for mmap()/munmap()
-
-	int			numSymbols;
-	vmSymbol_t	*symbols;
-
 	int			callLevel;			// counts recursive VM_Call
-	int			breakFunction;		// increment breakCount on function entry to this
-	int			breakCount;
 
 	int32_t		*jumpTableTargets;
 	int32_t		numJumpTableTargets;
 
 	uint32_t	crc32sum;
 
-	bool	forceDataMask;
-
 	int			privateFlag;
 };
 
-bool VM_Compile( vm_t *vm, vmHeader_t *header );
-int32_t VM_CallCompiled( vm_t *vm, int nargs, int32_t *args );
 
-bool VM_PrepareInterpreter2( vm_t *vm, vmHeader_t *header );
-int32_t VM_CallInterpreted2( vm_t *vm, int nargs, int32_t *args );
-
-vmSymbol_t *VM_ValueToFunctionSymbol( vm_t *vm, int value );
-int VM_SymbolToValue( vm_t *vm, const char *symbol );
-const char *VM_ValueToSymbol( vm_t *vm, int value );
-
-const char *VM_LoadInstructions( const byte *code_pos, int codeLength, int instructionCount, instruction_t *buf );
-const char *VM_CheckInstructions( instruction_t *buf, int instructionCount,
-								 const int32_t *jumpTableTargets,
-								 int numJumpTableTargets,
-								 int dataLength );
-
-void VM_ReplaceInstructions( vm_t *vm, instruction_t *buf );
-
-#define JUMP	(1<<0)
-#define FPU		(1<<1)
-
-typedef struct opcode_info_s
-{
-	int	size;
-	int	stack;
-	int	nargs;
-	int	flags;
-} opcode_info_t;
-
-extern opcode_info_t ops[ OP_MAX ];
 
 #endif // VM_LOCAL_H
