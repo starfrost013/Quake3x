@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "vm_local.h"
 #include "../ui/ui_public.h"
 #include "../cgame/cg_public.h"
-#include "../game/g_public.h"
+#include "../../../game/public/game_public.h"
 
 #ifdef _WIN32
 #include <windows.h>
