@@ -40,8 +40,8 @@ typedef struct audioFormat_s
 
 typedef struct aviFileData_s
 {
-  qboolean      fileOpen;
-  qboolean      pipe;
+  bool      fileOpen;
+  bool      pipe;
   fileHandle_t  f;
   char          fileName[ MAX_QPATH ];
   unsigned int  fileSize;
@@ -56,9 +56,9 @@ typedef struct aviFileData_s
   int           width, height;
   int           numVideoFrames;
   int           maxRecordSize;
-  qboolean      motionJpeg;
+  bool      motionJpeg;
 
-  qboolean      audio;
+  bool      audio;
   audioFormat_t a;
   int           numAudioFrames;
   int           audioFrameSize;
@@ -329,19 +329,19 @@ static void CL_WriteAVIHeader( void )
 }
 
 
-static qboolean CL_ValidatePipeFormat( const char *s )
+static bool CL_ValidatePipeFormat( const char *s )
 {
 	while ( *s != '\0' ) 
 	{
 		if ( *s == '.' && *(s+1) == '.' && ( *(s+2) == '/' || *(s+2) == '\\' ) )
-			return qfalse;
+			return false;
 		if ( *s == ':' && *(s+1) == ':' )
-			return qfalse;
+			return false;
 		if ( *s == '>' || *s == '|' || *s == '&' )
-			return qfalse;
+			return false;
 		s++;
 	}
-	return qtrue;
+	return true;
 }
 
 
@@ -353,10 +353,10 @@ Creates an AVI file and gets it into a state where
 writing the actual data can begin
 ===============
 */
-qboolean CL_OpenAVIForWriting( const char *fileName, qboolean pipe, qboolean reopen )
+bool CL_OpenAVIForWriting( const char *fileName, bool pipe, bool reopen )
 {
 	if ( afd.fileOpen )
-		return qfalse;
+		return false;
 
 	if ( reopen )
 	{
@@ -380,23 +380,23 @@ qboolean CL_OpenAVIForWriting( const char *fileName, qboolean pipe, qboolean reo
 
 		if ( !CL_ValidatePipeFormat( cl_aviPipeFormat->string ) ) {
 			Com_Printf( S_COLOR_YELLOW "Invalid pipe format: %s\n", cl_aviPipeFormat->string );
-			return qfalse;
+			return false;
 		}
 
 		ospath = FS_BuildOSPath( Cvar_VariableString( "fs_homepath" ), "", fileName );
 		Com_sprintf( cmd, sizeof( cmd ), cmd_fmt, cl_aviPipeFormat->string, ospath, ospath );
 		if ( (afd.f = FS_PipeOpenWrite( cmd, fileName )) == FS_INVALID_HANDLE )
-			return qfalse;
+			return false;
 	}
 	else
 	{
 		if ( (afd.f = FS_FOpenFileWrite( fileName )) == FS_INVALID_HANDLE )
-			return qfalse;
+			return false;
 
 		if ( (afd.idxF = FS_FOpenFileWrite( va( "%s" INDEX_FILE_EXTENSION, fileName ) )) == FS_INVALID_HANDLE )
 		{
 			FS_FCloseFile( afd.f );
-			return qfalse;
+			return false;
 		}
 	}
 
@@ -409,9 +409,9 @@ qboolean CL_OpenAVIForWriting( const char *fileName, qboolean pipe, qboolean reo
 	afd.height = cls.captureHeight;
 
 	if ( cl_aviMotionJpeg->integer && !pipe )
-		afd.motionJpeg = qtrue;
+		afd.motionJpeg = true;
 	else
-		afd.motionJpeg = qfalse;
+		afd.motionJpeg = false;
 
 	if ( !reopen )
 	{
@@ -435,11 +435,11 @@ qboolean CL_OpenAVIForWriting( const char *fileName, qboolean pipe, qboolean reo
 
 	if ( Cvar_VariableIntegerValue( "s_initsound" ) == 0 )
 	{
-		afd.audio = qfalse;
+		afd.audio = false;
 	}
 	else
 	{
-		afd.audio = qtrue;
+		afd.audio = true;
 	}
 
 	// This doesn't write a real header, but allocates the
@@ -448,7 +448,7 @@ qboolean CL_OpenAVIForWriting( const char *fileName, qboolean pipe, qboolean reo
 
 	if ( pipe )
 	{
-		afd.pipe = qtrue;
+		afd.pipe = true;
 		SafeFS_Write( buffer, bufIndex, afd.f );
 		bufIndex = 0;
 	}
@@ -464,9 +464,9 @@ qboolean CL_OpenAVIForWriting( const char *fileName, qboolean pipe, qboolean reo
 		afd.moviSize = 4; // For the "movi"
 	}
 
-	afd.fileOpen = qtrue;
+	afd.fileOpen = true;
 
-	return qtrue;
+	return true;
 }
 
 
@@ -477,13 +477,13 @@ qboolean CL_OpenAVIForWriting( const char *fileName, qboolean pipe, qboolean reo
 CL_CheckFileSize
 ===============
 */
-static qboolean CL_CheckFileSize( int bytesToAdd )
+static bool CL_CheckFileSize( int bytesToAdd )
 {
 	unsigned int newFileSize;
 
 	if ( afd.pipe )
 	{
-		return qfalse;
+		return false;
 	}
 
 	newFileSize =
@@ -498,15 +498,15 @@ static qboolean CL_CheckFileSize( int bytesToAdd )
 	if ( newFileSize >= AVI_SEGMENT_SIZE || newFileSize < afd.fileSize )
 	{
 		// Close the current file...
-		CL_CloseAVI( qtrue );
+		CL_CloseAVI( true );
 
 		// ...And open a new one
-		CL_OpenAVIForWriting( va( "%s-%02d.avi", clc.videoName, ++clc.videoIndex ), qfalse, qtrue );
+		CL_OpenAVIForWriting( va( "%s-%02d.avi", clc.videoName, ++clc.videoIndex ), false, true );
 
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 
@@ -669,7 +669,7 @@ CL_CloseAVI
 Closes the AVI file and writes an index chunk
 ===============
 */
-qboolean CL_CloseAVI( qboolean reopen )
+bool CL_CloseAVI( bool reopen )
 {
 	int indexRemainder;
 	int indexSize;
@@ -678,7 +678,7 @@ qboolean CL_CloseAVI( qboolean reopen )
 	// AVI file isn't open
 	if ( !afd.fileOpen )
 	{
-		return qfalse;
+		return false;
 	}
 
 	CL_FlushCaptureBuffer();
@@ -694,15 +694,15 @@ qboolean CL_CloseAVI( qboolean reopen )
 		Com_Printf( "Wrote %d:%d frames to pipe:%s\n", afd.numVideoFrames, afd.numAudioFrames, afd.fileName );
 		FS_FCloseFile( afd.f );
 		afd.f = FS_INVALID_HANDLE;
-		afd.fileOpen = qfalse;
-		afd.pipe = qfalse;
-		return qtrue;
+		afd.fileOpen = false;
+		afd.pipe = false;
+		return true;
 	}
 
 	idxFileName = va( "%s" INDEX_FILE_EXTENSION, afd.fileName );
 	indexSize = afd.numIndices * 16;
 
-	afd.fileOpen = qfalse;
+	afd.fileOpen = false;
 
 	FS_Seek( afd.idxF, 4, FS_SEEK_SET );
 	bufIndex = 0;
@@ -721,7 +721,7 @@ qboolean CL_CloseAVI( qboolean reopen )
 			FS_FCloseFile( afd.idxF );
 		}
 		FS_FCloseFile( afd.f );
-		return qfalse;
+		return false;
 	}
 
 	indexRemainder = indexSize;
@@ -759,7 +759,7 @@ qboolean CL_CloseAVI( qboolean reopen )
 
 	Com_DPrintf( "Wrote %d:%d frames to %s\n", afd.numVideoFrames, afd.numAudioFrames, afd.fileName );
 
-	return qtrue;
+	return true;
 }
 
 
@@ -768,7 +768,7 @@ qboolean CL_CloseAVI( qboolean reopen )
 CL_VideoRecording
 ===============
 */
-qboolean CL_VideoRecording( void )
+bool CL_VideoRecording( void )
 {
 	return afd.fileOpen;
 }

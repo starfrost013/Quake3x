@@ -65,7 +65,7 @@ typedef struct snapshotFrame_s {
 
 typedef struct {
 	serverState_t	state;
-	qboolean		restarting;			// if true, send configstring changes during SS_LOADING
+	bool		restarting;			// if true, send configstring changes during SS_LOADING
 	int				pure;				// fixed at level spawn
 	int				maxclients;			// fixed at level spawn
 	int				serverId;			// changes each server start
@@ -171,7 +171,7 @@ typedef struct client_s {
 	char			name[MAX_NAME_LENGTH];			// extracted from userinfo, high bits masked
 
 	gameStateAck_t	gamestateAck;
-	qboolean		downloading;		// set at "download", reset at gamestate retransmission
+	bool		downloading;		// set at "download", reset at gamestate retransmission
 	// int				serverId;		// last acknowledged serverId
 
 	// downloading
@@ -184,7 +184,7 @@ typedef struct client_s {
 	int				downloadXmitBlock;	// last block we xmited
 	unsigned char	*downloadBlocks[MAX_DOWNLOAD_WINDOW];	// the buffers for the download blocks
 	int				downloadBlockSize[MAX_DOWNLOAD_WINDOW];
-	qboolean		downloadEOF;		// We have sent the EOF block
+	bool		downloadEOF;		// We have sent the EOF block
 	int				downloadSendTime;	// time we last got an ack from the client
 
 	int				deltaMessage;		// frame last client usercmd message
@@ -192,14 +192,14 @@ typedef struct client_s {
 	int				lastConnectTime;	// svs.time when connection started
 	int				lastDisconnectTime;
 	int				lastSnapshotTime;	// svs.time of last sent snapshot
-	qboolean		rateDelayed;		// true if nextSnapshotTime was set based on rate instead of snapshotMsec
+	bool		rateDelayed;		// true if nextSnapshotTime was set based on rate instead of snapshotMsec
 	int				timeoutCount;		// must timeout a few frames in a row so debugging doesn't break
 	clientSnapshot_t	frames[PACKET_BACKUP];	// updates can be delta'd from here
 	int				ping;
 	int				rate;				// bytes / second, 0 - unlimited
 	int				snapshotMsec;		// requests a snapshot every snapshotMsec unless rate choked
-	qboolean		pureAuthentic;
-	qboolean		gotCP;				// TTimo - additional flag to distinguish between a bad pure checksum, and no cp command at all
+	bool		pureAuthentic;
+	bool		gotCP;				// TTimo - additional flag to distinguish between a bad pure checksum, and no cp command at all
 	netchan_t		netchan;
 	// TTimo
 	// queuing outgoing fragmented messages to send them properly, without udp packet bursts
@@ -209,8 +209,8 @@ typedef struct client_s {
 	netchan_buffer_t **netchan_end_queue;
 
 	int				oldServerTime;
-	qboolean		csUpdated[MAX_CONFIGSTRINGS];
-	qboolean		compat;
+	bool		csUpdated[MAX_CONFIGSTRINGS];
+	bool		compat;
 
 	// flood protection
 	rateLimit_t		cmd_rate;
@@ -218,9 +218,9 @@ typedef struct client_s {
 	rateLimit_t		gamestate_rate;
 
 	// client can decode long strings
-	qboolean		longstr;
+	bool		longstr;
 
-	qboolean		justConnected;
+	bool		justConnected;
 
 	char			tld[3]; // "XX\0"
 	const char		*country;
@@ -232,7 +232,7 @@ typedef struct client_s {
 
 // this structure will be cleared only when the game dll changes
 typedef struct {
-	qboolean	initialized;				// sv_init has completed
+	bool	initialized;				// sv_init has completed
 
 	int			time;						// will be strictly increasing across level changes
 	int			msgTime;					// will be used as precise sent time
@@ -267,7 +267,7 @@ typedef struct
 	// For a CIDR-Notation type suffix
 	int subnet;
 
-	qboolean isexception;
+	bool isexception;
 } serverBan_t;
 #endif
 
@@ -319,8 +319,8 @@ extern	int serverBansCount;
 //
 // sv_main.c
 //
-qboolean SVC_RateLimit( rateLimit_t *bucket, int burst, int period );
-qboolean SVC_RateLimitAddress( const netadr_t *from, int burst, int period );
+bool SVC_RateLimit( rateLimit_t *bucket, int burst, int period );
+bool SVC_RateLimitAddress( const netadr_t *from, int burst, int period );
 void SVC_RateRestoreBurstAddress( const netadr_t *from, int burst, int period );
 void SVC_RateRestoreToxicAddress( const netadr_t *from, int burst, int period );
 void SVC_RateDropAddress( const netadr_t *from, int burst, int period );
@@ -343,7 +343,7 @@ void SV_UpdateConfigstrings( client_t *client );
 void SV_SetUserinfo( int index, const char *val );
 void SV_GetUserinfo( int index, char *buffer, int bufferSize );
 
-void SV_SpawnServer( const char *mapname, qboolean killBots );
+void SV_SpawnServer( const char *mapname, bool killBots );
 
 
 
@@ -357,13 +357,13 @@ void SV_DirectConnect( const netadr_t *from );
 void SV_PrintClientStateChange( const client_t *cl, clientState_t newState );
 
 void SV_ExecuteClientMessage( client_t *cl, msg_t *msg );
-void SV_UserinfoChanged( client_t *cl, qboolean updateUserinfo, qboolean runFilter );
+void SV_UserinfoChanged( client_t *cl, bool updateUserinfo, bool runFilter );
 
 void SV_ClientEnterWorld( client_t *client );
 void SV_FreeClient( client_t *client );
 void SV_DropClient( client_t *drop, const char *reason );
 
-qboolean SV_ExecuteClientCommand( client_t *cl, const char *s );
+bool SV_ExecuteClientCommand( client_t *cl, const char *s );
 void SV_ClientThink( client_t *cl, usercmd_t *cmd );
 
 int SV_SendDownloadMessages( void );
@@ -404,7 +404,7 @@ sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt );
 void		SV_InitGameProgs ( void );
 void		SV_ShutdownGameProgs ( void );
 void		SV_RestartGameProgs( void );
-qboolean	SV_inPVS (const vec3_t p1, const vec3_t p2);
+bool	SV_inPVS (const vec3_t p1, const vec3_t p2);
 
 //
 // sv_bot.c
@@ -463,7 +463,7 @@ int SV_PointContents( const vec3_t p, int passEntityNum );
 // returns the CONTENTS_* value from the world and all entities at the given point.
 
 
-void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, qboolean capsule );
+void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, bool capsule );
 // mins and maxs are relative
 
 // if the entire move stays in a solid volume, trace.allsolid will be set,
@@ -475,7 +475,7 @@ void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const ve
 // passEntityNum is explicitly excluded from clipping checks (normally ENTITYNUM_NONE)
 
 
-void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int entityNum, int contentmask, qboolean capsule );
+void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int entityNum, int contentmask, bool capsule );
 // clip to a specific entity
 
 //
@@ -483,7 +483,7 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 //
 void SV_Netchan_Transmit( client_t *client, msg_t *msg);
 int SV_Netchan_TransmitNextFragment( client_t *client );
-qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
+bool SV_Netchan_Process( client_t *client, msg_t *msg );
 void SV_Netchan_FreeQueue( client_t *client );
 
 //

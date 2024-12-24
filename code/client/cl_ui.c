@@ -174,7 +174,7 @@ static int LAN_AddServer(int source, const char *name, const char *address) {
 		if (i >= *count) {
 			servers[*count].adr = adr;
 			Q_strncpyz(servers[*count].hostName, name, sizeof(servers[*count].hostName));
-			servers[*count].visible = qtrue;
+			servers[*count].visible = true;
 			(*count)++;
 			return 1;
 		}
@@ -505,7 +505,7 @@ static void LAN_GetPingInfo( int n, char *buf, int buflen ) {
 LAN_MarkServerVisible
 ====================
 */
-static void LAN_MarkServerVisible(int source, int n, qboolean visible ) {
+static void LAN_MarkServerVisible(int source, int n, bool visible ) {
 	if (n == -1) {
 		int count = MAX_OTHER_SERVERS;
 		serverInfo_t *server = NULL;
@@ -575,7 +575,7 @@ static int LAN_ServerIsVisible(int source, int n ) {
 			}
 			break;
 	}
-	return qfalse;
+	return false;
 }
 
 
@@ -584,7 +584,7 @@ static int LAN_ServerIsVisible(int source, int n ) {
 LAN_UpdateVisiblePings
 =======================
 */
-static qboolean LAN_UpdateVisiblePings(int source ) {
+static bool LAN_UpdateVisiblePings(int source ) {
 	return CL_UpdateVisiblePings_f(source);
 }
 
@@ -713,19 +713,19 @@ static int GetConfigString(int index, char *buf, int size)
 	int		offset;
 
 	if (index < 0 || index >= MAX_CONFIGSTRINGS)
-		return qfalse;
+		return false;
 
 	offset = cl.gameState.stringOffsets[index];
 	if (!offset) {
 		if( size ) {
 			buf[0] = 0;
 		}
-		return qfalse;
+		return false;
 	}
 
 	Q_strncpyz( buf, cl.gameState.stringData+offset, size);
 
-	return qtrue;
+	return true;
 }
 
 
@@ -758,19 +758,19 @@ static void *VM_ArgPtr( intptr_t intValue ) {
 }
 
 
-static qboolean UI_GetValue( char* value, int valueSize, const char* key ) {
+static bool UI_GetValue( char* value, int valueSize, const char* key ) {
 
 	if ( !Q_stricmp( key, "trap_R_AddRefEntityToScene2" ) ) {
 		Com_sprintf( value, valueSize, "%i", UI_R_ADDREFENTITYTOSCENE2 );
-		return qtrue;
+		return true;
 	}
 
 	if ( !Q_stricmp( key, "trap_R_AddLinearLightToScene_Q3E" ) && re.AddLinearLightToScene ) {
 		Com_sprintf( value, valueSize, "%i", UI_R_ADDLINEARLIGHTTOSCENE );
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 
@@ -890,7 +890,7 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return 0;
 
 	case UI_R_ADDREFENTITYTOSCENE:
-		re.AddRefEntityToScene( VMA(1), qfalse );
+		re.AddRefEntityToScene( VMA(1), false );
 		return 0;
 
 	case UI_R_ADDPOLYTOSCENE:
@@ -1160,7 +1160,7 @@ static intptr_t CL_UISystemCalls( intptr_t *args ) {
 
 	// engine extensions
 	case UI_R_ADDREFENTITYTOSCENE2:
-		re.AddRefEntityToScene( VMA(1), qtrue );
+		re.AddRefEntityToScene( VMA(1), true );
 		return 0;
 
 	// engine extensions
@@ -1212,7 +1212,7 @@ CL_ShutdownUI
 */
 void CL_ShutdownUI( void ) {
 	Key_SetCatcher( Key_GetCatcher() & ~KEYCATCH_UI );
-	cls.uiStarted = qfalse;
+	cls.uiStarted = false;
 	if ( !uivm ) {
 		return;
 	}
@@ -1234,7 +1234,7 @@ void CL_InitUI( void ) {
 	vmInterpret_t		interpret;
 
 	// disallow vl.collapse for UI elements
-	re.VertexLighting( qfalse );
+	re.VertexLighting( false );
 
 	// load the dll or bytecode
 	interpret = Cvar_VariableIntegerValue( "vm_ui" );
@@ -1252,7 +1252,7 @@ void CL_InitUI( void ) {
 			// so allow referencing everything until we download all files
 			// new gamestate will be requested after downloads complete
 			// which will correct filesystem permissions
-			fs_reordered = qfalse;
+			fs_reordered = false;
 			FS_PureServerSetLoadedPaks( "", "" );
 			uivm = VM_Create( VM_UI, CL_UISystemCalls, UI_DllSyscall, interpret );
 			if ( !uivm ) {
@@ -1272,7 +1272,7 @@ void CL_InitUI( void ) {
 		uivm = NULL;
 
 		Com_Error( ERR_DROP, "User Interface is version %d, expected %d", v, UI_API_VERSION );
-		cls.uiStarted = qfalse;
+		cls.uiStarted = false;
 	}
 	else {
 		// init for this gamestate
@@ -1282,11 +1282,11 @@ void CL_InitUI( void ) {
 
 
 #ifndef STANDALONE
-qboolean UI_usesUniqueCDKey( void ) {
+bool UI_usesUniqueCDKey( void ) {
 	if (uivm) {
 		return (VM_Call( uivm, 0, UI_HASUNIQUECDKEY ) != 0);
 	} else {
-		return qfalse;
+		return false;
 	}
 }
 #endif
@@ -1299,9 +1299,9 @@ UI_GameCommand
 See if the current console command is claimed by the ui
 ====================
 */
-qboolean UI_GameCommand( void ) {
+bool UI_GameCommand( void ) {
 	if ( !uivm ) {
-		return qfalse;
+		return false;
 	}
 
 	return VM_Call( uivm, 1, UI_CONSOLE_COMMAND, cls.realtime );

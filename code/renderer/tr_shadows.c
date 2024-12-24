@@ -60,7 +60,7 @@ static void R_AddEdgeDef( int i1, int i2, int f ) {
 
 
 static void R_CalcShadowEdges( void ) {
-	qboolean sil_edge;
+	bool sil_edge;
 	int		i;
 	int		c, c2;
 	int		j, k;
@@ -79,12 +79,12 @@ static void R_CalcShadowEdges( void ) {
 				continue;
 			}
 
-			sil_edge = qtrue;
+			sil_edge = true;
 			i2 = edgeDefs[ i ][ j ].i2;
 			c2 = numEdgeDefs[ i2 ];
 			for ( k = 0 ; k < c2 ; k++ ) {
 				if ( edgeDefs[ i2 ][ k ].i2 == i && edgeDefs[ i2 ][ k ].facing ) {
-					sil_edge = qfalse;
+					sil_edge = false;
 					break;
 				}
 			}
@@ -226,7 +226,7 @@ void RB_ShadowTessEnd( void ) {
 
 	qglEnable( GL_TEXTURE_2D );
 
-	backEnd.doneShadows = qtrue;
+	backEnd.doneShadows = true;
 
 	tess.numIndexes = 0;
 }
@@ -255,7 +255,7 @@ void RB_ShadowFinish( void ) {
 		return;
 	}
 
-	backEnd.doneShadows = qfalse;
+	backEnd.doneShadows = false;
 
 	if ( r_shadows->integer != 2 ) {
 		return;

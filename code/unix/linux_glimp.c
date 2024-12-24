@@ -112,15 +112,15 @@ static Atom motifWMHints = None;
 
 static int window_width = 0;
 static int window_height = 0;
-static qboolean window_created;
-static qboolean window_exposed;
+static bool window_created;
+static bool window_exposed;
 
 #define KEY_MASK (KeyPressMask | KeyReleaseMask)
 #define MOUSE_MASK (ButtonPressMask | ButtonReleaseMask | PointerMotionMask | ButtonMotionMask )
 #define X_MASK (KEY_MASK | MOUSE_MASK | VisibilityChangeMask | StructureNotifyMask | FocusChangeMask | ExposureMask )
 
-static qboolean mouse_avail;
-static qboolean mouse_active = qfalse;
+static bool mouse_avail;
+static bool mouse_active = false;
 static int mwx, mwy;
 static int mx = 0, my = 0;
 
@@ -178,7 +178,7 @@ static const char s_keytochar[ 128 ] =
 
 void IN_ActivateMouse( void );
 void IN_DeactivateMouse( void );
-qboolean IN_MouseActive( void );
+bool IN_MouseActive( void );
 
 
 static char *XLateKey( XKeyEvent *ev, int *key )
@@ -448,7 +448,7 @@ static void install_mouse_grab( void )
 		}
 		else
 		{
-			DGA_Mouse( qtrue );
+			DGA_Mouse( true );
 			XWarpPointer( dpy, None, win, 0, 0, 0, 0, window_width / 2, window_height / 2 );
 		}
 	}
@@ -487,12 +487,12 @@ static void uninstall_mouse_grab( void )
 		{
 			Com_Printf( "DGA Mouse - Disabling DGA DirectVideo\n" );
 		}
-		DGA_Mouse( qfalse );
+		DGA_Mouse( false );
 	}
 #endif /* HAVE_XF86DGA */
 
 	// restore mouse settings
-	XChangePointerControl( dpy, qtrue, qtrue, mouse_accel_numerator, 
+	XChangePointerControl( dpy, true, true, mouse_accel_numerator, 
 		mouse_accel_denominator, mouse_threshold );
 
 	XWarpPointer( dpy, None, win, 0, 0, 0, 0, window_width / 2, window_height / 2 );
@@ -528,7 +528,7 @@ static void uninstall_kb_grab( void )
  *  same timestamp on press/release event pairs 
  *  for key repeats.
  */
-static qboolean X11_PendingInput( void )
+static bool X11_PendingInput( void )
 {
 	assert(dpy != NULL);
 
@@ -537,7 +537,7 @@ static qboolean X11_PendingInput( void )
 
 	if ( XEventsQueued( dpy, QueuedAlready ) )
 	{
-		return qtrue;
+		return true;
 	}
 
 	// More drastic measures are required -- see if X is ready to talk
@@ -556,11 +556,11 @@ static qboolean X11_PendingInput( void )
 	}
 
 	// Oh well, nothing is ready ..
-	return qfalse;
+	return false;
 }
 
 
-static qboolean repeated_press( XEvent *event )
+static bool repeated_press( XEvent *event )
 {
 	XEvent        peek;
 
@@ -574,15 +574,15 @@ static qboolean repeated_press( XEvent *event )
 			 ( peek.xkey.keycode == event->xkey.keycode ) &&
 			 ( peek.xkey.time == event->xkey.time ) )
 		{
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 
-static qboolean WindowMinimized( Display *dpy, Window win )
+static bool WindowMinimized( Display *dpy, Window win )
 {
 	unsigned long i, num_items, bytes_after;
 	Atom actual_type, *atoms, nws, nwsh;
@@ -590,11 +590,11 @@ static qboolean WindowMinimized( Display *dpy, Window win )
 
 	nws = XInternAtom( dpy, "_NET_WM_STATE", True );
 	if ( nws == BadValue || nws == None )
-		return qfalse;
+		return false;
 
 	nwsh = XInternAtom( dpy, "_NET_WM_STATE_HIDDEN", True );
 	if ( nwsh == BadValue || nwsh == None )
-		return qfalse;
+		return false;
 
 	atoms = NULL;
 
@@ -607,19 +607,19 @@ static qboolean WindowMinimized( Display *dpy, Window win )
 		if ( atoms[i] == nwsh )
 		{
 			XFree( atoms );
-			return qtrue;
+			return true;
 		}
 	}
 
 	XFree( atoms );
-	return qfalse;
+	return false;
 }
 
 
-static qboolean directMap( const byte chr )
+static bool directMap( const byte chr )
 {
 	if ( !in_forceCharset->integer )
-		return qtrue;
+		return true;
 
 	switch ( chr ) // edit control sequences
 	{
@@ -631,12 +631,12 @@ static qboolean directMap( const byte chr )
 		case 'n'-'a'+1:
 		case 'p'-'a'+1:
 		case 'l'-'a'+1: // CTRL+L
-			return qtrue;
+			return true;
 	}
 	if ( chr < ' ' || chr > 127 || in_forceCharset->integer > 1 )
-		return qfalse;
+		return false;
 	else
-		return qtrue;
+		return true;
 }
 
 
@@ -691,11 +691,11 @@ void HandleEvents( void )
 	XEvent event;
 	int btn_code;
 	int key;
-	qboolean dowarp = qfalse;
+	bool dowarp = false;
 	char *p;
 	int dx, dy;
 	int t = 0; // default to 0 in case we don't set
-	qboolean btn_press;
+	bool btn_press;
 	char buf[2];
 
 	if ( !dpy )
@@ -758,7 +758,7 @@ void HandleEvents( void )
 			}
 			if (key)
 			{
-				Sys_QueEvent( t, SE_KEY, key, qtrue, 0, NULL );
+				Sys_QueEvent( t, SE_KEY, key, true, 0, NULL );
 			}
 			while (*p)
 			{
@@ -774,7 +774,7 @@ void HandleEvents( void )
 			t = Sys_XTimeToSysTime( event.xkey.time );
 
 			XLateKey( &event.xkey, &key );
-			Sys_QueEvent( t, SE_KEY, key, qfalse, 0, NULL );
+			Sys_QueEvent( t, SE_KEY, key, false, 0, NULL );
 
 			break; // case KeyRelease
 
@@ -815,7 +815,7 @@ void HandleEvents( void )
 					my += dy;
 					mwx = event.xmotion.x;
 					mwy = event.xmotion.y;
-					dowarp = qtrue;
+					dowarp = true;
 				} // if ( !in_dgamouse->value )
 			} // if ( mouse_active )
 			break;
@@ -826,9 +826,9 @@ void HandleEvents( void )
 				break;
 
 			if ( event.type == ButtonPress )
-				btn_press = qtrue;
+				btn_press = true;
 			else
-				btn_press = qfalse;
+				btn_press = false;
 			t = Sys_XTimeToSysTime( event.xkey.time );
 			// NOTE TTimo there seems to be a weird mapping for K_MOUSE1 K_MOUSE2 K_MOUSE3 ..
 			btn_code = -1;
@@ -896,17 +896,17 @@ void HandleEvents( void )
 		case FocusIn:
 		case FocusOut:
 			if ( event.type == FocusIn ) {
-				gw_active = qtrue;
+				gw_active = true;
 				Com_DPrintf( "FocusIn\n" );
 			} else {
-				gw_active = qfalse;
+				gw_active = false;
 				Com_DPrintf( "FocusOut\n" );
 			}
 			Key_ClearStates();
 			break;
 
 		case Expose:
-			window_exposed = qtrue;
+			window_exposed = true;
 			break;
 		}
 	}
@@ -952,7 +952,7 @@ void IN_ActivateMouse( void )
 		}
 		install_mouse_grab();
 		install_kb_grab();
-		mouse_active = qtrue;
+		mouse_active = true;
 	}
 }
 
@@ -977,7 +977,7 @@ void IN_DeactivateMouse( void )
 		{
 			Cvar_Set( "in_dgamouse", "0" );
 		}
-		mouse_active = qfalse;
+		mouse_active = false;
 	}
 }
 
@@ -987,7 +987,7 @@ void IN_DeactivateMouse( void )
 IN_MouseActive
 ================
 */
-qboolean IN_MouseActive( void )
+bool IN_MouseActive( void )
 {
 	return ( in_nograb->integer == 0 && mouse_active );
 }
@@ -1008,7 +1008,7 @@ void IN_Minimize( void )
 }
 
 
-qboolean BuildGammaRampTable( unsigned char *red, unsigned char *green, unsigned char *blue, int gammaRampSize, unsigned short table[3][4096] )
+bool BuildGammaRampTable( unsigned char *red, unsigned char *green, unsigned char *blue, int gammaRampSize, unsigned short table[3][4096] )
 {
 	int i, j;
 	int m, m1;
@@ -1023,7 +1023,7 @@ qboolean BuildGammaRampTable( unsigned char *red, unsigned char *green, unsigned
 		case 4096: shift = 4; break;
 		default:
 			Com_Printf( "Unsupported gamma ramp size: %d\n", gammaRampSize );
-		return qfalse;
+		return false;
 	};
 	
 	m = gammaRampSize / 256;
@@ -1046,7 +1046,7 @@ qboolean BuildGammaRampTable( unsigned char *red, unsigned char *green, unsigned
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*****************************************************************************/
@@ -1082,7 +1082,7 @@ void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned 
 ** for the window.  The state structure is also nulled out.
 **
 */
-void GLimp_Shutdown( qboolean unloadDLL )
+void GLimp_Shutdown( bool unloadDLL )
 {
 	IN_DeactivateMouse();
 
@@ -1095,7 +1095,7 @@ void GLimp_Shutdown( qboolean unloadDLL )
 		if ( glw_state.randr_gamma && glw_state.gammaSet )
 		{
 			RandR_RestoreGamma();
-			glw_state.gammaSet = qfalse;
+			glw_state.gammaSet = false;
 		}
 
 		RandR_RestoreMode();
@@ -1116,7 +1116,7 @@ void GLimp_Shutdown( qboolean unloadDLL )
 		if ( glw_state.gammaSet )
 		{
 			VidMode_RestoreGamma();
-			glw_state.gammaSet = qfalse;
+			glw_state.gammaSet = false;
 		}
 
 		if ( glw_state.vidmode_active )
@@ -1141,8 +1141,8 @@ void GLimp_Shutdown( qboolean unloadDLL )
 		VidMode_Done();
 	}
 
-	glw_state.desktop_ok = qfalse;
-	glw_state.cdsFullscreen = qfalse;
+	glw_state.desktop_ok = false;
+	glw_state.cdsFullscreen = false;
 
 	unsetenv( "vblank_mode" );
 
@@ -1155,7 +1155,7 @@ void GLimp_Shutdown( qboolean unloadDLL )
 /*
 ** VKimp_Shutdown
 */
-void VKimp_Shutdown( qboolean unloadDLL )
+void VKimp_Shutdown( bool unloadDLL )
 {
 	IN_DeactivateMouse();
 
@@ -1168,7 +1168,7 @@ void VKimp_Shutdown( qboolean unloadDLL )
 		if ( glw_state.randr_gamma && glw_state.gammaSet )
 		{
 			RandR_RestoreGamma();
-			glw_state.gammaSet = qfalse;
+			glw_state.gammaSet = false;
 		}
 
 		RandR_RestoreMode();
@@ -1182,7 +1182,7 @@ void VKimp_Shutdown( qboolean unloadDLL )
 		if ( glw_state.gammaSet )
 		{
 			VidMode_RestoreGamma();
-			glw_state.gammaSet = qfalse;
+			glw_state.gammaSet = false;
 		}
 
 		if ( glw_state.vidmode_active )
@@ -1207,8 +1207,8 @@ void VKimp_Shutdown( qboolean unloadDLL )
 		VidMode_Done();
 	}
 
-	glw_state.desktop_ok = qfalse;
-	glw_state.cdsFullscreen = qfalse;
+	glw_state.desktop_ok = false;
+	glw_state.cdsFullscreen = false;
 
 	unsetenv( "vblank_mode" );
 
@@ -1232,9 +1232,9 @@ void GLimp_LogComment( const char *comment )
 /*
 ** GLW_StartDriverAndSetMode
 */
-int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vulkan );
+int GLW_SetMode( int mode, const char *modeFS, bool fullscreen, bool vulkan );
 
-static rserr_t GLW_StartDriverAndSetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vulkan )
+static rserr_t GLW_StartDriverAndSetMode( int mode, const char *modeFS, bool fullscreen, bool vulkan )
 {
 	rserr_t err;
 	
@@ -1242,8 +1242,8 @@ static rserr_t GLW_StartDriverAndSetMode( int mode, const char *modeFS, qboolean
 	{
 		Com_Printf( "Fullscreen not allowed with in_nograb 1\n");
 		Cvar_Set( "r_fullscreen", "0" );
-		r_fullscreen->modified = qfalse;
-		fullscreen = qfalse;
+		r_fullscreen->modified = false;
+		fullscreen = false;
 	}
 
 	err = GLW_SetMode( mode, modeFS, fullscreen, vulkan );
@@ -1435,7 +1435,7 @@ static XVisualInfo *VK_SelectVisual( int colorbits, int depthbits, int stencilbi
 /*
 ** GLW_SetMode
 */
-int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vulkan )
+int GLW_SetMode( int mode, const char *modeFS, bool fullscreen, bool vulkan )
 {
 	glconfig_t *config = glw_state.config;
 	Window root;
@@ -1449,11 +1449,11 @@ int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vul
 
 	window_width = 0;
 	window_height = 0;
-	window_created = qfalse;
+	window_created = false;
 
-	glw_state.dga_ext = qfalse;
-	glw_state.randr_ext = qfalse;
-	glw_state.vidmode_ext = qfalse;
+	glw_state.dga_ext = false;
+	glw_state.randr_ext = false;
+	glw_state.vidmode_ext = false;
 
 	if ( dpy == NULL )
 	{
@@ -1514,7 +1514,7 @@ int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vul
 		if ( fullscreen )
 			RandR_SetMode( &actualWidth, &actualHeight, &actualRate );
 		else
-			glw_state.randr_active = qtrue;
+			glw_state.randr_active = true;
 	}
 
 	if ( glw_state.vidmode_ext && !glw_state.randr_active )
@@ -1587,11 +1587,11 @@ int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vul
 		mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
 	}
 
-	window_exposed = qfalse;
-	window_created = qfalse;
+	window_exposed = false;
+	window_created = false;
 
-	gw_active = qfalse;
-	gw_minimized = qfalse; /* safe default */
+	gw_active = false;
+	gw_minimized = false; /* safe default */
 
 	win = XCreateWindow( dpy, root, 0, 0, actualWidth, actualHeight,
 		0, visinfo->depth, InputOutput, visinfo->visual, mask, &attr );
@@ -1628,7 +1628,7 @@ int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vul
 	if ( wmDeleteEvent != None )
 		XSetWMProtocols( dpy, win, &wmDeleteEvent, 1 );
 
-	window_created = qtrue;
+	window_created = true;
 
 	if ( fullscreen )
 	{
@@ -1675,7 +1675,7 @@ int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vul
 	}
 
 //	XSync( dpy, False );
-	while ( window_exposed == qfalse )
+	while ( window_exposed == false )
 	{
 		HandleEvents();
 	}
@@ -1686,19 +1686,19 @@ int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vul
 
 void GLimp_InitGamma( glconfig_t *config )
 {
-	config->deviceSupportsGamma = qfalse;
+	config->deviceSupportsGamma = false;
 
 	if ( glw_state.randr_gamma )
 	{
 		Com_Printf( "...using xrandr gamma extension\n" );
-		config->deviceSupportsGamma = qtrue;
+		config->deviceSupportsGamma = true;
 		return;
 	}
 
 	if ( glw_state.vidmode_gamma )
 	{
 		Com_Printf( "...using vidmode gamma extension\n" );
-		config->deviceSupportsGamma = qtrue;
+		config->deviceSupportsGamma = true;
 		return;
 	}
 }
@@ -1755,9 +1755,9 @@ static void InitCvars( void )
 ** GLimp_win.c internal function that that attempts to load and use 
 ** a specific OpenGL DLL.
 */
-static qboolean GLW_LoadOpenGL( const char *name )
+static bool GLW_LoadOpenGL( const char *name )
 {
-	qboolean fullscreen;
+	bool fullscreen;
 
 	if ( r_swapInterval->integer )
 		setenv( "vblank_mode", "2", 1 );
@@ -1771,7 +1771,7 @@ static qboolean GLW_LoadOpenGL( const char *name )
 		fullscreen = (r_fullscreen->integer != 0);
 
 		// create the window and set up the context
-		err = GLW_StartDriverAndSetMode( r_mode->integer, r_modeFullscreen->string, fullscreen, qfalse /* vulkan */ );
+		err = GLW_StartDriverAndSetMode( r_mode->integer, r_modeFullscreen->string, fullscreen, false /* vulkan */ );
 		if ( err != RSERR_OK )
 		{
 			if ( err == RSERR_FATAL_ERROR )
@@ -1781,7 +1781,7 @@ static qboolean GLW_LoadOpenGL( const char *name )
 			{
 				Com_Printf( "Setting \\r_mode %d failed, falling back on \\r_mode %d\n", r_mode->integer, 3 );
 
-				if ( GLW_StartDriverAndSetMode( 3, "", fullscreen, qfalse /* vulkan */ ) != RSERR_OK )
+				if ( GLW_StartDriverAndSetMode( 3, "", fullscreen, false /* vulkan */ ) != RSERR_OK )
 				{
 					goto fail;
 				}
@@ -1791,17 +1791,17 @@ static qboolean GLW_LoadOpenGL( const char *name )
 				goto fail;
 			}
 		}
-		return qtrue;
+		return true;
 	}
 	fail:
 
-	QGL_Shutdown( qtrue );
+	QGL_Shutdown( true );
 
-	return qfalse;
+	return false;
 }
 
 
-static qboolean GLW_StartOpenGL( void )
+static bool GLW_StartOpenGL( void )
 {
 	//
 	// load and initialize the specific OpenGL driver
@@ -1814,16 +1814,16 @@ static qboolean GLW_StartOpenGL( void )
 			if ( GLW_LoadOpenGL( OPENGL_DRIVER_NAME ) )
 			{
 				Cvar_Set( "r_glDriver", OPENGL_DRIVER_NAME );
-				r_glDriver->modified = qfalse;
-				return qtrue;
+				r_glDriver->modified = false;
+				return true;
 			}
 		}
 
 		Com_Error( ERR_FATAL, "GLW_StartOpenGL() - could not load OpenGL subsystem\n" );
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 
@@ -1864,7 +1864,7 @@ void GLimp_Init( glconfig_t *config )
 	if ( qglXSwapIntervalEXT || qglXSwapIntervalMESA || qglXSwapIntervalSGI )
 	{
 		Com_Printf( "...using GLX_EXT_swap_control\n" );
-		Cvar_SetModified( "r_swapInterval", qtrue ); // force a set next frame
+		Cvar_SetModified( "r_swapInterval", true ); // force a set next frame
 	}
 	else
 	{
@@ -1890,7 +1890,7 @@ void GLimp_EndFrame( void )
 	// swapinterval stuff
 	//
 	if ( r_swapInterval->modified ) {
-		r_swapInterval->modified = qfalse;
+		r_swapInterval->modified = false;
 
 		if ( qglXSwapIntervalEXT ) {
 			qglXSwapIntervalEXT( dpy, win, r_swapInterval->integer );
@@ -1914,7 +1914,7 @@ void GLimp_EndFrame( void )
 /*
 ** GLW_LoadVulkan
 */
-static qboolean GLW_LoadVulkan( void )
+static bool GLW_LoadVulkan( void )
 {
 	if ( r_swapInterval->integer )
 		setenv( "vblank_mode", "2", 1 );
@@ -1925,23 +1925,23 @@ static qboolean GLW_LoadVulkan( void )
 	if ( QVK_Init() )
 	{
 		rserr_t err;
-		qboolean fullscreen = (r_fullscreen->integer != 0);
+		bool fullscreen = (r_fullscreen->integer != 0);
 
 		// create the window and set up the context
-		err = GLW_StartDriverAndSetMode( r_mode->integer, r_modeFullscreen->string, fullscreen, qtrue /* vulkan */ );
+		err = GLW_StartDriverAndSetMode( r_mode->integer, r_modeFullscreen->string, fullscreen, true /* vulkan */ );
 		if ( err == RSERR_OK )
 		{
-			return qtrue;
+			return true;
 		}
 	}
 
-	QVK_Shutdown( qtrue );
+	QVK_Shutdown( true );
 
-	return qfalse;
+	return false;
 }
 
 
-static qboolean GLW_StartVulkan( void )
+static bool GLW_StartVulkan( void )
 {
 	//
 	// load and initialize the specific Vulkan driver
@@ -1949,10 +1949,10 @@ static qboolean GLW_StartVulkan( void )
 	if ( !GLW_LoadVulkan() )
 	{
 		Com_Error( ERR_FATAL, "GLW_StartVulkan() - could not load Vulkan subsystem\n" );
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 
@@ -2011,11 +2011,11 @@ void IN_Init( void )
 
 	if ( in_mouse->integer )
 	{
-		mouse_avail = qtrue;
+		mouse_avail = true;
 	}
 	else
 	{
-		mouse_avail = qfalse;
+		mouse_avail = false;
 	}
 
 #ifdef USE_JOYSTICK
@@ -2039,7 +2039,7 @@ void IN_Init( void )
 
 void IN_Shutdown( void )
 {
-	mouse_avail = qfalse;
+	mouse_avail = false;
 
 	Cmd_RemoveCommand( "minimize" );
 	Cmd_RemoveCommand( "in_restart" );

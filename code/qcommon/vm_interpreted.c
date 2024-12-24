@@ -107,7 +107,7 @@ static void VM_FindMOps( instruction_t *buf, int instructionCount )
 VM_PrepareInterpreter2
 ====================
 */
-qboolean VM_PrepareInterpreter2( vm_t *vm, vmHeader_t *header )
+bool VM_PrepareInterpreter2( vm_t *vm, vmHeader_t *header )
 {
 	const char *errMsg;
 	instruction_t *buf;
@@ -119,7 +119,7 @@ qboolean VM_PrepareInterpreter2( vm_t *vm, vmHeader_t *header )
 	}
 	if ( errMsg ) {
 		Com_Printf( "VM_PrepareInterpreter2 error: %s\n", errMsg );
-		return qfalse;
+		return false;
 	}
 
 	VM_ReplaceInstructions( vm, buf );
@@ -127,7 +127,7 @@ qboolean VM_PrepareInterpreter2( vm_t *vm, vmHeader_t *header )
 	VM_FindMOps( buf, vm->instructionCount );
 
 	vm->codeBase.ptr = (void*)buf;
-	return qtrue;
+	return true;
 }
 
 
@@ -169,7 +169,7 @@ int VM_CallInterpreted2( vm_t *vm, int nargs, int32_t *args ) {
 	int		i;
 
 	// interpret the code
-	//vm->currentlyInterpreting = qtrue;
+	//vm->currentlyInterpreting = true;
 
 	// we might be called recursively, so this might not be the very top
 	programStack = stackOnEntry = vm->programStack;
@@ -602,7 +602,7 @@ nextInstruction2:
 	}
 
 done:
-	//vm->currentlyInterpreting = qfalse;
+	//vm->currentlyInterpreting = false;
 
 	if ( opStack != &stack[2] ) {
 		Com_Error( ERR_DROP, "Interpreter error: opStack = %ld", (long int) (opStack - stack) );

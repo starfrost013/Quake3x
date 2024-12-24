@@ -29,7 +29,7 @@ key up events are sent even if in console mode
 
 field_t		g_consoleField;
 field_t		chatField;
-qboolean	chat_team;
+bool	chat_team;
 
 int			chat_playerNum;
 
@@ -52,8 +52,8 @@ Handles horizontal scrolling and cursor blinking
 x, y, and width are in pixels
 ===================
 */
-static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, qboolean showCursor,
-		qboolean noColorEscape ) {
+static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, bool showCursor,
+		bool noColorEscape ) {
 	int		len;
 	int		drawLen;
 	int		prestep;
@@ -112,18 +112,18 @@ static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int 
 	// draw it
 	if ( size == smallchar_width ) {
 		SCR_DrawSmallStringExt( x, y, str, g_color_table[ ColorIndexFromChar( curColor ) ],
-			qfalse, noColorEscape );
+			false, noColorEscape );
 		if ( len > drawLen + prestep ) {
 			SCR_DrawSmallChar( x + ( edit->widthInChars - 1 ) * size, y, '>' );
 		}
 	} else {
 		if ( len > drawLen + prestep ) {
 			SCR_DrawStringExt( x + ( edit->widthInChars - 1 ) * BIGCHAR_WIDTH, y, size, ">",
-				g_color_table[ ColorIndex( COLOR_WHITE ) ], qfalse, noColorEscape );
+				g_color_table[ ColorIndex( COLOR_WHITE ) ], false, noColorEscape );
 		}
 		// draw big string with drop shadow
 		SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, str, g_color_table[ ColorIndexFromChar( curColor ) ],
-			qfalse, noColorEscape );
+			false, noColorEscape );
 	}
 
 	// draw the cursor
@@ -145,19 +145,19 @@ static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int 
 		} else {
 			str[0] = cursorChar;
 			str[1] = '\0';
-			SCR_DrawBigString( x + ( edit->cursor - prestep - i ) * BIGCHAR_WIDTH, y, str, 1.0, qfalse );
+			SCR_DrawBigString( x + ( edit->cursor - prestep - i ) * BIGCHAR_WIDTH, y, str, 1.0, false );
 		}
 	}
 }
 
 
-void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape )
+void Field_Draw( field_t *edit, int x, int y, int width, bool showCursor, bool noColorEscape )
 {
 	Field_VariableSizeDraw( edit, x, y, width, smallchar_width, showCursor, noColorEscape );
 }
 
 
-void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape )
+void Field_BigDraw( field_t *edit, int x, int y, int width, bool showCursor, bool noColorEscape )
 {
 	Field_VariableSizeDraw( edit, x, y, width, bigchar_width, showCursor, noColorEscape );
 }
@@ -523,7 +523,7 @@ static void Message_Key( int key ) {
 			else
 				Com_sprintf( buffer, sizeof( buffer ), "say \"%s\"\n", chatField.buffer );
 
-			CL_AddReliableCommand( buffer, qfalse );
+			CL_AddReliableCommand( buffer, false );
 		}
 		Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_MESSAGE );
 		Field_Clear( &chatField );
@@ -545,8 +545,8 @@ Called by CL_KeyEvent to handle a keypress
 */
 static void CL_KeyDownEvent( int key, unsigned time )
 {
-	keys[key].down = qtrue;
-	keys[key].bound = qfalse;
+	keys[key].down = true;
+	keys[key].bound = false;
 	keys[key].repeats++;
 
 	if ( keys[key].repeats == 1 ) {
@@ -623,7 +623,7 @@ static void CL_KeyDownEvent( int key, unsigned time )
 				Cvar_Set( "com_errorMessage", "" );
 				if ( cls.state == CA_CINEMATIC ) {
 					SCR_StopCinematic();
-				} else if ( !CL_Disconnect( qfalse ) ) { // restart client if not done already
+				} else if ( !CL_Disconnect( false ) ) { // restart client if not done already
 					CL_FlushMemory();
 				}
 
@@ -632,7 +632,7 @@ static void CL_KeyDownEvent( int key, unsigned time )
 			return;
 		}
 
-		VM_Call( uivm, 2, UI_KEY_EVENT, key, qtrue );
+		VM_Call( uivm, 2, UI_KEY_EVENT, key, true );
 		return;
 	}
 
@@ -641,11 +641,11 @@ static void CL_KeyDownEvent( int key, unsigned time )
 		Console_Key( key );
 	} else if ( Key_GetCatcher( ) & KEYCATCH_UI ) {
 		if ( uivm ) {
-			VM_Call( uivm, 2, UI_KEY_EVENT, key, qtrue );
+			VM_Call( uivm, 2, UI_KEY_EVENT, key, true );
 		}
 	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME ) {
 		if ( cgvm ) {
-			VM_Call( cgvm, 2, CG_KEY_EVENT, key, qtrue );
+			VM_Call( cgvm, 2, CG_KEY_EVENT, key, true );
 		}
 	} else if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE ) {
 		Message_Key( key );
@@ -653,7 +653,7 @@ static void CL_KeyDownEvent( int key, unsigned time )
 		Console_Key( key );
 	} else {
 		// send the bound action
-		Key_ParseBinding( key, qtrue, time );
+		Key_ParseBinding( key, true, time );
 	}
 }
 
@@ -667,11 +667,11 @@ Called by CL_KeyEvent to handle a keyrelease
 */
 static void CL_KeyUpEvent( int key, unsigned time )
 {
-	const qboolean bound = keys[key].bound;
+	const bool bound = keys[key].bound;
 
 	keys[key].repeats = 0;
-	keys[key].down = qfalse;
-	keys[key].bound = qfalse;
+	keys[key].down = false;
+	keys[key].bound = false;
 
 	if ( --anykeydown < 0 ) {
 		anykeydown = 0;
@@ -695,17 +695,17 @@ static void CL_KeyUpEvent( int key, unsigned time )
 	//
 	if ( cls.state != CA_DISCONNECTED ) {
 		if ( bound || ( Key_GetCatcher() & KEYCATCH_CGAME ) ) {
-			Key_ParseBinding( key, qfalse, time );
+			Key_ParseBinding( key, false, time );
 		}
 	}
 
 	if ( Key_GetCatcher() & KEYCATCH_UI ) {
 		if ( uivm ) {
-			VM_Call( uivm, 2, UI_KEY_EVENT, key, qfalse );
+			VM_Call( uivm, 2, UI_KEY_EVENT, key, false );
 		}
 	} else if ( Key_GetCatcher() & KEYCATCH_CGAME ) {
 		if ( cgvm ) {
-			VM_Call( cgvm, 2, CG_KEY_EVENT, key, qfalse );
+			VM_Call( cgvm, 2, CG_KEY_EVENT, key, false );
 		}
 	}
 }
@@ -718,7 +718,7 @@ CL_KeyEvent
 Called by the system for both key up and key down events
 ===================
 */
-void CL_KeyEvent( int key, qboolean down, unsigned time )
+void CL_KeyEvent( int key, bool down, unsigned time )
 {
 	if ( down )
 		CL_KeyDownEvent( key, time );
@@ -748,7 +748,7 @@ void CL_CharEvent( int key )
 	}
 	else if ( Key_GetCatcher( ) & KEYCATCH_UI )
 	{
-		VM_Call( uivm, 2, UI_KEY_EVENT, key | K_CHAR_FLAG, qtrue );
+		VM_Call( uivm, 2, UI_KEY_EVENT, key | K_CHAR_FLAG, true );
 	}
 	else if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE )
 	{
@@ -775,9 +775,9 @@ void Key_ClearStates( void )
 	for ( i = 0 ; i < MAX_KEYS ; i++ )
 	{
 		if ( keys[i].down )
-			CL_KeyEvent( i, qfalse, 0 );
+			CL_KeyEvent( i, false, 0 );
 
-		keys[i].down = qfalse;
+		keys[i].down = false;
 		keys[i].repeats = 0;
 	}
 }

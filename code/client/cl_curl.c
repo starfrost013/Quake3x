@@ -73,7 +73,7 @@ static void *GPA(const char *str)
 	if(!rv)
 	{
 		Com_Printf("Can't load symbol %s\n", str);
-		clc.cURLEnabled = qfalse;
+		clc.cURLEnabled = false;
 		return NULL;
 	}
 	else
@@ -89,18 +89,18 @@ static void *GPA(const char *str)
 CL_cURL_Init
 =================
 */
-qboolean CL_cURL_Init( void )
+bool CL_cURL_Init( void )
 {
 #ifdef USE_CURL_DLOPEN
 	if(cURLLib)
-		return qtrue;
+		return true;
 
 
 	Com_Printf("Loading \"%s\"...", cl_cURLLib->string);
 	if( (cURLLib = Sys_LoadLibrary(cl_cURLLib->string)) == 0 )
 	{
 #ifdef _WIN32
-		return qfalse;
+		return false;
 #else
 		char fn[1024];
 
@@ -114,16 +114,16 @@ qboolean CL_cURL_Init( void )
 			// On some linux distributions there is no libcurl.so.3, but only libcurl.so.4. That one works too.
 			if( (cURLLib = Sys_LoadLibrary(ALTERNATE_CURL_LIB)) == 0 )
 			{
-				return qfalse;
+				return false;
 			}
 #else
-			return qfalse;
+			return false;
 #endif
 		}
 #endif /* _WIN32 */
 	}
 
-	clc.cURLEnabled = qtrue;
+	clc.cURLEnabled = true;
 
 	qcurl_version = GPA("curl_version");
 
@@ -149,14 +149,14 @@ qboolean CL_cURL_Init( void )
 	{
 		CL_cURL_Shutdown();
 		Com_Printf("FAIL One or more symbols not found\n");
-		return qfalse;
+		return false;
 	}
 	Com_Printf("OK\n");
 
-	return qtrue;
+	return true;
 #else
-	clc.cURLEnabled = qtrue;
-	return qtrue;
+	clc.cURLEnabled = true;
+	return true;
 #endif /* USE_CURL_DLOPEN */
 }
 
@@ -295,7 +295,7 @@ void CL_cURL_BeginDownload( const char *localName, const char *remoteURL )
 {
 	CURLMcode result;
 
-	clc.cURLUsed = qtrue;
+	clc.cURLUsed = true;
 	Com_Printf("URL: %s\n", remoteURL);
 	Com_DPrintf("***** CL_cURL_BeginDownload *****\n"
 		"Localname: %s\n"
@@ -379,9 +379,9 @@ void CL_cURL_BeginDownload( const char *localName, const char *remoteURL )
 	if(!(clc.sv_allowDownload & DLF_NO_DISCONNECT) &&
 		!clc.cURLDisconnected) {
 
-		CL_AddReliableCommand("disconnect", qtrue);
+		CL_AddReliableCommand("disconnect", true);
 		CL_WritePacket( 2 );
-		clc.cURLDisconnected = qtrue;
+		clc.cURLDisconnected = true;
 	}
 }
 
@@ -407,7 +407,7 @@ void CL_cURL_PerformDownload( void )
 	CL_cURL_CloseDownload();
 	if ( msg->msg == CURLMSG_DONE && msg->data.result == CURLE_OK ) {
 		FS_SV_Rename( clc.downloadTempName, clc.downloadName );
-		clc.downloadRestart = qtrue;
+		clc.downloadRestart = true;
 	}
 	else {
 		long code;
@@ -541,14 +541,14 @@ void Com_DL_Done( download_t *dl )
 Com_DL_Init
 =================
 */
-qboolean Com_DL_Init( download_t *dl )
+bool Com_DL_Init( download_t *dl )
 {
 #ifdef USE_CURL_DLOPEN
 	Com_Printf( "Loading \"%s\"...", cl_cURLLib->string );
 	if( ( dl->func.lib = Sys_LoadLibrary( cl_cURLLib->string ) ) == NULL )
 	{
 #ifdef _WIN32
-		return qfalse;
+		return false;
 #else
 		char fn[1024];
 
@@ -562,10 +562,10 @@ qboolean Com_DL_Init( download_t *dl )
 			// On some linux distributions there is no libcurl.so.3, but only libcurl.so.4. That one works too.
 			if( ( dl->func.lib = Sys_LoadLibrary( ALTERNATE_CURL_LIB ) ) == NULL )
 			{
-				return qfalse;
+				return false;
 			}
 #else
-			return qfalse;
+			return false;
 #endif
 		}
 #endif /* _WIN32 */
@@ -596,12 +596,12 @@ qboolean Com_DL_Init( download_t *dl )
 	{
 		Com_DL_Done( dl );
 		Com_Printf( "FAIL: One or more symbols not found\n" );
-		return qfalse;
+		return false;
 	}
 
 	Com_Printf( "OK\n" );
 
-	return qtrue;
+	return true;
 #else
 
 	dl->func.lib = NULL;
@@ -625,7 +625,7 @@ qboolean Com_DL_Init( download_t *dl )
 	dl->func.multi_info_read = curl_multi_info_read;
 	dl->func.multi_strerror = curl_multi_strerror;
 
-	return qtrue;
+	return true;
 #endif /* USE_CURL_DLOPEN */
 }
 
@@ -635,12 +635,12 @@ qboolean Com_DL_Init( download_t *dl )
 Com_DL_Cleanup
 =================
 */
-qboolean Com_DL_InProgress( const download_t *dl )
+bool Com_DL_InProgress( const download_t *dl )
 {
 	if ( dl->cURL && dl->URL[0] )
-		return qtrue;
+		return true;
 	else
-		return qfalse;
+		return false;
 }
 
 
@@ -692,8 +692,8 @@ void Com_DL_Cleanup( download_t *dl )
 	}
 	dl->TempName[0] = '\0';
 	dl->progress[0] = '\0';
-	dl->headerCheck = qfalse;
-	dl->mapAutoDownload = qfalse;
+	dl->headerCheck = false;
+	dl->mapAutoDownload = false;
 
 	Com_DL_Done( dl );
 }
@@ -814,17 +814,17 @@ static size_t Com_DL_CallbackWrite( void *ptr, size_t size, size_t nmemb, void *
 Com_DL_ValidFileName
 =================
 */
-qboolean Com_DL_ValidFileName( const char *fileName )
+bool Com_DL_ValidFileName( const char *fileName )
 {
 	int c;
 	while ( (c = *fileName++) != '\0' )
 	{
 		if ( c == '/' || c == '\\' || c == ':' )
-			return qfalse;
+			return false;
 		if ( c < ' ' || c > '~' )
-			return qfalse;
+			return false;
 	}
-	return qtrue;
+	return true;
 }
 
 
@@ -907,14 +907,14 @@ Com_DL_Begin()
 Start downloading file from remoteURL and save it under fs_game/localName
 ==============================================================
 */
-qboolean Com_DL_Begin( download_t *dl, const char *localName, const char *remoteURL, qboolean autoDownload )
+bool Com_DL_Begin( download_t *dl, const char *localName, const char *remoteURL, bool autoDownload )
 {
 	char *s;
 
 	if ( Com_DL_InProgress( dl ) )
 	{
 		Com_Printf( S_COLOR_YELLOW " already downloading %s\n", dl->Name );
-		return qfalse;
+		return false;
 	}
 
 	Com_DL_Cleanup( dl );
@@ -922,7 +922,7 @@ qboolean Com_DL_Begin( download_t *dl, const char *localName, const char *remote
 	if ( !Com_DL_Init( dl ) ) 
 	{
 		Com_Printf( S_COLOR_YELLOW "Error initializing cURL library\n" );
-		return qfalse;
+		return false;
 	}
 
 	dl->cURL = dl->func.easy_init();
@@ -930,7 +930,7 @@ qboolean Com_DL_Begin( download_t *dl, const char *localName, const char *remote
 	{
 		Com_Printf( S_COLOR_RED "Com_DL_Begin: easy_init() failed\n" );
 		Com_DL_Cleanup( dl );
-		return qfalse;
+		return false;
 	}
 
 	{
@@ -939,7 +939,7 @@ qboolean Com_DL_Begin( download_t *dl, const char *localName, const char *remote
 		{
 			Com_Printf( S_COLOR_RED "Com_DL_Begin: easy_escape() failed\n" );
 			Com_DL_Cleanup( dl );
-			return qfalse;
+			return false;
 		}
 
 		Q_strncpyz( dl->URL, remoteURL, sizeof( dl->URL ) );
@@ -949,11 +949,11 @@ qboolean Com_DL_Begin( download_t *dl, const char *localName, const char *remote
 			if ( dl->URL[strlen(dl->URL)] != '/' )
 				Q_strcat( dl->URL, sizeof( dl->URL ), "/" );
 			Q_strcat( dl->URL, sizeof( dl->URL ), escapedName );
-			dl->headerCheck = qfalse;
+			dl->headerCheck = false;
 		}
 		else
 		{
-			dl->headerCheck = qtrue;
+			dl->headerCheck = true;
 		}
 		dl->func.free( escapedName );
 	}
@@ -978,7 +978,7 @@ qboolean Com_DL_Begin( download_t *dl, const char *localName, const char *remote
 	if ( !dl->Name[0] )
 	{
 		Com_Printf( S_COLOR_YELLOW " empty filename after extension strip.\n" );
-		return qfalse;
+		return false;
 	}
 
 	Com_sprintf( dl->TempName, sizeof( dl->TempName ), 
@@ -1026,14 +1026,14 @@ qboolean Com_DL_Begin( download_t *dl, const char *localName, const char *remote
 	{
 		Com_DL_Cleanup( dl );
 		Com_Printf( S_COLOR_RED "Com_DL_Begin: multi_init() failed\n" );
-		return qfalse;
+		return false;
 	}
 
 	if ( dl->func.multi_add_handle( dl->cURLM, dl->cURL ) != CURLM_OK ) 
 	{
 		Com_DL_Cleanup( dl );
 		Com_Printf( S_COLOR_RED "Com_DL_Begin: multi_add_handle() failed\n" );
-		return qfalse;
+		return false;
 	}
 
 	dl->mapAutoDownload = autoDownload;
@@ -1046,11 +1046,11 @@ qboolean Com_DL_Begin( download_t *dl, const char *localName, const char *remote
 		Cvar_SetIntegerValue( "cl_downloadTime", cls.realtime );
 	}
 
-	return qtrue;
+	return true;
 }
 
 
-qboolean Com_DL_Perform( download_t *dl )
+bool Com_DL_Perform( download_t *dl )
 {
 	char name[ sizeof( dl->TempName ) ];
 	CURLMcode res;
@@ -1071,13 +1071,13 @@ qboolean Com_DL_Perform( download_t *dl )
 	}
 	if( res == CURLM_CALL_MULTI_PERFORM )
 	{
-		return qtrue;
+		return true;
 	}
 
 	msg = dl->func.multi_info_read( dl->cURLM, &c );
 	if( msg == NULL )
 	{
-		return qtrue;
+		return true;
 	}
 
 	if ( dl->fHandle != FS_INVALID_HANDLE )
@@ -1088,7 +1088,7 @@ qboolean Com_DL_Perform( download_t *dl )
 
 	if ( msg->msg == CURLMSG_DONE && msg->data.result == CURLE_OK )
 	{
-		qboolean autoDownload = dl->mapAutoDownload;
+		bool autoDownload = dl->mapAutoDownload;
 
 		Com_sprintf( name, sizeof( name ), "%s%c%s.pk3", dl->gameDir, PATH_SEP, dl->Name );
 
@@ -1108,26 +1108,26 @@ qboolean Com_DL_Perform( download_t *dl )
 		}
 
 		Com_DL_Cleanup( dl );
-		FS_Reload(); //clc.downloadRestart = qtrue;
+		FS_Reload(); //clc.downloadRestart = true;
 		Com_Printf( S_COLOR_GREEN "%s downloaded\n", name );
 		if ( autoDownload )
 		{
 			if ( cls.state == CA_CONNECTED && !clc.demoplaying )
 			{
-				CL_AddReliableCommand( "donedl", qfalse ); // get new gamestate info from server
+				CL_AddReliableCommand( "donedl", false ); // get new gamestate info from server
 			} 
 			else if ( clc.demoplaying )
 			{
 				// FIXME: there might be better solution than vid_restart
-				cls.startCgame = qtrue;
+				cls.startCgame = true;
 				Cbuf_ExecuteText( EXEC_APPEND, "vid_restart\n" );
 			}
 		}
-		return qfalse;
+		return false;
 	}
 	else
 	{
-		qboolean autoDownload = dl->mapAutoDownload;
+		bool autoDownload = dl->mapAutoDownload;
 		dl->func.easy_getinfo( msg->easy_handle, CURLINFO_RESPONSE_CODE, &code );
 		Com_Printf( S_COLOR_RED "Download Error: %s Code: %ld\n",
 			dl->func.easy_strerror( msg->data.result ), code );
@@ -1143,7 +1143,7 @@ qboolean Com_DL_Perform( download_t *dl )
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 #endif /* USE_CURL */

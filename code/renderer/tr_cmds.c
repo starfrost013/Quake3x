@@ -295,12 +295,12 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		return;
 	}
 
-	glState.finishCalled = qfalse;
+	glState.finishCalled = false;
 
 	tr.frameCount++;
 	tr.frameSceneNum = 0;
 
-	backEnd.doneBloom = qfalse;
+	backEnd.doneBloom = false;
 
 	backEnd.color2D.u32 = ~0U;
 
@@ -338,13 +338,13 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 				} else {
 					return;
 				}
-				clrcmd->colorMask = qtrue;
+				clrcmd->colorMask = true;
 #ifdef USE_FBO
 				if ( !fboEnabled )
 #endif
 				{
 					// clear both, front and backbuffer.
-					clrcmd->frontAndBack = qtrue;
+					clrcmd->frontAndBack = true;
 				}
 			}
 
@@ -397,9 +397,9 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 					return;
 				}
 			}
-			clrcmd->fullscreen = qtrue;
+			clrcmd->fullscreen = true;
 			if ( r_anaglyphMode->integer ) {
-				clrcmd->colorMask = qtrue;
+				clrcmd->colorMask = true;
 			}
 		}
 	}
@@ -443,7 +443,7 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 		*backEndMsec = backEnd.pc.msec;
 	}
 	backEnd.pc.msec = 0;
-	backEnd.throttle = qfalse;
+	backEnd.throttle = false;
 
 	// recompile GPU shaders if needed
 	if ( ri.Cvar_CheckGroup( CVG_RENDERER ) )
@@ -461,7 +461,7 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 		if ( r_gamma->modified )
 			R_SetColorMappings();
 
-		ri.Cvar_ResetGroup( CVG_RENDERER, qtrue );
+		ri.Cvar_ResetGroup( CVG_RENDERER, true );
 	}
 }
 
@@ -472,7 +472,7 @@ RE_TakeVideoFrame
 =============
 */
 void RE_TakeVideoFrame( int width, int height,
-		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg )
+		byte *captureBuffer, byte *encodeBuffer, bool motionJpeg )
 {
 	videoFrameCommand_t	*cmd;
 
@@ -496,7 +496,7 @@ void RE_TakeVideoFrame( int width, int height,
 
 void RE_ThrottleBackend( void )
 {
-	backEnd.throttle = qtrue;
+	backEnd.throttle = true;
 }
 
 
@@ -519,12 +519,12 @@ void RE_FinishBloom( void )
 }
 
 
-qboolean RE_CanMinimize( void )
+bool RE_CanMinimize( void )
 {
 #ifdef USE_FBO
 	return fboEnabled;
 #else
-	return qfalse;
+	return false;
 #endif
 }
 
@@ -535,7 +535,7 @@ const glconfig_t *RE_GetConfig( void )
 }
 
 
-void RE_VertexLighting( qboolean allowed )
+void RE_VertexLighting( bool allowed )
 {
 	tr.vertexLightingAllowed = allowed;
 }

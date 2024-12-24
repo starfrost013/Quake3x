@@ -69,19 +69,19 @@ static DEVMODE dm_desktop;
 static DEVMODE dm_current;
 
 static rserr_t	GLW_SetMode( int mode, const char *modeFS, int colorbits,
-							 qboolean cdsFullscreen, qboolean vulkan );
+							 bool cdsFullscreen, bool vulkan );
 
 //
 // function declaration
 //
 #ifdef USE_OPENGL_API
-qboolean	QGL_Init( const char *dllname );
-void		QGL_Shutdown( qboolean unloadDLL );
+bool	QGL_Init( const char *dllname );
+void		QGL_Shutdown( bool unloadDLL );
 #endif
 
 #ifdef USE_VULKAN_API
-qboolean	QVK_Init( void );
-void		QVK_Shutdown( qboolean unloadDLL );
+bool	QVK_Init( void );
+void		QVK_Shutdown( bool unloadDLL );
 #endif
 
 //
@@ -100,7 +100,7 @@ static cvar_t *r_verbose;				// used for verbose debug spew
 ** GLW_StartDriverAndSetMode
 */
 static rserr_t GLW_StartDriverAndSetMode( int mode, const char *modeFS, int colorbits,
-										   qboolean cdsFullscreen, qboolean vulkan )
+										   bool cdsFullscreen, bool vulkan )
 {
 	rserr_t err;
 
@@ -339,7 +339,7 @@ __rescan:
 **
 ** Helper function zeros out then fills in a PFD
 */
-static void GLW_CreatePFD( PIXELFORMATDESCRIPTOR *pPFD, int colorbits, int depthbits, int stencilbits, qboolean stereo )
+static void GLW_CreatePFD( PIXELFORMATDESCRIPTOR *pPFD, int colorbits, int depthbits, int stencilbits, bool stereo )
 {
 	PIXELFORMATDESCRIPTOR src =
 	{
@@ -376,11 +376,11 @@ static void GLW_CreatePFD( PIXELFORMATDESCRIPTOR *pPFD, int colorbits, int depth
 	{
 		Com_Printf( "...attempting to use stereo\n" );
 		src.dwFlags |= PFD_STEREO;
-		glw_state.config->stereoEnabled = qtrue;
+		glw_state.config->stereoEnabled = true;
 	}
 	else
 	{
-		glw_state.config->stereoEnabled = qfalse;
+		glw_state.config->stereoEnabled = false;
 	}
 
 	*pPFD = src;
@@ -419,7 +419,7 @@ static int GLW_MakeContext( PIXELFORMATDESCRIPTOR *pPFD )
 			return TRY_PFD_FAIL_SOFT;
 		}
 
-		glw_state.pixelFormatSet = qtrue;
+		glw_state.pixelFormatSet = true;
 	}
 
 	//
@@ -457,7 +457,7 @@ static int GLW_MakeContext( PIXELFORMATDESCRIPTOR *pPFD )
 ** - get a DC if one doesn't exist
 ** - create an HGLRC if one doesn't exist
 */
-static qboolean GLW_InitOpenGLDriver( int colorbits )
+static bool GLW_InitOpenGLDriver( int colorbits )
 {
 	int		tpfd;
 	int		depthbits, stencilbits;
@@ -475,7 +475,7 @@ static qboolean GLW_InitOpenGLDriver( int colorbits )
 		if ( ( glw_state.hDC = GetDC( g_wv.hWnd ) ) == NULL )
 		{
 			Com_Printf( "failed\n" );
-			return qfalse;
+			return false;
 		}
 		Com_Printf( "succeeded\n" );
 	}
@@ -516,7 +516,7 @@ static qboolean GLW_InitOpenGLDriver( int colorbits )
 			if ( tpfd == TRY_PFD_FAIL_HARD )
 			{
 				Com_Printf( S_COLOR_YELLOW "...failed hard\n" );
-				return qfalse;
+				return false;
 			}
 
 			//
@@ -530,7 +530,7 @@ static qboolean GLW_InitOpenGLDriver( int colorbits )
 
 				Com_Printf( "...failed to find an appropriate PIXELFORMAT\n" );
 
-				return qfalse;
+				return false;
 			}
 
 			//
@@ -551,7 +551,7 @@ static qboolean GLW_InitOpenGLDriver( int colorbits )
 
 				Com_Printf( "...failed to find an appropriate PIXELFORMAT\n" );
 
-				return qfalse;
+				return false;
 			}
 		}
 
@@ -561,7 +561,7 @@ static qboolean GLW_InitOpenGLDriver( int colorbits )
 		if ( !( pfd.dwFlags & PFD_STEREO ) && ( r_stereoEnabled->integer != 0 ) ) 
 		{
 			Com_Printf( "...failed to select stereo pixel format\n" );
-			glw_state.config->stereoEnabled = qfalse;
+			glw_state.config->stereoEnabled = false;
 		}
 	}
 
@@ -573,7 +573,7 @@ static qboolean GLW_InitOpenGLDriver( int colorbits )
 	glw_state.config->depthBits = ( int ) pfd.cDepthBits;
 	glw_state.config->stencilBits = ( int ) pfd.cStencilBits;
 
-	return qtrue;
+	return true;
 }
 #endif // USE_OPENGL_API
 
@@ -582,7 +582,7 @@ static qboolean GLW_InitOpenGLDriver( int colorbits )
 ** GLW_InitVulkanDriver
 */
 #ifdef USE_VULKAN_API
-static qboolean GLW_InitVulkanDriver( int colorbits )
+static bool GLW_InitVulkanDriver( int colorbits )
 {
 	int depthbits;
 	int stencilbits;
@@ -608,7 +608,7 @@ static qboolean GLW_InitVulkanDriver( int colorbits )
 	glw_state.config->depthBits = depthbits;
 	glw_state.config->stencilBits = stencilbits;
 
-	return qtrue;
+	return true;
 }
 #endif
 
@@ -618,15 +618,15 @@ static qboolean GLW_InitVulkanDriver( int colorbits )
 **
 ** Responsible for creating the Win32 window and initializing the OpenGL/Vulkan drivers.
 */
-static qboolean GLW_CreateWindow( int width, int height, int colorbits, qboolean cdsFullscreen, qboolean vulkan )
+static bool GLW_CreateWindow( int width, int height, int colorbits, bool cdsFullscreen, bool vulkan )
 {
-	static qboolean s_classRegistered = qfalse;
+	static bool s_classRegistered = false;
 	RECT			r;
 	int				stylebits;
 	int				x, y, w, h;
 	int				exstyle;
-	qboolean		oldFullscreen;
-	qboolean		res = qfalse;
+	bool		oldFullscreen;
+	bool		res = false;
 
 	//
 	// register the window class if necessary
@@ -651,9 +651,9 @@ static qboolean GLW_CreateWindow( int width, int height, int colorbits, qboolean
 		if ( !RegisterClass( &wc ) )
 		{
 			Com_Error( ERR_FATAL, "%s: could not register window class", __func__ );
-			return qfalse;
+			return false;
 		}
-		s_classRegistered = qtrue;
+		s_classRegistered = true;
 		// Com_Printf( "...registered window class\n" );
 	}
 
@@ -741,7 +741,7 @@ static qboolean GLW_CreateWindow( int width, int height, int colorbits, qboolean
 		{
 			glw_state.cdsFullscreen = oldFullscreen;
 			Com_Error( ERR_FATAL, "GLW_CreateWindow() - Couldn't create window" );
-			return qfalse;
+			return false;
 		}
 
 		// we must reflect actual drawable dimensions in glconfig
@@ -773,7 +773,7 @@ static qboolean GLW_CreateWindow( int width, int height, int colorbits, qboolean
 		//ShowWindow( g_wv.hWnd, SW_HIDE );
 		DestroyWindow( g_wv.hWnd );
 		g_wv.hWnd = NULL;
-		return qfalse;
+		return false;
 	}
 
 	//SetForegroundWindow( g_wv.hWnd );
@@ -782,7 +782,7 @@ static qboolean GLW_CreateWindow( int width, int height, int colorbits, qboolean
 	//ShowWindow( g_wv.hWnd, SW_SHOW );
 	//UpdateWindow( g_wv.hWnd );
 
-	return qtrue;
+	return true;
 }
 
 
@@ -815,7 +815,7 @@ static void PrintCDSError( int value )
 }
 
 
-static void ResetDisplaySettings( qboolean verbose )
+static void ResetDisplaySettings( bool verbose )
 {
 	if ( verbose )
 		Com_Printf( "...restoring display settings\n" );
@@ -887,7 +887,7 @@ void SetGameDisplaySettings( void )
 
 void SetDesktopDisplaySettings( void )
 {
-	ResetDisplaySettings( qfalse );
+	ResetDisplaySettings( false );
 
 	memset( &dm_desktop, 0, sizeof( dm_desktop ) );
 	dm_desktop.dmSize = sizeof( DEVMODE );
@@ -948,7 +948,7 @@ void UpdateMonitorInfo( const RECT *target )
 			glw_state.desktopX != x || glw_state.desktopY != y || 
 			glw_state.hMonitor != hMon ) {
 				// track monitor and gamma change
-				qboolean gammaSet = glw_state.gammaSet;
+				bool gammaSet = glw_state.gammaSet;
 
 				GLW_RestoreGamma();
 
@@ -990,7 +990,7 @@ void UpdateMonitorInfo( const RECT *target )
 /*
 ** GLW_SetMode
 */
-static rserr_t GLW_SetMode( int mode, const char *modeFS, int colorbits, qboolean cdsFullscreen, qboolean vulkan )
+static rserr_t GLW_SetMode( int mode, const char *modeFS, int colorbits, bool cdsFullscreen, bool vulkan )
 {
 	//HDC hDC;
 	RECT r;
@@ -1093,10 +1093,10 @@ static rserr_t GLW_SetMode( int mode, const char *modeFS, int colorbits, qboolea
 		{
 			Com_Printf( "...already fullscreen, avoiding redundant CDS\n" );
 
-			if ( !GLW_CreateWindow( config->vidWidth, config->vidHeight, colorbits, qtrue, vulkan ) )
+			if ( !GLW_CreateWindow( config->vidWidth, config->vidHeight, colorbits, true, vulkan ) )
 			{
-				ResetDisplaySettings( qtrue );
-				glw_state.cdsFullscreen = qfalse;
+				ResetDisplaySettings( true );
+				glw_state.cdsFullscreen = false;
 				return RSERR_INVALID_MODE;
 			}
 		}
@@ -1113,10 +1113,10 @@ static rserr_t GLW_SetMode( int mode, const char *modeFS, int colorbits, qboolea
 			{
 				Com_Printf( "ok\n" );
 
-				if ( !GLW_CreateWindow( config->vidWidth, config->vidHeight, colorbits, qtrue, vulkan ) )
+				if ( !GLW_CreateWindow( config->vidWidth, config->vidHeight, colorbits, true, vulkan ) )
 				{
-					ResetDisplaySettings( qtrue );
-					glw_state.cdsFullscreen = qfalse;
+					ResetDisplaySettings( true );
+					glw_state.cdsFullscreen = false;
 					return RSERR_INVALID_MODE;
 				}
 			}
@@ -1160,10 +1160,10 @@ static rserr_t GLW_SetMode( int mode, const char *modeFS, int colorbits, qboolea
 				if ( modeNum != -1 && ( cdsRet = ApplyDisplaySettings( &devmode ) ) == DISP_CHANGE_SUCCESSFUL )
 				{
 					Com_Printf( " ok\n" );
-					if ( !GLW_CreateWindow( config->vidWidth, config->vidHeight, colorbits, qtrue, vulkan) )
+					if ( !GLW_CreateWindow( config->vidWidth, config->vidHeight, colorbits, true, vulkan) )
 					{
-						ResetDisplaySettings( qtrue );
-						glw_state.cdsFullscreen = qfalse;
+						ResetDisplaySettings( true );
+						glw_state.cdsFullscreen = false;
 						return RSERR_INVALID_MODE;
 					}
 				}
@@ -1173,10 +1173,10 @@ static rserr_t GLW_SetMode( int mode, const char *modeFS, int colorbits, qboolea
 					
 					PrintCDSError( cdsRet );
 					
-					ResetDisplaySettings( qtrue );
-					glw_state.cdsFullscreen = qfalse;
-					glw_state.config->isFullscreen = qfalse;
-					if ( !GLW_CreateWindow( config->vidWidth, config->vidHeight, colorbits, qfalse, vulkan ) )
+					ResetDisplaySettings( true );
+					glw_state.cdsFullscreen = false;
+					glw_state.config->isFullscreen = false;
+					if ( !GLW_CreateWindow( config->vidWidth, config->vidHeight, colorbits, false, vulkan ) )
 					{
 						return RSERR_INVALID_MODE;
 					}
@@ -1189,11 +1189,11 @@ static rserr_t GLW_SetMode( int mode, const char *modeFS, int colorbits, qboolea
 	{
 		if ( glw_state.cdsFullscreen )
 		{
-			ResetDisplaySettings( qtrue );
-			glw_state.cdsFullscreen = qfalse;
+			ResetDisplaySettings( true );
+			glw_state.cdsFullscreen = false;
 		}
 
-		if ( !GLW_CreateWindow( config->vidWidth, config->vidHeight, colorbits, qfalse, vulkan ) )
+		if ( !GLW_CreateWindow( config->vidWidth, config->vidHeight, colorbits, false, vulkan ) )
 		{
 			return RSERR_INVALID_MODE;
 		}
@@ -1224,10 +1224,10 @@ static rserr_t GLW_SetMode( int mode, const char *modeFS, int colorbits, qboolea
 ** GLimp_win.c internal function that attempts to load and use 
 ** a specific OpenGL DLL.
 */
-static qboolean GLW_LoadOpenGL( const char *drivername )
+static bool GLW_LoadOpenGL( const char *drivername )
 {
 	char buffer[ 256 ];
-	qboolean cdsFullscreen;
+	bool cdsFullscreen;
 
 	glconfig_t *config = glw_state.config;
 
@@ -1252,24 +1252,24 @@ static qboolean GLW_LoadOpenGL( const char *drivername )
 		cdsFullscreen = (r_fullscreen->integer != 0);
 
 		// create the window and set up the context
-		if ( GLW_StartDriverAndSetMode( r_mode->integer, r_modeFullscreen->string, r_colorbits->integer, cdsFullscreen, qfalse ) != RSERR_OK )
+		if ( GLW_StartDriverAndSetMode( r_mode->integer, r_modeFullscreen->string, r_colorbits->integer, cdsFullscreen, false ) != RSERR_OK )
 		{
 			// if we're on a 24/32-bit desktop try it again but with a 16-bit desktop
-			if ( r_colorbits->integer != 16 || cdsFullscreen != qtrue || r_mode->integer != 3 )
+			if ( r_colorbits->integer != 16 || cdsFullscreen != true || r_mode->integer != 3 )
 			{
-				if ( GLW_StartDriverAndSetMode( 3, "", 16, qtrue, qfalse ) != RSERR_OK )
+				if ( GLW_StartDriverAndSetMode( 3, "", 16, true, false ) != RSERR_OK )
 				{
 					goto fail;
 				}
 			}
 		}
-		return qtrue;
+		return true;
 	}
 fail:
 
-	QGL_Shutdown( qtrue );
+	QGL_Shutdown( true );
 
-	return qfalse;
+	return false;
 }
 
 
@@ -1291,7 +1291,7 @@ void GLimp_EndFrame( void )
 	// swapinterval stuff
 	//
 	if ( r_swapInterval->modified ) {
-		r_swapInterval->modified = qfalse;
+		r_swapInterval->modified = false;
 
 		//if ( !glConfig.stereoEnabled ) {	// why?
 			if ( qwglSwapIntervalEXT ) {
@@ -1307,7 +1307,7 @@ void GLimp_EndFrame( void )
 }
 
 
-static qboolean GLW_StartOpenGL( void )
+static bool GLW_StartOpenGL( void )
 {
 	//
 	// load and initialize the specific OpenGL driver
@@ -1320,16 +1320,16 @@ static qboolean GLW_StartOpenGL( void )
 			if ( GLW_LoadOpenGL( OPENGL_DRIVER_NAME ) ) 
 			{
 				Cvar_Set( "r_glDriver", OPENGL_DRIVER_NAME );
-				r_glDriver->modified = qfalse;
-				return qtrue;
+				r_glDriver->modified = false;
+				return true;
 			}
 		}
 
 		Com_Error( ERR_FATAL, "GLW_StartOpenGL() - could not load OpenGL subsystem\n" );
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 
@@ -1373,7 +1373,7 @@ void GLimp_Init( glconfig_t *config )
 
 	if ( qwglSwapIntervalEXT ) {
 		Com_Printf( "...using WGL_EXT_swap_control\n" );
-		r_swapInterval->modified = qtrue; // force a set next frame
+		r_swapInterval->modified = true; // force a set next frame
 	} else {
 		Com_Printf( "...WGL_EXT_swap_control not found\n" );
 	}
@@ -1395,7 +1395,7 @@ void GLimp_Init( glconfig_t *config )
 ** This routine does all OS specific shutdown procedures for the OpenGL
 ** subsystem.
 */
-void GLimp_Shutdown( qboolean unloadDLL )
+void GLimp_Shutdown( bool unloadDLL )
 {
 	const char *success[] = { "failed", "success" };
 	int retVal;
@@ -1443,14 +1443,14 @@ void GLimp_Shutdown( qboolean unloadDLL )
 		//ShowWindow( g_wv.hWnd, SW_HIDE );
 		DestroyWindow( g_wv.hWnd );
 		g_wv.hWnd = NULL;
-		glw_state.pixelFormatSet = qfalse;
+		glw_state.pixelFormatSet = false;
 	}
 
 	// reset display settings
 	if ( glw_state.cdsFullscreen )
 	{
-		ResetDisplaySettings( qtrue );
-		glw_state.cdsFullscreen = qfalse;
+		ResetDisplaySettings( true );
+		glw_state.cdsFullscreen = false;
 	}
 
 	// shutdown QGL subsystem
@@ -1460,37 +1460,37 @@ void GLimp_Shutdown( qboolean unloadDLL )
 
 
 #ifdef USE_VULKAN_API
-static qboolean GLW_LoadVulkan( void )
+static bool GLW_LoadVulkan( void )
 {
 	//
 	// load the driver and bind our function pointers to it
 	//
 	if ( QVK_Init() )
 	{
-		qboolean cdsFullscreen = (r_fullscreen->integer != 0);
+		bool cdsFullscreen = (r_fullscreen->integer != 0);
 
 		// create the window and set up the context
-		if ( GLW_StartDriverAndSetMode( r_mode->integer, r_modeFullscreen->string, r_colorbits->integer, cdsFullscreen, qtrue ) == RSERR_OK )
-			return qtrue;
+		if ( GLW_StartDriverAndSetMode( r_mode->integer, r_modeFullscreen->string, r_colorbits->integer, cdsFullscreen, true ) == RSERR_OK )
+			return true;
 	}
 
-	QVK_Shutdown( qtrue );
+	QVK_Shutdown( true );
 
-	return qfalse;
+	return false;
 }
 
 
-static qboolean GLW_StartVulkan( void )
+static bool GLW_StartVulkan( void )
 {
 	//
 	// load and initialize Vulkan driver
 	//
 	if ( !GLW_LoadVulkan() ) {
 		Com_Error( ERR_FATAL, "GLW_StartVulkan() - could not load Vulkan subsystem\n" );
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 
@@ -1535,7 +1535,7 @@ void VKimp_Init( glconfig_t *config )
 ** This routine does all OS specific shutdown procedures for the Vulkan
 ** subsystem.
 */
-void VKimp_Shutdown( qboolean unloadDLL )
+void VKimp_Shutdown( bool unloadDLL )
 {
 	IN_Shutdown();
 
@@ -1556,8 +1556,8 @@ void VKimp_Shutdown( qboolean unloadDLL )
 	// reset display settings
 	if ( glw_state.cdsFullscreen )
 	{
-		ResetDisplaySettings( qtrue );
-		glw_state.cdsFullscreen = qfalse;
+		ResetDisplaySettings( true );
+		glw_state.cdsFullscreen = false;
 	}
 
 	// shutdown QVK subsystem

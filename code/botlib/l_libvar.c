@@ -202,7 +202,7 @@ libvar_t *LibVar( const char *var_name, const char *value )
 	//the value
 	v->value = LibVarStringValue( v->string );
 	//variable is modified
-	v->modified = qtrue;
+	v->modified = true;
 	//
 	return v;
 } //end of the function LibVar
@@ -257,5 +257,5 @@ void LibVarSet( const char *var_name, const char *value )
 	//the value
 	v->value = LibVarStringValue( v->string );
 	//variable is modified
-	v->modified = qtrue;
+	v->modified = true;
 } //end of the function LibVarSet

@@ -36,7 +36,7 @@ int smallchar_width;
 int smallchar_height;
 
 typedef struct {
-	qboolean	initialized;
+	bool	initialized;
 
 	short	text[CON_TEXTSIZE];
 	int		current;		// line where next message will be printed
@@ -60,11 +60,11 @@ typedef struct {
 	int		viswidth;
 	int		vispage;		
 
-	qboolean newline;
+	bool newline;
 
 } console_t;
 
-extern  qboolean    chat_team;
+extern  bool    chat_team;
 extern  int         chat_playerNum;
 
 console_t	con;
@@ -105,7 +105,7 @@ Con_MessageMode_f
 */
 static void Con_MessageMode_f( void ) {
 	chat_playerNum = -1;
-	chat_team = qfalse;
+	chat_team = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 
@@ -120,7 +120,7 @@ Con_MessageMode2_f
 */
 static void Con_MessageMode2_f( void ) {
 	chat_playerNum = -1;
-	chat_team = qtrue;
+	chat_team = true;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 25;
 	Key_SetCatcher( Key_GetCatcher() ^ KEYCATCH_MESSAGE );
@@ -138,7 +138,7 @@ static void Con_MessageMode3_f( void ) {
 		chat_playerNum = -1;
 		return;
 	}
-	chat_team = qfalse;
+	chat_team = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 	Key_SetCatcher( Key_GetCatcher() ^ KEYCATCH_MESSAGE );
@@ -156,7 +156,7 @@ static void Con_MessageMode4_f( void ) {
 		chat_playerNum = -1;
 		return;
 	}
-	chat_team = qfalse;
+	chat_team = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 	Key_SetCatcher( Key_GetCatcher() ^ KEYCATCH_MESSAGE );
@@ -177,7 +177,7 @@ static void Con_Clear_f( void ) {
 
 	con.x = 0;
 	con.current = 0;
-	con.newline = qtrue;
+	con.newline = true;
 
 	Con_Bottom();		// go to end
 }
@@ -209,7 +209,7 @@ static void Con_Dump_f( void )
 	Q_strncpyz( filename, Cmd_Argv( 1 ), sizeof( filename ) );
 	COM_DefaultExtension( filename, sizeof( filename ), ".txt" );
 
-	if ( !FS_AllowedExtension( filename, qfalse, &ext ) ) {
+	if ( !FS_AllowedExtension( filename, false, &ext ) ) {
 		Com_Printf( "%s: Invalid filename extension '%s'.\n", __func__, ext );
 		return;
 	}
@@ -370,7 +370,7 @@ void Con_CheckResize( void )
 
 	con.display = con.current;
 
-	con_scale->modified = qfalse;
+	con_scale->modified = false;
 }
 
 
@@ -381,7 +381,7 @@ Cmd_CompleteTxtName
 */
 static void Cmd_CompleteTxtName(const char *args, int argNum ) {
 	if ( argNum == 2 ) {
-		Field_CompleteFilename( "", "txt", qfalse, FS_MATCH_EXTERN | FS_MATCH_STICK );
+		Field_CompleteFilename( "", "txt", false, FS_MATCH_EXTERN | FS_MATCH_STICK );
 	}
 }
 
@@ -489,7 +489,7 @@ static void Con_NewLine( void )
 Con_Linefeed
 ===============
 */
-static void Con_Linefeed( qboolean skipnotify )
+static void Con_Linefeed( bool skipnotify )
 {
 	// mark time for transparent overlay
 	if ( con.current >= 0 )	{
@@ -502,7 +502,7 @@ static void Con_Linefeed( qboolean skipnotify )
 	if ( con.newline ) {
 		Con_NewLine();
 	} else {
-		con.newline = qtrue;
+		con.newline = true;
 		con.x = 0;
 	}
 
@@ -523,13 +523,13 @@ void CL_ConsolePrint( const char *txt ) {
 	int		y;
 	int		c, l;
 	int		colorIndex;
-	qboolean skipnotify = qfalse;		// NERVE - SMF
+	bool skipnotify = false;		// NERVE - SMF
 	int prev;							// NERVE - SMF
 
 	// TTimo - prefix for text that shows up in console but not in notify
 	// backported from RTCW
 	if ( !Q_strncmp( txt, "[skipnotify]", 12 ) ) {
-		skipnotify = qtrue;
+		skipnotify = true;
 		txt += 12;
 	}
 
@@ -548,9 +548,9 @@ void CL_ConsolePrint( const char *txt ) {
 		cls.con_factor = 1.0f;
 		con_scale = &null_cvar;
 		con_scale->value = 1.0f;
-		con_scale->modified = qtrue;
+		con_scale->modified = true;
 		Con_CheckResize();
-		con.initialized = qtrue;
+		con.initialized = true;
 	}
 
 	colorIndex = ColorIndex( COLOR_WHITE );
@@ -588,7 +588,7 @@ void CL_ConsolePrint( const char *txt ) {
 			if ( con.newline ) {
 				Con_NewLine();
 				Con_Fixup();
-				con.newline = qfalse;
+				con.newline = false;
 			}
 			// display character and advance
 			y = con.current % con.totallines;
@@ -645,7 +645,7 @@ static void Con_DrawInput( void ) {
 	SCR_DrawSmallChar( con.xadjust + 1 * smallchar_width, y, ']' );
 
 	Field_Draw( &g_consoleField, con.xadjust + 2 * smallchar_width, y,
-		SCREEN_WIDTH - 3 * smallchar_width, qtrue, qtrue );
+		SCREEN_WIDTH - 3 * smallchar_width, true, true );
 }
 
 
@@ -715,17 +715,17 @@ static void Con_DrawNotify( void )
 
 		if (chat_team)
 		{
-			SCR_DrawBigString( SMALLCHAR_WIDTH, v, "say_team:", 1.0f, qfalse );
+			SCR_DrawBigString( SMALLCHAR_WIDTH, v, "say_team:", 1.0f, false );
 			skip = 10;
 		}
 		else
 		{
-			SCR_DrawBigString( SMALLCHAR_WIDTH, v, "say:", 1.0f, qfalse );
+			SCR_DrawBigString( SMALLCHAR_WIDTH, v, "say:", 1.0f, false );
 			skip = 5;
 		}
 
 		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v,
-			SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue, qtrue );
+			SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, true, true );
 	}
 }
 

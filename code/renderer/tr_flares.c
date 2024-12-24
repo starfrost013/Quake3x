@@ -69,7 +69,7 @@ typedef struct flare_s {
 
 	int			fadeTime;
 
-	qboolean	visible;			// state of last test
+	bool	visible;			// state of last test
 	float		drawIntensity;		// may be non 0 even if !visible due to fading
 
 	int			windowX, windowY;
@@ -176,7 +176,7 @@ void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, vec3_t 
 	}
 
 	if ( f->addedFrame != backEnd.viewParms.frameCount - 1 ) {
-		f->visible = qfalse;
+		f->visible = false;
 		f->fadeTime = backEnd.refdef.time - 2000;
 	}
 
@@ -264,27 +264,27 @@ RB_TestFlare
 */
 static void RB_TestFlare( flare_t *f ) {
 	float			depth;
-	qboolean		visible;
+	bool		visible;
 	float			fade;
 
 	backEnd.pc.c_flareTests++;
 
 	// doing a readpixels is as good as doing a glFinish(), so
 	// don't bother with another sync
-	glState.finishCalled = qfalse;
+	glState.finishCalled = false;
 
 	// read back the z buffer contents
 	qglReadPixels( f->windowX, f->windowY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth );
 	visible = (depth > f->drawZ);
 	if ( visible ) {
 		if ( !f->visible ) {
-			f->visible = qtrue;
+			f->visible = true;
 			f->fadeTime = backEnd.refdef.time - 1;
 		}
 		fade = ( ( backEnd.refdef.time - f->fadeTime ) /1000.0f ) * r_flareFade->value;
 	} else {
 		if ( f->visible ) {
-			f->visible = qfalse;
+			f->visible = false;
 			f->fadeTime = backEnd.refdef.time - 1;
 		}
 		fade = 1.0f - ( ( backEnd.refdef.time - f->fadeTime ) / 1000.0f ) * r_flareFade->value;
@@ -397,7 +397,7 @@ extend past the portal edge will be overwritten.
 void RB_RenderFlares (void) {
 	flare_t		*f;
 	flare_t		**prev;
-	qboolean	draw;
+	bool	draw;
 
 	if ( !r_flares->integer ) {
 		return;
@@ -415,14 +415,14 @@ void RB_RenderFlares (void) {
 #ifdef USE_FBO
 	// we can't read from multisampled renderbuffer storage
 	if ( blitMSfbo ) {
-		FBO_BlitMS( qtrue );
+		FBO_BlitMS( true );
 	}
 #endif
 
 	// RB_AddDlightFlares();
 
 	// perform z buffer readback on each flare in this view
-	draw = qfalse;
+	draw = false;
 	prev = &r_activeFlares;
 	while ( ( f = *prev ) != NULL ) {
 		// throw out any flares that weren't added last frame
@@ -438,7 +438,7 @@ void RB_RenderFlares (void) {
 		if ( f->frameSceneNum == backEnd.viewParms.frameSceneNum && f->portalView == backEnd.viewParms.portalView ) {
 			RB_TestFlare( f );
 			if ( f->drawIntensity ) {
-				draw = qtrue;
+				draw = true;
 			} else {
 				// this flare has completely faded out, so remove it from the chain
 				*prev = f->next;

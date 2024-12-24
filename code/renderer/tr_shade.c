@@ -50,7 +50,7 @@ SURFACE SHADERS
 */
 
 shaderCommands_t	tess;
-static qboolean	setArraysOnce;
+static bool	setArraysOnce;
 
 /*
 =================
@@ -115,7 +115,7 @@ static void DrawTris( const shaderCommands_t *input ) {
 	GL_ProgramDisable();
 
 #ifdef USE_PMLIGHT
-	tess.dlightUpdateParams = qtrue;
+	tess.dlightUpdateParams = true;
 #endif
 
 	GL_ClientState( 0, CLS_NONE );
@@ -209,9 +209,9 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 #else
 	if ( shader->isStaticShader )
 #endif
-		tess.allowVBO = qtrue;
+		tess.allowVBO = true;
 	else
-		tess.allowVBO = qfalse;
+		tess.allowVBO = false;
 
 	if ( shader->remappedShader ) {
 		state = shader->remappedShader;
@@ -221,7 +221,7 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 
 #ifdef USE_PMLIGHT
 	if ( tess.fogNum != fogNum || tess.cullType != state->cullType ) {
-		tess.dlightUpdateParams = qtrue;
+		tess.dlightUpdateParams = true;
 	}
 #endif
 
@@ -929,7 +929,7 @@ void RB_StageIteratorGeneric( void )
 	//
 	if ( tess.numPasses > 1 )
 	{
-		setArraysOnce = qfalse;
+		setArraysOnce = false;
 
 		GL_ClientState( 1, CLS_NONE );
 		GL_ClientState( 0, CLS_NONE );
@@ -937,7 +937,7 @@ void RB_StageIteratorGeneric( void )
 	else
 	{
 		// FIXME: we can't do that if going to lighting/fog later?
-		setArraysOnce = qtrue;
+		setArraysOnce = true;
 
 		GL_ClientState( 0, CLS_COLOR_ARRAY | CLS_TEXCOORD_ARRAY );
 

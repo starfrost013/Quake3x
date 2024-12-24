@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 glconfig_t	glConfig;
 
-qboolean	textureFilterAnisotropic;
+bool	textureFilterAnisotropic;
 int			maxAnisotropy;
 int			gl_version;
 int			gl_clamp_mode;	// GL_CLAMP or GL_CLAMP_TO_EGGE
@@ -272,14 +272,14 @@ static void InitOpenGL( void )
 
 		vk_initialize();
 
-		glConfig.deviceSupportsGamma = qfalse;
+		glConfig.deviceSupportsGamma = false;
 
 		ri.GLimp_InitGamma( &glConfig );
 
 		gls.deviceSupportsGamma = glConfig.deviceSupportsGamma;
 
 		if ( r_ignorehwgamma->integer )
-			glConfig.deviceSupportsGamma = qfalse;
+			glConfig.deviceSupportsGamma = false;
 
 		// print info
 		GfxInfo();
@@ -302,7 +302,7 @@ static void InitOpenGL( void )
 	// set default state
 	GL_SetDefaultState();
 
-	tr.inited = qtrue;
+	tr.inited = true;
 }
 
 
@@ -678,7 +678,7 @@ Doesn't print the pacifier message if there is a second arg
 */
 static void R_ScreenShot_f( void ) {
 	char		checkname[MAX_OSPATH];
-	qboolean	silent;
+	bool	silent;
 	int			typeMask;
 	const char	*ext;
 
@@ -708,12 +708,12 @@ static void R_ScreenShot_f( void ) {
 		return;
 
 	if ( !strcmp( ri.Cmd_Argv(1), "silent" ) ) {
-		silent = qtrue;
+		silent = true;
 	} else if ( typeMask == SCREENSHOT_BMP && !strcmp( ri.Cmd_Argv(1), "clipboard" ) ) {
 		backEnd.screenshotMask |= SCREENSHOT_BMP_CLIPBOARD;
-		silent = qtrue;
+		silent = true;
 	} else {
-		silent = qfalse;
+		silent = false;
 	}
 
 	if ( ri.Cmd_Argc() == 2 && !silent ) {
@@ -1289,7 +1289,7 @@ static void R_Register( void )
 		" 0+ - use explicit device index\n" \
 		" -1 - first discrete GPU\n" \
 		" -2 - first integrated GPU" );
-	r_device->modified = qfalse;
+	r_device->modified = false;
 
 	r_fbo = ri.Cvar_Get( "r_fbo", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
 	ri.Cvar_SetDescription( r_fbo, "Use framebuffer objects, enables gamma correction in windowed mode and allows arbitrary video size and screenshot/video capture.\n Required for bloom, HDR rendering, anti-aliasing and greyscale effects." );
@@ -1326,6 +1326,9 @@ static void R_Register( void )
 
 #define EPSILON 1e-6f
 
+// The size of this changes regularly
+#define GLCONFIG_SIZE 	11324
+
 /*
 ===============
 R_Init
@@ -1344,8 +1347,8 @@ void R_Init( void ) {
 	Com_Memset( &tess, 0, sizeof( tess ) );
 	Com_Memset( &glState, 0, sizeof( glState ) );
 
-	if (sizeof(glconfig_t) != 11332)
-		ri.Error( ERR_FATAL, "Mod ABI incompatible: sizeof(glconfig_t) == %u != 11332", (unsigned int) sizeof(glconfig_t));
+	if (sizeof(glconfig_t) != GLCONFIG_SIZE)
+		ri.Error( ERR_FATAL, "Mod ABI incompatible: sizeof(glconfig_t) == %u != %d", (unsigned int) sizeof(glconfig_t), GLCONFIG_SIZE);
 
 	if ( (intptr_t)tess.xyz & 15 ) {
 		ri.Printf( PRINT_WARNING, "tess.xyz not 16 byte aligned\n" );
@@ -1462,15 +1465,15 @@ static void RE_Shutdown( refShutdownCode_t code ) {
 		Com_Memset( &glState, 0, sizeof( glState ) );
 
 		if ( code != REF_KEEP_WINDOW ) {
-			ri.VKimp_Shutdown( code == REF_UNLOAD_DLL ? qtrue : qfalse );
+			ri.VKimp_Shutdown( code == REF_UNLOAD_DLL ? true : false );
 			Com_Memset( &glConfig, 0, sizeof( glConfig ) );
 		}
 	}
 
 	ri.FreeAll();
 
-	tr.registered = qfalse;
-	tr.inited = qfalse;
+	tr.registered = false;
+	tr.inited = false;
 }
 
 

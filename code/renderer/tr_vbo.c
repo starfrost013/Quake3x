@@ -346,7 +346,7 @@ static int getFPindex( int multitexture, int atest, int fogmode )
 }
 
 
-static qboolean isStaticRGBgen( colorGen_t cgen )
+static bool isStaticRGBgen( colorGen_t cgen )
 {
 	switch ( cgen )
 	{
@@ -362,14 +362,14 @@ static qboolean isStaticRGBgen( colorGen_t cgen )
 		case CGEN_LIGHTING_DIFFUSE:
 		//case CGEN_FOG,				// standard fog
 		case CGEN_CONST:				// fixed color
-			return qtrue;
+			return true;
 		default: 
-			return qfalse;
+			return false;
 	}
 }
 
 
-static qboolean isStaticTCmod( const textureBundle_t *bundle )
+static bool isStaticTCmod( const textureBundle_t *bundle )
 {
 	int i;
 
@@ -383,15 +383,15 @@ static qboolean isStaticTCmod( const textureBundle_t *bundle )
 		case TMOD_OFFSET_SCALE:
 			break;
 		default:
-			return qfalse;
+			return false;
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 
-static qboolean isStaticTCgen( shaderStage_t *stage, int bundle )
+static bool isStaticTCgen( shaderStage_t *stage, int bundle )
 {
 	switch ( stage->bundle[bundle].tcGen )
 	{
@@ -399,28 +399,28 @@ static qboolean isStaticTCgen( shaderStage_t *stage, int bundle )
 		case TCGEN_IDENTITY:	// clear to 0,0
 		case TCGEN_LIGHTMAP:
 		case TCGEN_TEXTURE:
-			return qtrue;
+			return true;
 		case TCGEN_ENVIRONMENT_MAPPED:
 			if ( bundle == 0 && stage->bundle[bundle].numTexMods == 0 ) {
 				stage->tessFlags |= TESS_ENV0 << bundle;
 				stage->tessFlags &= ~( TESS_ST0 << bundle );
-				return qtrue;
+				return true;
 			} else {
 				stage->tessFlags |= TESS_ST0 << bundle;
 				stage->tessFlags &= ~( TESS_ENV0 << bundle );
-				return qfalse;
+				return false;
 			}
 		//case TCGEN_ENVIRONMENT_MAPPED_FP:
 		//case TCGEN_FOG:
 		case TCGEN_VECTOR:		// S and T from world coordinates
-			return qtrue;
+			return true;
 		default:
-			return qfalse;
+			return false;
 	}
 }
 
 
-static qboolean isStaticAgen( alphaGen_t agen )
+static bool isStaticAgen( alphaGen_t agen )
 {
 	switch ( agen )
 	{
@@ -434,9 +434,9 @@ static qboolean isStaticAgen( alphaGen_t agen )
 		//case AGEN_WAVEFORM:
 		//case AGEN_PORTAL:
 		case AGEN_CONST:
-			return qtrue;
+			return true;
 		default: 
-			return qfalse;
+			return false;
 	}
 }
 
@@ -470,20 +470,20 @@ isStaticShader
 Decide if we can put surface in static vbo
 =============
 */
-static qboolean isStaticShader( shader_t *shader )
+static bool isStaticShader( shader_t *shader )
 {
 	shaderStage_t* stage;
 	int i, svarsSize, mtx;
 	GLbitfield atestBits;
 
 	if ( shader->isStaticShader )
-		return qtrue;
+		return true;
 
 	if ( shader->isSky || shader->remappedShader )
-		return qfalse;
+		return false;
 
 	if ( shader->numDeforms || shader->numUnfoggedPasses > MAX_VBO_STAGES )
-		return qfalse;
+		return false;
 
 	svarsSize = 0;
 
@@ -493,19 +493,19 @@ static qboolean isStaticShader( shader_t *shader )
 		if ( !stage || !stage->active )
 			break;
 		if ( stage->depthFragment )
-			return qfalse;
+			return false;
 		if ( stage->adjustColorsForFog != ACFF_NONE )
-			return qfalse;
+			return false;
 		if ( !isStaticTCmod( &stage->bundle[0] ) || !isStaticTCmod( &stage->bundle[1] ) )
-			return qfalse;
+			return false;
 		if ( !isStaticRGBgen( stage->rgbGen ) )
-			return qfalse;
+			return false;
 		if ( !isStaticTCgen( stage, 0 ) )
-			return qfalse;
+			return false;
 		if ( !isStaticTCgen( stage, 1 ) )
-			return qfalse;
+			return false;
 		if ( !isStaticAgen( stage->alphaGen ) )
-			return qfalse;
+			return false;
 		svarsSize += sizeof( tess.svars.colors[0] );
 		if ( stage->tessFlags & TESS_ST0 )
 			svarsSize += sizeof( tess.svars.texcoords[0][0] );
@@ -514,9 +514,9 @@ static qboolean isStaticShader( shader_t *shader )
 	}
 
 	if ( i == 0 )
-		return qfalse;
+		return false;
 
-	shader->isStaticShader = qtrue;
+	shader->isStaticShader = true;
 
 	// TODO: alloc separate structure?
 	shader->svarsSize = svarsSize;
@@ -570,7 +570,7 @@ static qboolean isStaticShader( shader_t *shader )
 
 	CompileFragmentProgram( world_vbo.fogFPindex, 0 /*mtx*/, 0 /*atest*/, FP_FOG_ONLY );
 
-	return qtrue;
+	return true;
 }
 
 
@@ -722,18 +722,18 @@ int VBO_Active( void )
 }
 
 
-static qboolean VBO_BindData( void )
+static bool VBO_BindData( void )
 {
 	if ( curr_vertex_bind )
-		return qfalse;
+		return false;
 
 	qglBindBufferARB( GL_ARRAY_BUFFER_ARB, VBO_world_data ); 
 	curr_vertex_bind = VBO_world_data;
-	return qtrue;
+	return true;
 }
 
 
-static void VBO_BindIndex( qboolean enable )
+static void VBO_BindIndex( bool enable )
 {
 	if ( !enable )
 	{
@@ -949,12 +949,12 @@ void R_BuildWorldVBO( msurface_t *surf, int surfCount )
 		}
 		initItem( vbo->items + i + 1 );
 		RB_BeginSurface( sf->shader, 0 );
-		tess.allowVBO = qfalse; // block execution of VBO path as we need to tesselate geometry
+		tess.allowVBO = false; // block execution of VBO path as we need to tesselate geometry
 #ifdef USE_TESS_NEEDS_NORMAL
-		tess.needsNormal = qtrue;
+		tess.needsNormal = true;
 #endif
 #ifdef USE_TESS_NEEDS_ST2
-		tess.needsST2 = qtrue;
+		tess.needsST2 = true;
 #endif
 		// tesselate
 		rb_surfaceTable[ *sf->data ]( sf->data ); // VBO_PushData() may be called multiple times there
@@ -997,7 +997,7 @@ void R_BuildWorldVBO( msurface_t *surf, int surfCount )
 
 	// upload index array
 	if ( VBO_world_indexes ) {
-		VBO_BindIndex( qtrue );
+		VBO_BindIndex( true );
 		qglBufferDataARB( GL_ELEMENT_ARRAY_BUFFER_ARB, vbo->ibo_size, vbo->ibo_buffer, GL_STATIC_DRAW_ARB );
 		if ( (err = qglGetError()) != GL_NO_ERROR )
 			goto __fail;
@@ -1085,7 +1085,7 @@ void VBO_Cleanup( void )
 
 	for ( i = 0; i < tr.numShaders; i++ )
 	{
-		tr.shaders[ i ]->isStaticShader = qfalse;
+		tr.shaders[ i ]->isStaticShader = false;
 		tr.shaders[ i ]->iboOffset = -1;
 		tr.shaders[ i ]->vboOffset = -1;
 	}
@@ -1215,7 +1215,7 @@ static void VBO_RenderIBOItems( void )
 	// from device-local memory
 	if ( vbo->ibo_items_count )
 	{
-		VBO_BindIndex( qtrue );
+		VBO_BindIndex( true );
 		for ( i = 0; i < vbo->ibo_items_count; i++ )
 		{
 			qglDrawElements( GL_TRIANGLES, vbo->ibo_items[ i ].length, GL_INDEX_TYPE, (const GLvoid *)(intptr_t) vbo->ibo_items[ i ].offset );
@@ -1230,7 +1230,7 @@ static void VBO_RenderSoftItems( void )
 
 	if ( vbo->soft_buffer_indexes )
 	{
-		VBO_BindIndex( qfalse );
+		VBO_BindIndex( false );
 		qglDrawElements( GL_TRIANGLES, vbo->soft_buffer_indexes, GL_INDEX_TYPE, vbo->soft_buffer );
 	}
 }
@@ -1337,7 +1337,7 @@ static void RB_IterateStagesVBO( const shaderCommands_t *input )
 	const fogProgramParms_t *fparm;
 	int i;
 	GLbitfield stateBits, normalMask;
-	qboolean fogPass;
+	bool fogPass;
 	GLuint vp, fp;
 
 	fogPass = ( tess.fogNum && tess.shader->fogPass );

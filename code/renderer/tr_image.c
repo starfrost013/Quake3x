@@ -297,7 +297,7 @@ Scale up the pixel values in a texture to increase the
 lighting range
 ================
 */
-static void R_LightScaleTexture( byte *in, int inwidth, int inheight, qboolean only_gamma )
+static void R_LightScaleTexture( byte *in, int inwidth, int inheight, bool only_gamma )
 {
 	if ( in == NULL )
 		return;
@@ -515,26 +515,26 @@ static void R_BlendOverTexture( byte *data, int pixelCount, int mipLevel ) {
 }
 
 
-static qboolean RawImage_HasAlpha( const byte *scan, const int numPixels )
+static bool RawImage_HasAlpha( const byte *scan, const int numPixels )
 {
 	int i;
 
 	if ( !scan )
-		return qtrue;
+		return true;
 
 	for ( i = 0; i < numPixels; i++ )
 	{
 		if ( scan[i*4 + 3] != 255 )
 		{
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 
-static GLint RawImage_GetInternalFormat( const byte *scan, int numPixels, qboolean lightMap, qboolean allowCompression )
+static GLint RawImage_GetInternalFormat( const byte *scan, int numPixels, bool lightMap, bool allowCompression )
 {
 	GLint internalFormat;
 
@@ -584,7 +584,7 @@ static GLint RawImage_GetInternalFormat( const byte *scan, int numPixels, qboole
 }
 
 
-static void LoadTexture( int miplevel, int x, int y, int width, int height, const byte *data, qboolean subImage, image_t *image )
+static void LoadTexture( int miplevel, int x, int y, int width, int height, const byte *data, bool subImage, image_t *image )
 {
 	if ( subImage )
 		qglTexSubImage2D( GL_TEXTURE_2D, miplevel, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data );
@@ -598,12 +598,12 @@ static void LoadTexture( int miplevel, int x, int y, int width, int height, cons
 Upload32
 ===============
 */
-static void Upload32( byte *data, int x, int y, int width, int height, image_t *image, qboolean subImage )
+static void Upload32( byte *data, int x, int y, int width, int height, image_t *image, bool subImage )
 {
-	qboolean allowCompression = !(image->flags & IMGFLAG_NO_COMPRESSION);
-	qboolean lightMap = image->flags & IMGFLAG_LIGHTMAP;
-	qboolean mipmap = image->flags & IMGFLAG_MIPMAP;
-	qboolean picmip = image->flags & IMGFLAG_PICMIP;
+	bool allowCompression = !(image->flags & IMGFLAG_NO_COMPRESSION);
+	bool lightMap = image->flags & IMGFLAG_LIGHTMAP;
+	bool mipmap = image->flags & IMGFLAG_MIPMAP;
+	bool picmip = image->flags & IMGFLAG_PICMIP;
 	byte		*resampledBuffer = NULL;
 	int			scaled_width, scaled_height;
 
@@ -655,7 +655,7 @@ static void Upload32( byte *data, int x, int y, int width, int height, image_t *
 		byte *p = data;
 		int i, n = width * height;
 		for ( i = 0; i < n; i++, p+=4 ) {
-			R_ColorShiftLightingBytes( p, p, qfalse );
+			R_ColorShiftLightingBytes( p, p, false );
 		}
 	}
 
@@ -749,7 +749,7 @@ void R_UploadSubImage( byte *data, int x, int y, int width, int height, image_t 
 	if ( image )
 	{
 		GL_Bind( image );
-		Upload32( data, x, y, width, height, image, qtrue ); // subImage = qtrue
+		Upload32( data, x, y, width, height, image, true ); // subImage = true
 	}
 }
 
@@ -844,7 +844,7 @@ image_t *R_CreateImage( const char *name, const char *name2, byte *pic, int widt
 	}
 
 	GL_Bind( image );
-	Upload32( pic, 0, 0, image->width, image->height, image, qfalse ); // subImage = qfalse
+	Upload32( pic, 0, 0, image->width, image->height, image, false ); // subImage = false
 
 	if ( image->flags & IMGFLAG_MIPMAP )
 	{
@@ -909,7 +909,7 @@ static const char *R_LoadImage( const char *name, byte **pic, int *width, int *h
 {
 	static char localName[ MAX_QPATH ];
 	const char *altName, *ext;
-	//qboolean orgNameFailed = qfalse;
+	//bool orgNameFailed = false;
 	int orgLoader = -1;
 	int i;
 
@@ -940,7 +940,7 @@ static const char *R_LoadImage( const char *name, byte **pic, int *width, int *h
 			{
 				// Loader failed, most likely because the file isn't there;
 				// try again without the extension
-				//orgNameFailed = qtrue;
+				//orgNameFailed = true;
 				orgLoader = i;
 				COM_StripExtension( name, localName, MAX_QPATH );
 			}
@@ -1206,25 +1206,25 @@ Create solid color texture from following input formats (hex):
 ==================
 */
 #define	DEFAULT_SIZE 16
-static qboolean R_BuildDefaultImage( const char *format ) {
+static bool R_BuildDefaultImage( const char *format ) {
 	byte data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 	byte color[4];
 	int i, len, hex[6];
 	int x, y;
 
 	if ( *format++ != '#' ) {
-		return qfalse;
+		return false;
 	}
 
 	len = (int)strlen( format );
 	if ( len <= 0 || len > 6 ) {
-		return qfalse;
+		return false;
 	}
 
 	for ( i = 0; i < len; i++ ) {
 		hex[i] = Hex( format[i] );
 		if ( hex[i] == -1 ) {
-			return qfalse;
+			return false;
 		}
 	}
 
@@ -1242,7 +1242,7 @@ static qboolean R_BuildDefaultImage( const char *format ) {
 			color[3] = 255;
 			break;
 		default: // unsupported format
-			return qfalse;
+			return false;
 	}
 
 	for ( y = 0; y < DEFAULT_SIZE; y++ ) {
@@ -1256,7 +1256,7 @@ static qboolean R_BuildDefaultImage( const char *format ) {
 
 	tr.defaultImage = R_CreateImage( "*default", NULL, (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, IMGFLAG_MIPMAP );
 
-	return qtrue;
+	return true;
 }
 
 
@@ -1357,7 +1357,7 @@ void R_SetColorMappings( void ) {
 	float	g;
 	int		inf;
 	int		shift;
-	qboolean applyGamma;
+	bool applyGamma;
 
 	if ( !tr.inited ) {
 		// it may be called from window handling functions where gamma flags is now yet known/set
@@ -1375,7 +1375,7 @@ void R_SetColorMappings( void ) {
 	if ( !glConfig.isFullscreen && r_overBrightBits->integer >= 0 ) {
 #endif
 		tr.overbrightBits = 0;
-		applyGamma = qfalse;
+		applyGamma = false;
 	} else {
 #ifdef USE_FBO
 		if ( !glConfig.deviceSupportsGamma && !fboEnabled ) {
@@ -1383,9 +1383,9 @@ void R_SetColorMappings( void ) {
 		if ( !glConfig.deviceSupportsGamma ) {
 #endif
 			tr.overbrightBits = 0; // need hardware gamma for overbright
-			applyGamma = qfalse;
+			applyGamma = false;
 		} else {
-			applyGamma = qtrue;
+			applyGamma = true;
 		}
 	}
 
@@ -1678,7 +1678,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	if ( strcmp( name + strlen( name ) - 5, ".skin" ) ) {
 		skin->numSurfaces = 1;
 		skin->surfaces = ri.Hunk_Alloc( sizeof( skinSurface_t ), h_low );
-		skin->surfaces[0].shader = R_FindShader( name, LIGHTMAP_NONE, qtrue );
+		skin->surfaces[0].shader = R_FindShader( name, LIGHTMAP_NONE, true );
 		return hSkin;
 	}
 
@@ -1715,7 +1715,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 		if ( skin->numSurfaces < MAX_SKIN_SURFACES ) {
 			surf = &parseSurfaces[skin->numSurfaces];
 			Q_strncpyz( surf->name, surfName, sizeof( surf->name ) );
-			surf->shader = R_FindShader( token, LIGHTMAP_NONE, qtrue );
+			surf->shader = R_FindShader( token, LIGHTMAP_NONE, true );
 			skin->numSurfaces++;
 		}
 

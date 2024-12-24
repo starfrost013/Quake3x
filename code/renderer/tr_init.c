@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 glconfig_t	glConfig;
-qboolean	nonPowerOfTwoTextures;
-qboolean	textureFilterAnisotropic;
+bool	nonPowerOfTwoTextures;
+bool	textureFilterAnisotropic;
 int			maxAnisotropy;
 int			gl_version;
 int			gl_clamp_mode;	// GL_CLAMP or GL_CLAMP_TO_EGGE
@@ -286,11 +286,11 @@ void QDECL Com_Printf( const char *fmt, ... )
 /*
 ** R_HaveExtension
 */
-static qboolean R_HaveExtension( const char *ext )
+static bool R_HaveExtension( const char *ext )
 {
 	const char *ptr = Q_stristr( gl_extensions, ext );
 	if (ptr == NULL)
-		return qfalse;
+		return false;
 	ptr += strlen(ext);
 	return ((*ptr == ' ') || (*ptr == '\0'));  // verify its complete string.
 }
@@ -327,12 +327,12 @@ static void R_InitExtensions( void )
 
 	glConfig.textureCompression = TC_NONE;
 
-	glConfig.textureEnvAddAvailable = qfalse;
+	glConfig.textureEnvAddAvailable = false;
 
-	textureFilterAnisotropic = qfalse;
+	textureFilterAnisotropic = false;
 	maxAnisotropy = 0;
 
-	nonPowerOfTwoTextures = qfalse;
+	nonPowerOfTwoTextures = false;
 
 	qglLockArraysEXT = NULL;
 	qglUnlockArraysEXT = NULL;
@@ -402,10 +402,10 @@ static void R_InitExtensions( void )
 	// GL_EXT_texture_env_add
 	if ( R_HaveExtension( "EXT_texture_env_add" ) ) {
 		if ( r_ext_texture_env_add->integer ) {
-			glConfig.textureEnvAddAvailable = qtrue;
+			glConfig.textureEnvAddAvailable = true;
 			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_env_add\n" );
 		} else {
-			glConfig.textureEnvAddAvailable = qfalse;
+			glConfig.textureEnvAddAvailable = false;
 			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n" );
 		}
 	} else {
@@ -495,7 +495,7 @@ static void R_InitExtensions( void )
 			else
 			{
 				ri.Printf( PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic (max: %i)\n", maxAnisotropy );
-				textureFilterAnisotropic = qtrue;
+				textureFilterAnisotropic = true;
 				maxAnisotropy = MIN( r_ext_max_anisotropy->integer, maxAnisotropy );
 			}
 		}
@@ -631,14 +631,14 @@ static void InitOpenGL( void )
 
 		QGL_InitARB();
 
-		glConfig.deviceSupportsGamma = qfalse;
+		glConfig.deviceSupportsGamma = false;
 
 		ri.GLimp_InitGamma( &glConfig );
 
 		gls.deviceSupportsGamma = glConfig.deviceSupportsGamma;
 
 		if ( r_ignorehwgamma->integer )
-			glConfig.deviceSupportsGamma = qfalse;
+			glConfig.deviceSupportsGamma = false;
 
 		// print info
 		GfxInfo();
@@ -648,7 +648,7 @@ static void InitOpenGL( void )
 	else
 	{
 #ifdef USE_FBO
-		QGL_SetRenderScale( qfalse );
+		QGL_SetRenderScale( false );
 #endif
 	}
 
@@ -671,7 +671,7 @@ static void InitOpenGL( void )
 	// set default state
 	GL_SetDefaultState();
 
-	tr.inited = qtrue;
+	tr.inited = true;
 }
 
 
@@ -1098,7 +1098,7 @@ Doesn't print the pacifier message if there is a second arg
 */
 static void R_ScreenShot_f( void ) {
 	char		checkname[MAX_OSPATH];
-	qboolean	silent;
+	bool	silent;
 	int			typeMask;
 	const char	*ext;
 
@@ -1128,12 +1128,12 @@ static void R_ScreenShot_f( void ) {
 		return;
 
 	if ( !strcmp( ri.Cmd_Argv(1), "silent" ) ) {
-		silent = qtrue;
+		silent = true;
 	} else if ( typeMask == SCREENSHOT_BMP && !strcmp( ri.Cmd_Argv(1), "clipboard" ) ) {
 		backEnd.screenshotMask |= SCREENSHOT_BMP_CLIPBOARD;
-		silent = qtrue;
+		silent = true;
 	} else {
-		silent = qfalse;
+		silent = false;
 	}
 
 	if ( ri.Cmd_Argc() == 2 && !silent ) {
@@ -1799,6 +1799,9 @@ static void R_Register( void )
 
 #define EPSILON 1e-6f
 
+// The size of this changes regularly
+#define GLCONFIG_SIZE 	11324
+
 /*
 ===============
 R_Init
@@ -1817,8 +1820,8 @@ void R_Init( void ) {
 	Com_Memset( &tess, 0, sizeof( tess ) );
 	Com_Memset( &glState, 0, sizeof( glState ) );
 
-	if ( sizeof( glconfig_t ) != 11332 )
-		ri.Error( ERR_FATAL, "Mod ABI incompatible: sizeof(glconfig_t) == %u != 11332", (unsigned int) sizeof( glconfig_t ) );
+	if ( sizeof( glconfig_t ) != GLCONFIG_SIZE )
+		ri.Error( ERR_FATAL, "Mod ABI incompatible: sizeof(glconfig_t) == %u != %d", (unsigned int) sizeof( glconfig_t ), GLCONFIG_SIZE);
 
 	if ( (intptr_t)tess.xyz & 15 ) {
 		ri.Printf( PRINT_WARNING, "tess.xyz not 16 byte aligned\n" );
@@ -1936,15 +1939,15 @@ static void RE_Shutdown( refShutdownCode_t code ) {
 		Com_Memset( &glState, 0, sizeof( glState ) );
 
 		if ( code != REF_KEEP_WINDOW ) {
-			ri.GLimp_Shutdown( code == REF_UNLOAD_DLL ? qtrue : qfalse );
+			ri.GLimp_Shutdown( code == REF_UNLOAD_DLL ? true : false );
 			Com_Memset( &glConfig, 0, sizeof( glConfig ) );
 		}
 	}
 
 	ri.FreeAll();
 
-	tr.registered = qfalse;
-	tr.inited = qfalse;
+	tr.registered = false;
+	tr.inited = false;
 }
 
 

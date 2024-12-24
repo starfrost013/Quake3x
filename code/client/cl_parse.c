@@ -61,7 +61,7 @@ Parses deltas from the given base and adds the resulting entity
 to the current frame
 ==================
 */
-static void CL_DeltaEntity( msg_t *msg, clSnapshot_t *frame, int newnum, const entityState_t *old, qboolean unchanged) {
+static void CL_DeltaEntity( msg_t *msg, clSnapshot_t *frame, int newnum, const entityState_t *old, bool unchanged) {
 	entityState_t	*state;
 
 	// save the parsed entity state into the big circular buffer so
@@ -127,7 +127,7 @@ static void CL_ParsePacketEntities( msg_t *msg, const clSnapshot_t *oldframe, cl
 			if ( cl_shownet->integer == 3 ) {
 				Com_Printf ("%3i:  unchanged: %i\n", msg->readcount, oldnum);
 			}
-			CL_DeltaEntity( msg, newframe, oldnum, oldstate, qtrue );
+			CL_DeltaEntity( msg, newframe, oldnum, oldstate, true );
 
 			oldindex++;
 
@@ -144,7 +144,7 @@ static void CL_ParsePacketEntities( msg_t *msg, const clSnapshot_t *oldframe, cl
 			if ( cl_shownet->integer == 3 ) {
 				Com_Printf ("%3i:  delta: %i\n", msg->readcount, newnum);
 			}
-			CL_DeltaEntity( msg, newframe, newnum, oldstate, qfalse );
+			CL_DeltaEntity( msg, newframe, newnum, oldstate, false );
 
 			oldindex++;
 
@@ -163,7 +163,7 @@ static void CL_ParsePacketEntities( msg_t *msg, const clSnapshot_t *oldframe, cl
 			if ( cl_shownet->integer == 3 ) {
 				Com_Printf ("%3i:  baseline: %i\n", msg->readcount, newnum);
 			}
-			CL_DeltaEntity( msg, newframe, newnum, &cl.entityBaselines[newnum], qfalse );
+			CL_DeltaEntity( msg, newframe, newnum, &cl.entityBaselines[newnum], false );
 			continue;
 		}
 
@@ -175,7 +175,7 @@ static void CL_ParsePacketEntities( msg_t *msg, const clSnapshot_t *oldframe, cl
 		if ( cl_shownet->integer == 3 ) {
 			Com_Printf ("%3i:  unchanged: %i\n", msg->readcount, oldnum);
 		}
-		CL_DeltaEntity( msg, newframe, oldnum, oldstate, qtrue );
+		CL_DeltaEntity( msg, newframe, oldnum, oldstate, true );
 
 		oldindex++;
 
@@ -222,7 +222,7 @@ static void CL_ParseSnapshot( msg_t *msg ) {
 
 	// if we were just unpaused, we can only *now* really let the
 	// change come into effect or the client hangs.
-	cl_paused->modified = qfalse;
+	cl_paused->modified = false;
 
 	newSnap.messageNum = clc.serverMessageSequence;
 
@@ -239,9 +239,9 @@ static void CL_ParseSnapshot( msg_t *msg ) {
 	// the frame, but not use it, then ask for a non-compressed
 	// message
 	if ( newSnap.deltaNum <= 0 ) {
-		newSnap.valid = qtrue;		// uncompressed frame
+		newSnap.valid = true;		// uncompressed frame
 		old = NULL;
-		clc.demowaiting = qfalse;	// we can start recording now
+		clc.demowaiting = false;	// we can start recording now
 	} else {
 		old = &cl.snapshots[newSnap.deltaNum & PACKET_MASK];
 		if ( !old->valid ) {
@@ -254,7 +254,7 @@ static void CL_ParseSnapshot( msg_t *msg ) {
 		} else if ( cl.parseEntitiesNum - old->parseEntitiesNum > MAX_PARSE_ENTITIES - MAX_SNAPSHOT_ENTITIES ) {
 			Com_Printf ("Delta parseEntitiesNum too old.\n");
 		} else {
-			newSnap.valid = qtrue;	// valid delta parse
+			newSnap.valid = true;	// valid delta parse
 		}
 	}
 
@@ -298,7 +298,7 @@ static void CL_ParseSnapshot( msg_t *msg ) {
 	}
 
 	for ( i = 0, n = newSnap.messageNum - oldMessageNum; i < n; i++ ) {
-		cl.snapshots[ ( oldMessageNum + i ) & PACKET_MASK ].valid = qfalse;
+		cl.snapshots[ ( oldMessageNum + i ) & PACKET_MASK ].valid = false;
 	}
 
 	// copy to the current good spot
@@ -320,7 +320,7 @@ static void CL_ParseSnapshot( msg_t *msg ) {
 		cl.snap.deltaNum, cl.snap.ping );
 	}
 
-	cl.newSnapshots = qtrue;
+	cl.newSnapshots = true;
 
 	clc.eventMask |= EM_SNAPSHOT;
 }
@@ -340,7 +340,7 @@ new information out of it.  This will happen at every
 gamestate, and possibly during gameplay.
 ==================
 */
-void CL_SystemInfoChanged( qboolean onlyGame ) {
+void CL_SystemInfoChanged( bool onlyGame ) {
 	const char		*systemInfo;
 	const char		*s, *t;
 	char			key[BIG_INFO_KEY];
@@ -384,7 +384,7 @@ void CL_SystemInfoChanged( qboolean onlyGame ) {
 	if ( CL_GameSwitch() ) {
 		// we just restored fs_game from saved systeminfo
 		// reset modified flag to avoid unwanted side-effecfs
-		Cvar_SetModified( "fs_game", qfalse );
+		Cvar_SetModified( "fs_game", false );
 	}
 
 	s = Info_ValueForKey( systemInfo, "sv_cheats" );
@@ -461,7 +461,7 @@ void CL_SystemInfoChanged( qboolean onlyGame ) {
 CL_GameSwitch
 ==================
 */
-qboolean CL_GameSwitch( void )
+bool CL_GameSwitch( void )
 {
 	return (cls.gameSwitch && !com_errorEntered);
 }
@@ -507,7 +507,7 @@ static void CL_ParseGamestate( msg_t *msg ) {
 	const char		*s;
 	char			oldGame[ MAX_QPATH ];
 	char			reconnectArgs[ MAX_CVAR_VALUE_STRING ];
-	qboolean		gamedirModified;
+	bool		gamedirModified;
 
 	Con_Close();
 
@@ -525,7 +525,7 @@ static void CL_ParseGamestate( msg_t *msg ) {
 	for ( i = 0; i < MAX_RELIABLE_COMMANDS; i++ ) {
 		s = clc.serverCommands[ i ];
 		if ( !strncmp( s, "cs ", 3 ) || !strncmp( s, "bcs0 ", 5 ) || !strncmp( s, "bcs1 ", 5 ) || !strncmp( s, "bcs2 ", 5 ) ) {
-			clc.serverCommandsIgnore[ i ] = qtrue;
+			clc.serverCommandsIgnore[ i ] = true;
 		}
 	}
 
@@ -593,7 +593,7 @@ static void CL_ParseGamestate( msg_t *msg ) {
 	CL_ParseServerInfo();
 
 	// parse serverId and other cvars
-	CL_SystemInfoChanged( qtrue );
+	CL_SystemInfoChanged( true );
 
 	// stop recording now so the demo won't have an unnecessary level load at the end.
 	if ( cl_autoRecordDemo->integer && clc.demorecording ) {
@@ -602,10 +602,10 @@ static void CL_ParseGamestate( msg_t *msg ) {
 		}
 	}
 
-	gamedirModified = ( Cvar_Flags( "fs_game" ) & CVAR_MODIFIED ) ? qtrue : qfalse;
+	gamedirModified = ( Cvar_Flags( "fs_game" ) & CVAR_MODIFIED ) ? true : false;
 
 	if ( !cl_oldGameSet && gamedirModified ) {
-		cl_oldGameSet = qtrue;
+		cl_oldGameSet = true;
 		Q_strncpyz( cl_oldGame, oldGame, sizeof( cl_oldGame ) );
 	}
 
@@ -626,7 +626,7 @@ static void CL_ParseGamestate( msg_t *msg ) {
 		Cvar_Set( "cl_reconnectArgs", reconnectArgs );
 	}
 
-	cls.gameSwitch = qfalse;
+	cls.gameSwitch = false;
 
 	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the cgame
 	CL_InitDownloads();
@@ -641,28 +641,28 @@ static void CL_ParseGamestate( msg_t *msg ) {
 CL_ValidPakSignature
 
 checks for valid ZIP signature
-returns qtrue for normal and empty archives
+returns true for normal and empty archives
 =====================
 */
-qboolean CL_ValidPakSignature( const byte *data, int len )
+bool CL_ValidPakSignature( const byte *data, int len )
 {
 	// maybe it is not 100% correct to check for file size here
 	// because we may receive more data in future packets
 	// but situation when server sends fragmented/shortened
 	// zip header in first packet - looks pretty suspicious
 	if ( len < 22 )
-		return qfalse; // minimal ZIP file length is 22 bytes
+		return false; // minimal ZIP file length is 22 bytes
 
 	if ( data[0] != 'P' || data[1] != 'K' )
-		return qfalse;
+		return false;
 
 	if ( data[2] == 0x3 && data[3] == 0x4 )
-		return qtrue; // local file header
+		return true; // local file header
 
 	if ( data[2] == 0x5 && data[3] == 0x6 )
-		return qtrue; // EOCD
+		return true; // EOCD
 
-	return qfalse;
+	return false;
 }
 
 //=====================================================================
@@ -681,7 +681,7 @@ static void CL_ParseDownload( msg_t *msg ) {
 
 	if (!*clc.downloadTempName) {
 		Com_Printf("Server sending download, but no download was requested\n");
-		CL_AddReliableCommand( "stopdl", qfalse );
+		CL_AddReliableCommand( "stopdl", false );
 		return;
 	}
 
@@ -727,7 +727,7 @@ static void CL_ParseDownload( msg_t *msg ) {
 		if ( !CL_ValidPakSignature( data, size ) )
 		{
 			Com_Printf( S_COLOR_YELLOW "Invalid pak signature for %s\n", clc.downloadName );
-			CL_AddReliableCommand( "stopdl", qfalse );
+			CL_AddReliableCommand( "stopdl", false );
 			CL_NextDownload();
 			return;
 		}
@@ -737,7 +737,7 @@ static void CL_ParseDownload( msg_t *msg ) {
 		if ( clc.download == FS_INVALID_HANDLE )
 		{
 			Com_Printf( "Could not create %s\n", clc.downloadTempName );
-			CL_AddReliableCommand( "stopdl", qfalse );
+			CL_AddReliableCommand( "stopdl", false );
 			CL_NextDownload();
 			return;
 		}
@@ -746,7 +746,7 @@ static void CL_ParseDownload( msg_t *msg ) {
 	if (size)
 		FS_Write( data, size, clc.download );
 
-	CL_AddReliableCommand( va("nextdl %d", clc.downloadBlock), qfalse );
+	CL_AddReliableCommand( va("nextdl %d", clc.downloadBlock), false );
 	clc.downloadBlock++;
 
 	clc.downloadCount += size;
@@ -803,7 +803,7 @@ static void CL_ParseCommandString( msg_t *msg ) {
 
 	index = seq & (MAX_RELIABLE_COMMANDS-1);
 	Q_strncpyz( clc.serverCommands[ index ], s, sizeof( clc.serverCommands[ index ] ) );
-	clc.serverCommandsIgnore[ index ] = qfalse;
+	clc.serverCommandsIgnore[ index ] = false;
 
 #ifdef USE_CURL
 	if ( !clc.cURLUsed )
@@ -817,7 +817,7 @@ static void CL_ParseCommandString( msg_t *msg ) {
 			text = ( Cmd_Argc() > 1 ) ? va( "Server disconnected: %s", Cmd_Argv( 1 ) ) : "Server disconnected.";
 			Cvar_Set( "com_errorMessage", text );
 			Com_Printf( "%s\n", text );
-			if ( !CL_Disconnect( qtrue ) ) { // restart client if not done already
+			if ( !CL_Disconnect( true ) ) { // restart client if not done already
 				CL_FlushMemory();
 			}
 			return;
@@ -905,15 +905,15 @@ void CL_ParseServerMessage( msg_t *msg ) {
 			CL_ParseDownload( msg );
 			break;
 		case svc_voipSpeex: // ioq3 extension
-			clc.dm68compat = qfalse;
+			clc.dm68compat = false;
 #ifdef USE_VOIP
-			CL_ParseVoip( msg, qtrue );
+			CL_ParseVoip( msg, true );
 			break;
 #else
 			return;
 #endif
 		case svc_voipOpus: // ioq3 extension
-			clc.dm68compat = qfalse;
+			clc.dm68compat = false;
 #ifdef USE_VOIP
 			CL_ParseVoip( msg, !clc.voipEnabled );
 			break;

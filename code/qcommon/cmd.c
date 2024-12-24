@@ -119,7 +119,7 @@ void Cbuf_NestedAdd( const char *text ) {
 
 	int len = (int)strlen( text );
 	int pos = nestedCmdOffset;
-	qboolean separate = qfalse;
+	bool separate = false;
 	int i;
 
 	if ( len <= 0 ) {
@@ -136,7 +136,7 @@ void Cbuf_NestedAdd( const char *text ) {
 	if ( text[len - 1] == '\n' || text[len - 1] == ';' ) {
 		// command already has separator
 	} else {
-		separate = qtrue;
+		separate = true;
 		len += 1;
 	}
 
@@ -240,8 +240,8 @@ void Cbuf_Execute( void )
 {
 	char line[MAX_CMD_LINE], *text;
 	int i, n, quotes;
-	qboolean in_star_comment;
-	qboolean in_slash_comment;
+	bool in_star_comment;
+	bool in_slash_comment;
 
 	if ( cmd_wait > 0 ) {
 		// delay command buffer execution
@@ -251,8 +251,8 @@ void Cbuf_Execute( void )
 	// This will keep // style comments all on one line by not breaking on
 	// a semicolon.  It will keep /* ... */ style comments all on one line by not
 	// breaking it for semicolon or newline.
-	in_star_comment = qfalse;
-	in_slash_comment = qfalse;
+	in_star_comment = false;
+	in_slash_comment = false;
 
 	while ( cmd_text.cursize > 0 )
 	{
@@ -268,11 +268,11 @@ void Cbuf_Execute( void )
 			if ( !(quotes&1)) {
 				if ( i < cmd_text.cursize - 1 ) {
 					if ( !in_star_comment && text[i] == '/' && text[i+1] == '/' )
-						in_slash_comment = qtrue;
+						in_slash_comment = true;
 					else if ( !in_slash_comment && text[i] == '/' && text[i+1] == '*' )
-						in_star_comment = qtrue;
+						in_star_comment = true;
 					else if ( in_star_comment && text[i] == '*' && text[i+1] == '/' ) {
-						in_star_comment = qfalse;
+						in_star_comment = false;
 						// If we are in a star comment, then the part after it is valid
 						// Note: This will cause it to NUL out the terminating '/'
 						// but ExecuteString doesn't require it anyway.
@@ -284,7 +284,7 @@ void Cbuf_Execute( void )
 					break;
 			}
 			if ( !in_star_comment && (text[i] == '\n' || text[i] == '\r') ) {
-				in_slash_comment = qfalse;
+				in_slash_comment = false;
 				break;
 			}
 		}
@@ -364,7 +364,7 @@ Cmd_Exec_f
 ===============
 */
 static void Cmd_Exec_f( void ) {
-	qboolean quiet;
+	bool quiet;
 	union {
 		char *c;
 		void *v;
@@ -595,7 +595,7 @@ will point into this temporary buffer.
 */
 // NOTE TTimo define that to track tokenization issues
 //#define TKN_DBG
-static void Cmd_TokenizeString2( const char *text_in, qboolean ignoreQuotes ) {
+static void Cmd_TokenizeString2( const char *text_in, bool ignoreQuotes ) {
 	const char *text;
 	char *textOut;
 
@@ -710,7 +710,7 @@ Cmd_TokenizeString
 ============
 */
 void Cmd_TokenizeString( const char *text_in ) {
-	Cmd_TokenizeString2( text_in, qfalse );
+	Cmd_TokenizeString2( text_in, false );
 }
 
 
@@ -720,7 +720,7 @@ Cmd_TokenizeStringIgnoreQuotes
 ============
 */
 void Cmd_TokenizeStringIgnoreQuotes( const char *text_in ) {
-	Cmd_TokenizeString2( text_in, qtrue );
+	Cmd_TokenizeString2( text_in, true );
 }
 
 
@@ -845,14 +845,14 @@ Remove cgame-created commands
 void Cmd_RemoveCgameCommands( void )
 {
 	const cmd_function_t *cmd;
-	qboolean removed;
+	bool removed;
 
 	do {
-		removed = qfalse;
+		removed = false;
 		for ( cmd = cmd_functions ; cmd ; cmd = cmd->next ) {
 			if ( cmd->function == NULL ) {
 				Cmd_RemoveCommand( cmd->name );
-				removed = qtrue;
+				removed = true;
 				break;
 			}
 		}
@@ -879,7 +879,7 @@ void Cmd_CommandCompletion( void(*callback)(const char *s) ) {
 Cmd_CompleteArgument
 ============
 */
-qboolean Cmd_CompleteArgument( const char *command, const char *args, int argNum ) {
+bool Cmd_CompleteArgument( const char *command, const char *args, int argNum ) {
 	const cmd_function_t *cmd;
 
 	for( cmd = cmd_functions; cmd; cmd = cmd->next ) {
@@ -887,11 +887,11 @@ qboolean Cmd_CompleteArgument( const char *command, const char *args, int argNum
 			if ( cmd->complete ) {
 				cmd->complete( args, argNum );
 			}
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 
@@ -997,7 +997,7 @@ Cmd_CompleteCfgName
 */
 static void Cmd_CompleteCfgName( const char *args, int argNum ) {
 	if( argNum == 2 ) {
-		Field_CompleteFilename( "", "cfg", qfalse, FS_MATCH_ANY | FS_MATCH_STICK );
+		Field_CompleteFilename( "", "cfg", false, FS_MATCH_ANY | FS_MATCH_STICK );
 	}
 }
 
@@ -1009,7 +1009,7 @@ Cmd_CompleteWriteCfgName
 */
 void Cmd_CompleteWriteCfgName( const char *args, int argNum ) {
 	if( argNum == 2 ) {
-		Field_CompleteFilename( "", "cfg", qfalse, FS_MATCH_EXTERN | FS_MATCH_STICK );
+		Field_CompleteFilename( "", "cfg", false, FS_MATCH_EXTERN | FS_MATCH_STICK );
 	}
 }
 
