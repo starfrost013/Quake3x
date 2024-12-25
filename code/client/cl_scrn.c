@@ -559,7 +559,7 @@ static void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		case CA_PRIMED:
 			// draw the game information screen and loading progress
 			if ( gameClientVm ) {
-				CL_GameclientRendering( stereoFrame );
+				CL_GameClientRendering( stereoFrame );
 			}
 			// also draw the connection information, so it doesn't
 			// flash away too briefly on local or lan games
@@ -569,7 +569,7 @@ static void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 			break;
 		case CA_ACTIVE:
 			// always supply STEREO_CENTER as vieworg offset is now done by the engine.
-			CL_GameclientRendering( stereoFrame );
+			CL_GameClientRendering( stereoFrame );
 			SCR_DrawDemoRecording();
 #ifdef USE_VOIP
 			SCR_DrawVoipMeter();

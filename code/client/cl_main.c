@@ -3066,7 +3066,7 @@ void CL_Frame( int msec, int realMsec ) {
 	CL_CheckForResend();
 
 	// decide on the serverTime to render
-	CL_SetGameclientTime();
+	CL_SetGameClientTime();
 
 	// update the screen
 	cls.framecount++;

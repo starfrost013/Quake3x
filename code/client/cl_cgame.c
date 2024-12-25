@@ -876,10 +876,10 @@ bool CL_GameCommand( void ) {
 
 /*
 =====================
-CL_GameclientRendering
+CL_GameClientRendering
 =====================
 */
-void CL_GameclientRendering( stereoFrame_t stereo ) {
+void CL_GameClientRendering( stereoFrame_t stereo ) {
 	VM_Call( gameClientVm, 3, CLIENT_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
 #ifdef DEBUG
 	VM_Debug( 0 );
@@ -1057,10 +1057,10 @@ static int CL_TimeNudge( void ) {
 
 /*
 ==================
-CL_SetGameclientTime
+CL_SetGameClientTime
 ==================
 */
-void CL_SetGameclientTime( void ) {
+void CL_SetGameClientTime( void ) {
 	bool demoFreezed;
 
 	// getting a valid frame message ends the connection process
@@ -1088,7 +1088,7 @@ void CL_SetGameclientTime( void ) {
 
 	// if we have gotten to this point, cl.snap is guaranteed to be valid
 	if ( !cl.snap.valid ) {
-		Com_Error( ERR_DROP, "CL_SetGameclientTime: !cl.snap.valid" );
+		Com_Error( ERR_DROP, "CL_SetGameClientTime: !cl.snap.valid" );
 	}
 
 	// allow pause in single player
