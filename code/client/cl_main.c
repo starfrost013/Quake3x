@@ -986,7 +986,7 @@ CL_ShutdownVMs
 */
 static void CL_ShutdownVMs( void )
 {
-	CL_ShutdownGameclient();
+	CL_ShutdownGameClient();
 	CL_ShutdownUI();
 }
 
@@ -1240,7 +1240,7 @@ bool CL_Disconnect( bool showMainMenu ) {
 
 	if ( gameClientVm ) {
 		// do that right after we rendered last video frame
-		CL_ShutdownGameclient();
+		CL_ShutdownGameClient();
 	}
 
 	SCR_StopCinematic();
@@ -1781,7 +1781,7 @@ static void CL_Vid_Restart( refShutdownCode_t shutdownCode ) {
 	// start the gameclient if connected
 	if ( ( cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC ) || cls.startGameclient ) {
 		cls.gameclientStarted = true;
-		CL_InitGameclient();
+		CL_InitGameClient();
 		// send pure checksums
 		CL_SendPureChecksums();
 	}
@@ -2001,7 +2001,7 @@ static void CL_DownloadsComplete( void ) {
 
 	// initialize the Gameclient
 	cls.gameclientStarted = true;
-	CL_InitGameclient();
+	CL_InitGameClient();
 
 	if ( clc.demofile == FS_INVALID_HANDLE ) {
 		Cmd_AddCommand( "callvote", NULL );

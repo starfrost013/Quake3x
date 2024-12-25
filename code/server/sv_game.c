@@ -929,7 +929,7 @@ void SV_ShutdownGameProgs( void ) {
 	if ( !gvm ) {
 		return;
 	}
-	VM_Call( gvm, 1, GAME_SHUTDOWN, false );
+	VM_Call( gvm, 1, SERVER_SHUTDOWN, false );
 	VM_Free( gvm );
 	gvm = NULL;
 	FS_VM_CloseFiles( H_GAMESERVER );
@@ -952,14 +952,14 @@ static void SV_InitGameVM( bool restart ) {
 	// clear all gentity pointers that might still be set from
 	// a previous level
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=522
-	// now done before GAME_INIT call
+	// now done before SERVER_INIT call
 	for ( i = 0; i < sv.maxclients; i++ ) {
 		svs.clients[i].gentity = NULL;
 	}
 	
 	// use the current msec count for a random seed
 	// init for this gamestate
-	VM_Call( gvm, 3, GAME_INIT, sv.time, Com_Milliseconds(), restart );
+	VM_Call( gvm, 3, SERVER_INIT, sv.time, Com_Milliseconds(), restart );
 }
 
 
@@ -974,7 +974,7 @@ void SV_RestartGameProgs( void ) {
 	if ( !gvm ) {
 		return;
 	}
-	VM_Call( gvm, 1, GAME_SHUTDOWN, true );
+	VM_Call( gvm, 1, SERVER_SHUTDOWN, true );
 
 	// do a restart instead of a free
 	gvm = VM_Restart( gvm );
@@ -1034,5 +1034,5 @@ bool SV_GameCommand( void ) {
 		return false;
 	}
 
-	return VM_Call( gvm, 0, GAME_CONSOLE_COMMAND );
+	return VM_Call( gvm, 0, SERVER_CONSOLE_COMMAND );
 }

@@ -111,7 +111,7 @@ General:
 
 - fixed invisible entities/players bug (thanks goes to Rick Johnson / Raven for this one!)
 - update x86 VM code (better and safer optimisations) (Richk Johnson / Raven too)
-- clearing client gentity before GAME_INIT call
+- clearing client gentity before SERVER_INIT call
 - failing vote if there's only one voting client (fixes exploit on 2-player server where one player votes then disconnects, forcing vote to pass)
 
 - added trap_FS_Seek

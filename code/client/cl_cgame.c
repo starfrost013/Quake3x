@@ -377,7 +377,7 @@ CL_ShutdonwGameclient
 
 ====================
 */
-void CL_ShutdownGameclient( void ) {
+void CL_ShutdownGameClient( void ) {
 
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_GAMECLIENT );
 	cls.gameclientStarted = false;
@@ -782,12 +782,12 @@ static intptr_t QDECL CL_DllSyscall( intptr_t arg, ... ) {
 
 /*
 ====================
-CL_InitGameclient
+CL_InitGameClient
 
 Should only be called by CL_StartHunkUsers
 ====================
 */
-void CL_InitGameclient( void ) {
+void CL_InitGameClient( void ) {
 	const char			*info;
 	const char			*mapname;
 	int					t1, t2;
@@ -832,7 +832,7 @@ void CL_InitGameclient( void ) {
 
 	t2 = Sys_Milliseconds();
 
-	Com_Printf( "CL_InitGameclient: %5.2f seconds\n", (t2-t1)/1000.0 );
+	Com_Printf( "CL_InitGameClient: %5.2f seconds\n", (t2-t1)/1000.0 );
 
 	// have the renderer touch all its images, so they are present
 	// on the card even if the driver does deferred loading

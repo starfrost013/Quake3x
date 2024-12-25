@@ -561,8 +561,8 @@ void CIN_CloseAllVideos(void);
 //
 // cl_gameclient.c
 //
-void CL_InitGameclient( void );
-void CL_ShutdownGameclient( void );
+void CL_InitGameClient( void );
+void CL_ShutdownGameClient( void );
 bool CL_GameCommand( void );
 void CL_GameclientRendering( stereoFrame_t stereo );
 void CL_SetGameclientTime( void );

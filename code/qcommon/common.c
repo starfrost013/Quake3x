@@ -2245,7 +2245,7 @@ bool Hunk_CheckMark( void ) {
 	return false;
 }
 
-void CL_ShutdownGameclient( void );
+void CL_ShutdownGameClient( void );
 void CL_ShutdownUI( void );
 void SV_ShutdownGameProgs( void );
 
@@ -2259,7 +2259,7 @@ The server calls this before shutting down or loading a new map
 void Hunk_Clear( void ) {
 
 #ifndef DEDICATED
-	CL_ShutdownGameclient();
+	CL_ShutdownGameClient();
 	CL_ShutdownUI();
 #endif
 	SV_ShutdownGameProgs();

@@ -1354,7 +1354,7 @@ void SV_Frame( int msec ) {
 		sv.time += frameMsec;
 
 		// let everything in the world think and move
-		VM_Call( gvm, 1, GAME_RUN_FRAME, sv.time );
+		VM_Call( gvm, 1, SERVER_RUN_FRAME, sv.time );
 	}
 
 	if ( com_speeds->integer ) {

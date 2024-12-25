@@ -558,7 +558,7 @@ void SV_SpawnServer( const char *mapname, bool killBots ) {
 	for ( i = 0; i < 3; i++ ) {
 		Cbuf_Wait();
 		sv.time += 100;
-		VM_Call( gvm, 1, GAME_RUN_FRAME, sv.time );
+		VM_Call( gvm, 1, SERVER_RUN_FRAME, sv.time );
 		SV_BotFrame( sv.time );
 	}
 
@@ -582,7 +582,7 @@ void SV_SpawnServer( const char *mapname, bool killBots ) {
 			}
 
 			// connect the client again
-			denied = GVM_ArgPtr( VM_Call( gvm, 3, GAME_CLIENT_CONNECT, i, false, isBot ) );	// firstTime = false
+			denied = GVM_ArgPtr( VM_Call( gvm, 3, SERVER_CLIENT_CONNECT, i, false, isBot ) );	// firstTime = false
 			if ( denied ) {
 				// this generally shouldn't happen, because the client
 				// was connected before the level change
@@ -604,7 +604,7 @@ void SV_SpawnServer( const char *mapname, bool killBots ) {
 	// run another frame to allow things to look at all the players
 	Cbuf_Wait();
 	sv.time += 100;
-	VM_Call( gvm, 1, GAME_RUN_FRAME, sv.time );
+	VM_Call( gvm, 1, SERVER_RUN_FRAME, sv.time );
 	SV_BotFrame( sv.time );
 	svs.time += 100;
 
