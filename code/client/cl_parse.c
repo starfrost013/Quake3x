@@ -628,7 +628,7 @@ static void CL_ParseGamestate( msg_t *msg ) {
 
 	cls.gameSwitch = false;
 
-	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the cgame
+	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the gameclient
 	CL_InitDownloads();
 
 	// make sure the game starts
@@ -780,7 +780,7 @@ static void CL_ParseDownload( msg_t *msg ) {
 =====================
 CL_ParseCommandString
 
-Command strings are just saved off until cgame asks for them
+Command strings are just saved off until gameclient asks for them
 when it transitions a snapshot
 =====================
 */

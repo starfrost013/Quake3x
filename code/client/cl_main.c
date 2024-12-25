@@ -986,7 +986,7 @@ CL_ShutdownVMs
 */
 static void CL_ShutdownVMs( void )
 {
-	CL_ShutdownCGame();
+	CL_ShutdownGameclient();
 	CL_ShutdownUI();
 }
 
@@ -1070,7 +1070,7 @@ CL_MapLoading
 
 A local server is starting to load a map, so update the
 screen to let the user know about it, then dump all client
-memory on the hunk from cgame, ui, and renderer
+memory on the hunk from gameclient, ui, and renderer
 =====================
 */
 void CL_MapLoading( void ) {
@@ -1240,7 +1240,7 @@ bool CL_Disconnect( bool showMainMenu ) {
 
 	if ( cgvm ) {
 		// do that right after we rendered last video frame
-		CL_ShutdownCGame();
+		CL_ShutdownGameclient();
 	}
 
 	SCR_StopCinematic();
@@ -1255,7 +1255,7 @@ bool CL_Disconnect( bool showMainMenu ) {
 	FS_PureServerSetLoadedPaks( "", "" );
 	FS_PureServerSetReferencedPaks( "", "" );
 
-	FS_ClearPakReferences( FS_GENERAL_REF | FS_UI_REF | FS_CGAME_REF );
+	FS_ClearPakReferences( FS_GENERAL_REF | FS_UI_REF | FS_GAMECLIENT_REF );
 
 	if ( CL_GameSwitch() ) {
 		// keep current gamestate and connection
@@ -1286,7 +1286,7 @@ bool CL_Disconnect( bool showMainMenu ) {
 	CL_UpdateGUID( NULL, 0 );
 
 	// Cmd_RemoveCommand( "callvote" );
-	Cmd_RemoveCgameCommands();
+	Cmd_RemoveGameclientCommands();
 
 	if ( noGameRestart )
 		noGameRestart = false;
@@ -1736,7 +1736,7 @@ CL_Vid_Restart
 
 Restart the video subsystem
 
-we also have to reload the UI and CGame because the renderer
+we also have to reload the UI and Gameclient because the renderer
 doesn't know what graphics to reload
 =================
 */
@@ -1762,7 +1762,7 @@ static void CL_Vid_Restart( refShutdownCode_t shutdownCode ) {
 	CL_ResetPureClientAtServer();
 
 	// clear pak references
-	FS_ClearPakReferences( FS_UI_REF | FS_CGAME_REF );
+	FS_ClearPakReferences( FS_UI_REF | FS_GAMECLIENT_REF );
 
 	// reinitialize the filesystem if the game directory or checksum has changed
 	if ( !clc.demoplaying ) // -EC-
@@ -1770,7 +1770,7 @@ static void CL_Vid_Restart( refShutdownCode_t shutdownCode ) {
 
 	cls.soundRegistered = false;
 
-	// unpause so the cgame definitely gets a snapshot and renders a frame
+	// unpause so the gameclient definitely gets a snapshot and renders a frame
 	Cvar_Set( "cl_paused", "0" );
 
 	CL_ClearMemory();
@@ -1778,15 +1778,15 @@ static void CL_Vid_Restart( refShutdownCode_t shutdownCode ) {
 	// startup all the client stuff
 	CL_StartHunkUsers();
 
-	// start the cgame if connected
-	if ( ( cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC ) || cls.startCgame ) {
-		cls.cgameStarted = true;
-		CL_InitCGame();
+	// start the gameclient if connected
+	if ( ( cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC ) || cls.startGameclient ) {
+		cls.gameclientStarted = true;
+		CL_InitGameclient();
 		// send pure checksums
 		CL_SendPureChecksums();
 	}
 
-	cls.startCgame = false;
+	cls.startGameclient = false;
 }
 
 
@@ -1805,7 +1805,7 @@ static void CL_Vid_Restart_f( void ) {
 	} else {
 		if ( cls.lastVidRestart ) {
 			if ( abs( cls.lastVidRestart - Sys_Milliseconds() ) < 500 ) {
-				// hack for OSP mod: do not allow vid restart right after cgame init
+				// hack for OSP mod: do not allow vid restart right after gameclient init
 				return;
 			}
 		}
@@ -1819,7 +1819,7 @@ static void CL_Vid_Restart_f( void ) {
 CL_Snd_Restart_f
 
 Restart the sound subsystem
-The cgame and game must also be forced to restart because
+The gameclient and game must also be forced to restart because
 handles will be invalid
 =================
 */
@@ -1999,9 +1999,9 @@ static void CL_DownloadsComplete( void ) {
 	//if ( !com_sv_running->integer )
 	CL_FlushMemory();
 
-	// initialize the CGame
-	cls.cgameStarted = true;
-	CL_InitCGame();
+	// initialize the Gameclient
+	cls.gameclientStarted = true;
+	CL_InitGameclient();
 
 	if ( clc.demofile == FS_INVALID_HANDLE ) {
 		Cmd_AddCommand( "callvote", NULL );
@@ -2153,7 +2153,7 @@ void CL_NextDownload( void )
 =================
 CL_InitDownloads
 
-After receiving a valid game state, we valid the cgame and local zip files here
+After receiving a valid game state, we valid the gameclient and local zip files here
 and determine if we need to download them
 =================
 */
@@ -3066,7 +3066,7 @@ void CL_Frame( int msec, int realMsec ) {
 	CL_CheckForResend();
 
 	// decide on the serverTime to render
-	CL_SetCGameTime();
+	CL_SetGameclientTime();
 
 	// update the screen
 	cls.framecount++;
@@ -3449,7 +3449,7 @@ static void CL_InitRef( void ) {
 
 	re = *ret;
 
-	// unpause so the cgame definitely gets a snapshot and renders a frame
+	// unpause so the gameclient definitely gets a snapshot and renders a frame
 	Cvar_Set( "cl_paused", "0" );
 }
 
@@ -3900,7 +3900,7 @@ void CL_Init( void ) {
 	Cvar_SetDescription( cl_serverStatusResendTime, "Time between re-sending server status requests if no response is received (in milliseconds)." );
 
 	// init cg_autoswitch so the ui will have it correctly even
-	// if the cgame hasn't been started
+	// if the gameclient hasn't been started
 	Cvar_Get ("cg_autoswitch", "1", CVAR_ARCHIVE);
 
 	cl_motdString = Cvar_Get( "cl_motdString", "", CVAR_ROM );
@@ -3949,7 +3949,7 @@ void CL_Init( void ) {
 	Cvar_Get ("cg_predictItems", "1", CVAR_USERINFO | CVAR_ARCHIVE );
 
 
-	// cgame might not be initialized before menu is used
+	// gameclient might not be initialized before menu is used
 	Cvar_Get ("cg_viewsize", "100", CVAR_ARCHIVE_ND );
 	// Make sure cg_stereoSeparation is zero as that variable is deprecated and should not be used anymore.
 	Cvar_Get ("cg_stereoSeparation", "0", CVAR_ROM);

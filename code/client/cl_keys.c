@@ -606,10 +606,10 @@ static void CL_KeyDownEvent( int key, unsigned time )
 			return;
 		}
 
-		// escape always gets out of CGAME stuff
-		if (Key_GetCatcher( ) & KEYCATCH_CGAME) {
-			Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
-			VM_Call( cgvm, 1, CG_EVENT_HANDLING, CGAME_EVENT_NONE );
+		// escape always gets out of GAMECLIENT stuff
+		if (Key_GetCatcher( ) & KEYCATCH_GAMECLIENT) {
+			Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_GAMECLIENT );
+			VM_Call( cgvm, 1, CG_EVENT_HANDLING, GAMECLIENT_EVENT_NONE );
 			return;
 		}
 
@@ -643,7 +643,7 @@ static void CL_KeyDownEvent( int key, unsigned time )
 		if ( uivm ) {
 			VM_Call( uivm, 2, UI_KEY_EVENT, key, true );
 		}
-	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME ) {
+	} else if ( Key_GetCatcher( ) & KEYCATCH_GAMECLIENT ) {
 		if ( cgvm ) {
 			VM_Call( cgvm, 2, CG_KEY_EVENT, key, true );
 		}
@@ -694,7 +694,7 @@ static void CL_KeyUpEvent( int key, unsigned time )
 	// an action started before a mode switch.
 	//
 	if ( cls.state != CA_DISCONNECTED ) {
-		if ( bound || ( Key_GetCatcher() & KEYCATCH_CGAME ) ) {
+		if ( bound || ( Key_GetCatcher() & KEYCATCH_GAMECLIENT ) ) {
 			Key_ParseBinding( key, false, time );
 		}
 	}
@@ -703,7 +703,7 @@ static void CL_KeyUpEvent( int key, unsigned time )
 		if ( uivm ) {
 			VM_Call( uivm, 2, UI_KEY_EVENT, key, false );
 		}
-	} else if ( Key_GetCatcher() & KEYCATCH_CGAME ) {
+	} else if ( Key_GetCatcher() & KEYCATCH_GAMECLIENT ) {
 		if ( cgvm ) {
 			VM_Call( cgvm, 2, CG_KEY_EVENT, key, false );
 		}

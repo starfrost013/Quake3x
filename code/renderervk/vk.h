@@ -478,7 +478,7 @@ typedef struct {
 		VkShaderModule gamma_fs;
 		VkShaderModule gamma_vs;
 
-		VkShaderModule fog_fs;
+		VkShaderModule foENGINE_FS;
 		VkShaderModule fog_vs;
 
 		VkShaderModule dot_fs;

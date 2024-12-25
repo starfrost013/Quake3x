@@ -626,7 +626,7 @@ typedef struct litSurf_s {
 #define	MAX_PATCH_SIZE		32			// max dimensions of a patch mesh in map file
 #define	MAX_GRID_SIZE		65			// max dimensions of a grid mesh in memory
 
-// when cgame directly specifies a polygon, it becomes a srfPoly_t
+// when gameclient directly specifies a polygon, it becomes a srfPoly_t
 // as soon as it is called
 typedef struct srfPoly_s {
 	surfaceType_t	surfaceType;

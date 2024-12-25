@@ -364,7 +364,7 @@ CL_MouseEvent
 void CL_MouseEvent( int dx, int dy /*, int time*/ ) {
 	if ( Key_GetCatcher() & KEYCATCH_UI ) {
 		VM_Call( uivm, 2, UI_MOUSE_EVENT, dx, dy );
-	} else if ( Key_GetCatcher() & KEYCATCH_CGAME ) {
+	} else if ( Key_GetCatcher() & KEYCATCH_GAMECLIENT ) {
 		VM_Call( cgvm, 2, CG_MOUSE_EVENT, dx, dy );
 	} else {
 		cl.mouseDx[cl.mouseIndex] += dx;
@@ -507,8 +507,8 @@ static void CL_MouseMove( usercmd_t *cmd )
 	}
 
 	// ingame FOV
-	mx *= cl.cgameSensitivity;
-	my *= cl.cgameSensitivity;
+	mx *= cl.gameclientSensitivity;
+	my *= cl.gameclientSensitivity;
 
 	// add mouse X/Y movement to cmd
 	if ( in_strafe.active )
@@ -563,8 +563,8 @@ CL_FinishMove
 static void CL_FinishMove( usercmd_t *cmd ) {
 	int		i;
 
-	// copy the state that the cgame is currently sending
-	cmd->weapon = cl.cgameUserCmdValue;
+	// copy the state that the gameclient is currently sending
+	cmd->weapon = cl.gameclientUserCmdValue;
 
 	// send the current server time so the amount of movement
 	// can be determined without allowing cheating

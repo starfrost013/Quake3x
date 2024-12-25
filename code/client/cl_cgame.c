@@ -19,7 +19,7 @@ along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// cl_cgame.c  -- client system interaction with client game
+// cl_gameclient.c  -- client system interaction with client game
 
 #include "client.h"
 
@@ -157,17 +157,17 @@ CL_SetUserCmdValue
 =====================
 */
 static void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale ) {
-	cl.cgameUserCmdValue = userCmdValue;
-	cl.cgameSensitivity = sensitivityScale;
+	cl.gameclientUserCmdValue = userCmdValue;
+	cl.gameclientSensitivity = sensitivityScale;
 }
 
 
 /*
 =====================
-CL_AddCgameCommand
+CL_AddGameclientCommand
 =====================
 */
-static void CL_AddCgameCommand( const char *cmdName ) {
+static void CL_AddGameclientCommand( const char *cmdName ) {
 	Cmd_AddCommand( cmdName, NULL );
 }
 
@@ -322,7 +322,7 @@ rescan:
 
 	if ( !strcmp( cmd, "map_restart" ) ) {
 		// clear notify lines and outgoing commands before passing
-		// the restart to the cgame
+		// the restart to the gameclient
 		Con_ClearNotify();
 		// reparse the string, because Con_ClearNotify() may have done another Cmd_TokenizeString()
 		Cmd_TokenizeString( s );
@@ -334,7 +334,7 @@ rescan:
 	// the clientLevelShot command is used during development
 	// to generate 128*128 screenshots from the intermission
 	// point of levels for the menu system to use
-	// we pass it along to the cgame to make appropriate adjustments,
+	// we pass it along to the gameclient to make appropriate adjustments,
 	// but we also clear the console and notify lines here
 	if ( !strcmp( cmd, "clientLevelShot" ) ) {
 		// don't do it if we aren't running the server locally,
@@ -352,7 +352,7 @@ rescan:
 
 	// we may want to put a "connect to other server" command here
 
-	// cgame can now act on the command
+	// gameclient can now act on the command
 	return true;
 }
 
@@ -361,7 +361,7 @@ rescan:
 ====================
 CL_CM_LoadMap
 
-Just adds default parameters that cgame doesn't need to know about
+Just adds default parameters that gameclient doesn't need to know about
 ====================
 */
 static void CL_CM_LoadMap( const char *mapname ) {
@@ -373,14 +373,14 @@ static void CL_CM_LoadMap( const char *mapname ) {
 
 /*
 ====================
-CL_ShutdonwCGame
+CL_ShutdonwGameclient
 
 ====================
 */
-void CL_ShutdownCGame( void ) {
+void CL_ShutdownGameclient( void ) {
 
-	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
-	cls.cgameStarted = false;
+	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_GAMECLIENT );
+	cls.gameclientStarted = false;
 
 	if ( !cgvm ) {
 		return;
@@ -391,7 +391,7 @@ void CL_ShutdownCGame( void ) {
 	VM_Call( cgvm, 0, CG_SHUTDOWN );
 	VM_Free( cgvm );
 	cgvm = NULL;
-	FS_VM_CloseFiles( H_CGAME );
+	FS_VM_CloseFiles( H_GAMECLIENT );
 }
 
 
@@ -449,71 +449,71 @@ static void CL_ForceFixedDlights( void ) {
 
 /*
 ====================
-CL_CgameSystemCalls
+CL_GameclientSystemCalls
 
-The cgame module is making a system call
+The gameclient module is making a system call
 ====================
 */
-static intptr_t CL_CgameSystemCalls( intptr_t *args ) {
+static intptr_t CL_GameclientSystemCalls( intptr_t *args ) {
 	switch( args[0] ) {
-	case CG_PRINT:
+	case ENGINE_PRINT:
 		Com_Printf( "%s", (const char*)VMA(1) );
 		return 0;
-	case CG_ERROR:
+	case ENGINE_ERROR:
 		Com_Error( ERR_DROP, "%s", (const char*)VMA(1) );
 		return 0;
-	case CG_MILLISECONDS:
+	case ENGINE_MILLISECONDS:
 		return Sys_Milliseconds();
-	case CG_CVAR_REGISTER:
+	case ENGINE_CVAR_REGISTER:
 		Cvar_Register( VMA(1), VMA(2), VMA(3), args[4], cgvm->privateFlag );
 		return 0;
-	case CG_CVAR_UPDATE:
+	case ENGINE_CVAR_UPDATE:
 		Cvar_Update( VMA(1), cgvm->privateFlag );
 		return 0;
-	case CG_CVAR_SET:
+	case ENGINE_CVAR_SET:
 		Cvar_SetSafe( VMA(1), VMA(2) );
 		return 0;
-	case CG_CVAR_VARIABLESTRINGBUFFER:
+	case ENGINE_CVAR_VARIABLESTRINGBUFFER:
 		Cvar_VariableStringBufferSafe( VMA(1), VMA(2), args[3], CVAR_PRIVATE );
 		return 0;
-	case CG_ARGC:
+	case ENGINE_ARGC:
 		return Cmd_Argc();
-	case CG_ARGV:
+	case ENGINE_ARGV:
 		Cmd_ArgvBuffer( args[1], VMA(2), args[3] );
 		return 0;
-	case CG_ARGS:
+	case ENGINE_ARGS:
 		Cmd_ArgsBuffer( VMA(1), args[2] );
 		return 0;
 
-	case CG_FS_FOPENFILE:
-		return FS_VM_OpenFile( VMA(1), VMA(2), args[3], H_CGAME );
-	case CG_FS_READ:
-		FS_VM_ReadFile( VMA(1), args[2], args[3], H_CGAME );
+	case ENGINE_FS_FOPENFILE:
+		return FS_VM_OpenFile( VMA(1), VMA(2), args[3], H_GAMECLIENT );
+	case ENGINE_FS_READ:
+		FS_VM_ReadFile( VMA(1), args[2], args[3], H_GAMECLIENT );
 		return 0;
-	case CG_FS_WRITE:
-		FS_VM_WriteFile( VMA(1), args[2], args[3], H_CGAME );
+	case ENGINE_FS_WRITE:
+		FS_VM_WriteFile( VMA(1), args[2], args[3], H_GAMECLIENT );
 		return 0;
-	case CG_FS_FCLOSEFILE:
-		FS_VM_CloseFile( args[1], H_CGAME );
+	case ENGINE_FS_FCLOSEFILE:
+		FS_VM_CloseFile( args[1], H_GAMECLIENT );
 		return 0;
-	case CG_FS_SEEK:
-		return FS_VM_SeekFile( args[1], args[2], args[3], H_CGAME );
+	case ENGINE_FS_SEEK:
+		return FS_VM_SeekFile( args[1], args[2], args[3], H_GAMECLIENT );
 
-	case CG_SENDCONSOLECOMMAND: {
+	case ENGINE_SENDCONSOLECOMMAND: {
 		const char *cmd = VMA(1);
 		Cbuf_NestedAdd( cmd );
 		return 0;
 	}
-	case CG_ADDCOMMAND:
-		CL_AddCgameCommand( VMA(1) );
+	case ENGINE_ADDCOMMAND:
+		CL_AddGameclientCommand( VMA(1) );
 		return 0;
-	case CG_REMOVECOMMAND:
+	case ENGINE_REMOVECOMMAND:
 		Cmd_RemoveCommandSafe( VMA(1) );
 		return 0;
-	case CG_SENDCLIENTCOMMAND:
+	case ENGINE_SENDCLIENTCOMMAND:
 		CL_AddReliableCommand( VMA(1), false );
 		return 0;
-	case CG_UPDATESCREEN:
+	case ENGINE_UPDATESCREEN:
 		// this is used during lengthy level loading, so pump message loop
 		// Com_EventLoop();	// FIXME: if a server restarts here, BAD THINGS HAPPEN!
 		// We can't call Com_EventLoop here, a restart will crash and this _does_ happen
@@ -521,236 +521,236 @@ static intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		// ZOID
 		SCR_UpdateScreen();
 		return 0;
-	case CG_CM_LOADMAP:
+	case ENGINE_CM_LOADMAP:
 		CL_CM_LoadMap( VMA(1) );
 		return 0;
-	case CG_CM_NUMINLINEMODELS:
+	case ENGINE_CM_NUMINLINEMODELS:
 		return CM_NumInlineModels();
-	case CG_CM_INLINEMODEL:
+	case ENGINE_CM_INLINEMODEL:
 		return CM_InlineModel( args[1] );
-	case CG_CM_TEMPBOXMODEL:
+	case ENGINE_CM_TEMPBOXMODEL:
 		return CM_TempBoxModel( VMA(1), VMA(2), /*int capsule*/ false );
-	case CG_CM_TEMPCAPSULEMODEL:
+	case ENGINE_CM_TEMPCAPSULEMODEL:
 		return CM_TempBoxModel( VMA(1), VMA(2), /*int capsule*/ true );
-	case CG_CM_POINTCONTENTS:
+	case ENGINE_CM_POINTCONTENTS:
 		return CM_PointContents( VMA(1), args[2] );
-	case CG_CM_TRANSFORMEDPOINTCONTENTS:
+	case ENGINE_CM_TRANSFORMEDPOINTCONTENTS:
 		return CM_TransformedPointContents( VMA(1), args[2], VMA(3), VMA(4) );
-	case CG_CM_BOXTRACE:
+	case ENGINE_CM_BOXTRACE:
 		CM_BoxTrace( VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], /*int capsule*/ false );
 		return 0;
-	case CG_CM_CAPSULETRACE:
+	case ENGINE_CM_CAPSULETRACE:
 		CM_BoxTrace( VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], /*int capsule*/ true );
 		return 0;
-	case CG_CM_TRANSFORMEDBOXTRACE:
+	case ENGINE_CM_TRANSFORMEDBOXTRACE:
 		CM_TransformedBoxTrace( VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], VMA(8), VMA(9), /*int capsule*/ false );
 		return 0;
-	case CG_CM_TRANSFORMEDCAPSULETRACE:
+	case ENGINE_CM_TRANSFORMEDCAPSULETRACE:
 		CM_TransformedBoxTrace( VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], VMA(8), VMA(9), /*int capsule*/ true );
 		return 0;
-	case CG_CM_MARKFRAGMENTS:
+	case ENGINE_CM_MARKFRAGMENTS:
 		return re.MarkFragments( args[1], VMA(2), VMA(3), args[4], VMA(5), args[6], VMA(7) );
-	case CG_S_STARTSOUND:
+	case ENGINE_S_STARTSOUND:
 		S_StartSound( VMA(1), args[2], args[3], args[4] );
 		return 0;
-	case CG_S_STARTLOCALSOUND:
+	case ENGINE_S_STARTLOCALSOUND:
 		S_StartLocalSound( args[1], args[2] );
 		return 0;
-	case CG_S_CLEARLOOPINGSOUNDS:
+	case ENGINE_S_CLEARLOOPINGSOUNDS:
 		S_ClearLoopingSounds(args[1]);
 		return 0;
-	case CG_S_ADDLOOPINGSOUND:
+	case ENGINE_S_ADDLOOPINGSOUND:
 		S_AddLoopingSound( args[1], VMA(2), VMA(3), args[4] );
 		return 0;
-	case CG_S_ADDREALLOOPINGSOUND:
+	case ENGINE_S_ADDREALLOOPINGSOUND:
 		S_AddRealLoopingSound( args[1], VMA(2), VMA(3), args[4] );
 		return 0;
-	case CG_S_STOPLOOPINGSOUND:
+	case ENGINE_S_STOPLOOPINGSOUND:
 		S_StopLoopingSound( args[1] );
 		return 0;
-	case CG_S_UPDATEENTITYPOSITION:
+	case ENGINE_S_UPDATEENTITYPOSITION:
 		S_UpdateEntityPosition( args[1], VMA(2) );
 		return 0;
-	case CG_S_RESPATIALIZE:
+	case ENGINE_S_RESPATIALIZE:
 		S_Respatialize( args[1], VMA(2), VMA(3), args[4] );
 		return 0;
-	case CG_S_REGISTERSOUND:
+	case ENGINE_S_REGISTERSOUND:
 		return S_RegisterSound( VMA(1), args[2] );
-	case CG_S_STARTBACKGROUNDTRACK:
+	case ENGINE_S_STARTBACKGROUNDTRACK:
 		S_StartBackgroundTrack( VMA(1), VMA(2) );
 		return 0;
-	case CG_R_LOADWORLDMAP:
+	case ENGINE_R_LOADWORLDMAP:
 		re.LoadWorld( VMA(1) );
 		return 0;
-	case CG_R_REGISTERMODEL:
+	case ENGINE_R_REGISTERMODEL:
 		return re.RegisterModel( VMA(1) );
-	case CG_R_REGISTERSKIN:
+	case ENGINE_R_REGISTERSKIN:
 		return re.RegisterSkin( VMA(1) );
-	case CG_R_REGISTERSHADER:
+	case ENGINE_R_REGISTERSHADER:
 		return re.RegisterShader( VMA(1) );
-	case CG_R_REGISTERSHADERNOMIP:
+	case ENGINE_R_REGISTERSHADERNOMIP:
 		return re.RegisterShaderNoMip( VMA(1) );
-	case CG_R_REGISTERFONT:
+	case ENGINE_R_REGISTERFONT:
 		re.RegisterFont( VMA(1), args[2], VMA(3));
 		return 0;
-	case CG_R_CLEARSCENE:
+	case ENGINE_R_CLEARSCENE:
 		re.ClearScene();
 		return 0;
-	case CG_R_ADDREFENTITYTOSCENE:
+	case ENGINE_R_ADDREFENTITYTOSCENE:
 		re.AddRefEntityToScene( VMA(1), false );
 		return 0;
-	case CG_R_ADDPOLYTOSCENE:
+	case ENGINE_R_ADDPOLYTOSCENE:
 		re.AddPolyToScene( args[1], args[2], VMA(3), 1 );
 		return 0;
-	case CG_R_ADDPOLYSTOSCENE:
+	case ENGINE_R_ADDPOLYSTOSCENE:
 		re.AddPolyToScene( args[1], args[2], VMA(3), args[4] );
 		return 0;
-	case CG_R_LIGHTFORPOINT:
+	case ENGINE_R_LIGHTFORPOINT:
 		return re.LightForPoint( VMA(1), VMA(2), VMA(3), VMA(4) );
-	case CG_R_ADDLIGHTTOSCENE:
+	case ENGINE_R_ADDLIGHTTOSCENE:
 		re.AddLightToScene( VMA(1), VMF(2), VMF(3), VMF(4), VMF(5) );
 		return 0;
-	case CG_R_ADDADDITIVELIGHTTOSCENE:
+	case ENGINE_R_ADDADDITIVELIGHTTOSCENE:
 		re.AddAdditiveLightToScene( VMA(1), VMF(2), VMF(3), VMF(4), VMF(5) );
 		return 0;
-	case CG_R_RENDERSCENE:
+	case ENGINE_R_RENDERSCENE:
 		re.RenderScene( VMA(1) );
 		return 0;
-	case CG_R_SETCOLOR:
+	case ENGINE_R_SETCOLOR:
 		re.SetColor( VMA(1) );
 		return 0;
-	case CG_R_DRAWSTRETCHPIC:
+	case ENGINE_R_DRAWSTRETCHPIC:
 		re.DrawStretchPic( VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), args[9] );
 		return 0;
-	case CG_R_MODELBOUNDS:
+	case ENGINE_R_MODELBOUNDS:
 		re.ModelBounds( args[1], VMA(2), VMA(3) );
 		return 0;
-	case CG_R_LERPTAG:
+	case ENGINE_R_LERPTAG:
 		return re.LerpTag( VMA(1), args[2], args[3], args[4], VMF(5), VMA(6) );
-	case CG_GETGLCONFIG:
+	case ENGINE_GETGLCONFIG:
 		CL_GetGlconfig( VMA(1) );
 		return 0;
-	case CG_GETGAMESTATE:
+	case ENGINE_GETGAMESTATE:
 		CL_GetGameState( VMA(1) );
 		return 0;
-	case CG_GETCURRENTSNAPSHOTNUMBER:
+	case ENGINE_GETCURRENTSNAPSHOTNUMBER:
 		CL_GetCurrentSnapshotNumber( VMA(1), VMA(2) );
 		return 0;
-	case CG_GETSNAPSHOT:
+	case ENGINE_GETSNAPSHOT:
 		return CL_GetSnapshot( args[1], VMA(2) );
-	case CG_GETSERVERCOMMAND:
+	case ENGINE_GETSERVERCOMMAND:
 		return CL_GetServerCommand( args[1] );
-	case CG_GETCURRENTCMDNUMBER:
+	case ENGINE_GETCURRENTCMDNUMBER:
 		return CL_GetCurrentCmdNumber();
-	case CG_GETUSERCMD:
+	case ENGINE_GETUSERCMD:
 		return CL_GetUserCmd( args[1], VMA(2) );
-	case CG_SETUSERCMDVALUE:
+	case ENGINE_SETUSERCMDVALUE:
 		CL_SetUserCmdValue( args[1], VMF(2) );
 		return 0;
-	case CG_MEMORY_REMAINING:
+	case ENGINE_MEMORY_REMAINING:
 		return Hunk_MemoryRemaining();
-	case CG_KEY_ISDOWN:
+	case ENGINE_KEY_ISDOWN:
 		return Key_IsDown( args[1] );
-	case CG_KEY_GETCATCHER:
+	case ENGINE_KEY_GETCATCHER:
 		return Key_GetCatcher();
-	case CG_KEY_SETCATCHER:
-		// Don't allow the cgame module to close the console
+	case ENGINE_KEY_SETCATCHER:
+		// Don't allow the gameclient module to close the console
 		Key_SetCatcher( args[1] | ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) );
 		return 0;
-	case CG_KEY_GETKEY:
+	case ENGINE_KEY_GETKEY:
 		return Key_GetKey( VMA(1) );
 
-	case CG_FLOOR:
+	case ENGINE_FLOOR:
 		return FloatAsInt( floor( VMF(1) ) );
-	case CG_CEIL:
+	case ENGINE_CEIL:
 		return FloatAsInt( ceil( VMF(1) ) );
-	case CG_TESTPRINTINT:
+	case ENGINE_TESTPRINTINT:
 		return sprintf( VMA(1), "%i", (int)args[2] );
-	case CG_TESTPRINTFLOAT:
+	case ENGINE_TESTPRINTFLOAT:
 		return sprintf( VMA(1), "%f", VMF(2) );
-	case CG_ACOS:
+	case ENGINE_ACOS:
 		return FloatAsInt( Q_acos( VMF(1) ) );
 
-	case CG_PC_ADD_GLOBAL_DEFINE:
+	case ENGINE_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( VMA(1) );
-	case CG_PC_LOAD_SOURCE:
+	case ENGINE_PC_LOAD_SOURCE:
 		return botlib_export->PC_LoadSourceHandle( VMA(1) );
-	case CG_PC_FREE_SOURCE:
+	case ENGINE_PC_FREE_SOURCE:
 		return botlib_export->PC_FreeSourceHandle( args[1] );
-	case CG_PC_READ_TOKEN:
+	case ENGINE_PC_READ_TOKEN:
 		return botlib_export->PC_ReadTokenHandle( args[1], VMA(2) );
-	case CG_PC_SOURCE_FILE_AND_LINE:
+	case ENGINE_PC_SOURCE_FILE_AND_LINE:
 		return botlib_export->PC_SourceFileAndLine( args[1], VMA(2), VMA(3) );
 
-	case CG_S_STOPBACKGROUNDTRACK:
+	case ENGINE_S_STOPBACKGROUNDTRACK:
 		S_StopBackgroundTrack();
 		return 0;
 
-	case CG_REAL_TIME:
+	case ENGINE_REAL_TIME:
 		return Com_RealTime( VMA(1) );
-	case CG_SNAPVECTOR:
+	case ENGINE_SNAPVECTOR:
 		Sys_SnapVector( VMA(1) );
 		return 0;
 
-	case CG_CIN_PLAYCINEMATIC:
+	case ENGINE_CIN_PLAYCINEMATIC:
 		return CIN_PlayCinematic(VMA(1), args[2], args[3], args[4], args[5], args[6]);
 
-	case CG_CIN_STOPCINEMATIC:
+	case ENGINE_CIN_STOPCINEMATIC:
 		return CIN_StopCinematic(args[1]);
 
-	case CG_CIN_RUNCINEMATIC:
+	case ENGINE_CIN_RUNCINEMATIC:
 		return CIN_RunCinematic(args[1]);
 
-	case CG_CIN_DRAWCINEMATIC:
+	case ENGINE_CIN_DRAWCINEMATIC:
 		CIN_DrawCinematic(args[1]);
 		return 0;
 
-	case CG_CIN_SETEXTENTS:
+	case ENGINE_CIN_SETEXTENTS:
 		CIN_SetExtents(args[1], args[2], args[3], args[4], args[5]);
 		return 0;
 
-	case CG_R_REMAP_SHADER:
+	case ENGINE_R_REMAP_SHADER:
 		re.RemapShader( VMA(1), VMA(2), VMA(3) );
 		return 0;
 
 /*
-	case CG_LOADCAMERA:
+	case ENGINE_LOADCAMERA:
 		return loadCamera(VMA(1));
 
-	case CG_STARTCAMERA:
+	case ENGINE_STARTCAMERA:
 		startCamera(args[1]);
 		return 0;
 
-	case CG_GETCAMERAINFO:
+	case ENGINE_GETCAMERAINFO:
 		return getCameraInfo(args[1], VMA(2), VMA(3));
 */
-	case CG_GET_ENTITY_TOKEN:
+	case ENGINE_GET_ENTITY_TOKEN:
 		return re.GetEntityToken( VMA(1), args[2] );
 
-	case CG_R_INPVS:
+	case ENGINE_R_INPVS:
 		return re.inPVS( VMA(1), VMA(2) );
 
 	// engine extensions
-	case CG_R_ADDREFENTITYTOSCENE2:
+	case ENGINE_R_ADDREFENTITYTOSCENE2:
 		re.AddRefEntityToScene( VMA(1), true );
 		return 0;
 
-	case CG_R_ADDLINEARLIGHTTOSCENE:
+	case ENGINE_R_ADDLINEARLIGHTTOSCENE:
 		re.AddLinearLightToScene( VMA(1), VMA(2), VMF(3), VMF(4), VMF(5), VMF(6) );
 		return 0;
 
-	case CG_R_FORCEFIXEDDLIGHTS:
+	case ENGINE_R_FORCEFIXEDDLIGHTS:
 		CL_ForceFixedDlights();
 		return 0;
 
-	case CG_IS_RECORDING_DEMO:
+	case ENGINE_IS_RECORDING_DEMO:
 		return clc.demorecording;
 
-	case CG_TRAP_GETVALUE:
+	case ENGINE_TRAP_GETVALUE:
 		return CL_GetValue( VMA(1), args[2], VMA(3) );
 
 	default:
-		Com_Error( ERR_DROP, "Bad cgame system trap: %ld", (long int) args[0] );
+		Com_Error( ERR_DROP, "Bad gameclient system trap: %ld", (long int) args[0] );
 	}
 	return 0;
 }
@@ -763,7 +763,7 @@ CL_DllSyscall
 */
 static intptr_t QDECL CL_DllSyscall( intptr_t arg, ... ) {
 #if !id386 || defined __clang__
-	intptr_t	args[10]; // max.count for cgame
+	intptr_t	args[10]; // max.count for gameclient
 	va_list	ap;
 	int i;
 
@@ -773,21 +773,21 @@ static intptr_t QDECL CL_DllSyscall( intptr_t arg, ... ) {
 		args[ i ] = va_arg( ap, intptr_t );
 	va_end( ap );
 
-	return CL_CgameSystemCalls( args );
+	return CL_GameclientSystemCalls( args );
 #else
-	return CL_CgameSystemCalls( &arg );
+	return CL_GameclientSystemCalls( &arg );
 #endif
 }
 
 
 /*
 ====================
-CL_InitCGame
+CL_InitGameclient
 
 Should only be called by CL_StartHunkUsers
 ====================
 */
-void CL_InitCGame( void ) {
+void CL_InitGameclient( void ) {
 	const char			*info;
 	const char			*mapname;
 	int					t1, t2;
@@ -809,11 +809,11 @@ void CL_InitCGame( void ) {
 	re.VertexLighting( true );
 
 	// load the dll or bytecode
-	interpret = Cvar_VariableIntegerValue( "vm_cgame" );
+	interpret = Cvar_VariableIntegerValue( "vm_gameclient" );
 
-	cgvm = VM_Create( VM_CGAME, CL_CgameSystemCalls, CL_DllSyscall, interpret );
+	cgvm = VM_Create( VM_GAMECLIENT, CL_GameclientSystemCalls, CL_DllSyscall, interpret );
 	if ( !cgvm ) {
-		Com_Error( ERR_DROP, "VM_Create on cgame failed" );
+		Com_Error( ERR_DROP, "VM_Create on gameclient failed" );
 	}
 	cls.state = CA_LOADING;
 
@@ -822,7 +822,7 @@ void CL_InitCGame( void ) {
 	// otherwise server commands sent just before a gamestate are dropped
 	VM_Call( cgvm, 3, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 
-	// reset any CVAR_CHEAT cvars registered by cgame
+	// reset any CVAR_CHEAT cvars registered by gameclient
 	if ( !clc.demoplaying && !cl_connectedToCheatServer )
 		Cvar_SetCheatState();
 
@@ -832,7 +832,7 @@ void CL_InitCGame( void ) {
 
 	t2 = Sys_Milliseconds();
 
-	Com_Printf( "CL_InitCGame: %5.2f seconds\n", (t2-t1)/1000.0 );
+	Com_Printf( "CL_InitGameclient: %5.2f seconds\n", (t2-t1)/1000.0 );
 
 	// have the renderer touch all its images, so they are present
 	// on the card even if the driver does deferred loading
@@ -855,7 +855,7 @@ void CL_InitCGame( void ) {
 ====================
 CL_GameCommand
 
-See if the current console command is claimed by the cgame
+See if the current console command is claimed by the gameclient
 ====================
 */
 
@@ -876,10 +876,10 @@ bool CL_GameCommand( void ) {
 
 /*
 =====================
-CL_CGameRendering
+CL_GameclientRendering
 =====================
 */
-void CL_CGameRendering( stereoFrame_t stereo ) {
+void CL_GameclientRendering( stereoFrame_t stereo ) {
 	VM_Call( cgvm, 3, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
 #ifdef DEBUG
 	VM_Debug( 0 );
@@ -925,7 +925,7 @@ static void CL_AdjustTimeDelta( void ) {
 
 	if ( deltaDelta > RESET_TIME ) {
 		cl.serverTimeDelta = newDelta;
-		cl.oldServerTime = cl.snap.serverTime;	// FIXME: is this a problem for cgame?
+		cl.oldServerTime = cl.snap.serverTime;	// FIXME: is this a problem for gameclient?
 		cl.serverTime = cl.snap.serverTime;
 		if ( cl_showTimeDelta->integer ) {
 			Com_Printf( "<RESET> " );
@@ -1057,10 +1057,10 @@ static int CL_TimeNudge( void ) {
 
 /*
 ==================
-CL_SetCGameTime
+CL_SetGameclientTime
 ==================
 */
-void CL_SetCGameTime( void ) {
+void CL_SetGameclientTime( void ) {
 	bool demoFreezed;
 
 	// getting a valid frame message ends the connection process
@@ -1088,7 +1088,7 @@ void CL_SetCGameTime( void ) {
 
 	// if we have gotten to this point, cl.snap is guaranteed to be valid
 	if ( !cl.snap.valid ) {
-		Com_Error( ERR_DROP, "CL_SetCGameTime: !cl.snap.valid" );
+		Com_Error( ERR_DROP, "CL_SetGameclientTime: !cl.snap.valid" );
 	}
 
 	// allow pause in single player
@@ -1140,7 +1140,7 @@ void CL_SetCGameTime( void ) {
 	}
 
 	// if we are playing a demo back, we can just keep reading
-	// messages from the demo file until the cgame definitely
+	// messages from the demo file until the gameclient definitely
 	// has valid snapshots to interpolate between
 
 	// a timedemo will always use a deterministic set of time samples

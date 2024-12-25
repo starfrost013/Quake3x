@@ -2245,7 +2245,7 @@ bool Hunk_CheckMark( void ) {
 	return false;
 }
 
-void CL_ShutdownCGame( void );
+void CL_ShutdownGameclient( void );
 void CL_ShutdownUI( void );
 void SV_ShutdownGameProgs( void );
 
@@ -2259,7 +2259,7 @@ The server calls this before shutting down or loading a new map
 void Hunk_Clear( void ) {
 
 #ifndef DEDICATED
-	CL_ShutdownCGame();
+	CL_ShutdownGameclient();
 	CL_ShutdownUI();
 #endif
 	SV_ShutdownGameProgs();
@@ -3499,10 +3499,6 @@ static void Sys_GetProcessorId( char *vendor )
 		if ( hwcaps & HWCAP_VFPv3 ) {
 			CPU_Flags |= CPU_VFPv3;
 			strcat( vendor, " VFPv3" );
-		}
-
-		if ( ( CPU_Flags & ( CPU_ARMv7 | CPU_VFPv3 ) ) == ( CPU_ARMv7 | CPU_VFPv3 ) ) {
-			strcat( vendor, " QVM-bytecode" );
 		}
 	}
 #else // !arm32

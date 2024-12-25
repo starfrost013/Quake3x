@@ -293,7 +293,7 @@ static void SV_MapRestart_f( void ) {
 
 	// if a map_restart occurs while a client is changing maps, we need
 	// to give them the correct time so that when they finish loading
-	// they don't violate the backwards time check in cl_cgame.c
+	// they don't violate the backwards time check in cl_gameclient.c
 	for ( i = 0; i < sv.maxclients; i++ ) {
 		if ( svs.clients[i].state == CS_PRIMED ) {
 			svs.clients[i].oldServerTime = sv.restartTime;

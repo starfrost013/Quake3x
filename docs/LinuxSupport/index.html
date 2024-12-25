@@ -27,7 +27,7 @@ etc.</a></li>
   <li><a href="#nosound">The sound doesn't work / sound crashes</a></li>
   <li><a href="#discuss">Where can I report bugs and discuss about linux
 Quake III Arena?</a></li>
-  <li><a href="#gameso">The *.so files are not in the setups? (<i>cgamei386.so
+  <li><a href="#gameso">The *.so files are not in the setups? (<i>gameclienti386.so
 qagamei386.so uii386.so</i>)</a></li>
   <li><a href="#vm_game">I get <i>Sys_Error: Sys_LoadDll(..) failed dlopen()
 completely!</i> when running quake3?</a></li>
@@ -205,7 +205,7 @@ Quake3World forums</a>. There is for sure a lot of other places to talk about
 linux Quake III Arena, but this is the one we read regularly to track bugs
 and common issues.</p>
 <font size="+1"><a name="gameso"><b>The *.so files are not in the setups?
-(<i>cgamei386.so qagamei386.so uii386.so</i>)</b></a></font><a name="gameso"><br>
+(<i>gameclienti386.so qagamei386.so uii386.so</i>)</b></a></font><a name="gameso"><br>
 </a>
 <p><a name="gameso">If you still have <i>baseq3/*.so</i> and <i>missionpack/*.so</i>
 files, then those come from the earlier 1.27g beta installation and you should
@@ -216,12 +216,12 @@ and the two files are no longer required.</a></p>
 <i>q3config.cfg</i> files are set to use the native libraries (*.so files)
 instead of the bytecode. Run quake3 with the following options to set things
 right:<br>
-<i>quake3 +set vm_game 2 +set vm_cgame 2 +set vm_ui 2</i></a></p>
+<i>quake3 +set vm_game 2 +set vm_gameclient 2 +set vm_ui 2</i></a></p>
 <a name="gameso"></a><font size="+1"><a name="vm_game"><b>I get <i>Sys_Error:
 Sys_LoadDll(..) failed dlopen() completely!</i>when running quake3?</b></a></font><a name="vm_game"><br>
 </a>
 <p><a name="vm_game">Try running quake3 with the following options:<br>
-<i>quake3 +set vm_game 2 +set vm_cgame 2 +set vm_ui 2</i><br>
+<i>quake3 +set vm_game 2 +set vm_gameclient 2 +set vm_ui 2</i><br>
 You should also read the </a><a href="#gameso">above answer</a>.</p>
 <font size="+1"><a name="3dnow"><b>I have an AMD CPU and a kernel 2.4.*,
 Quake III Arena is slowing down to a complete stop after a while?</b></a></font><br>

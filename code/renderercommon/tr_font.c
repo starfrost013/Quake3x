@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // The font system uses FreeType 2.x to render TrueType fonts for use within the game.
 // As of this writing ( Nov, 2000 ) Team Arena uses these fonts for all of the ui and 
-// about 90% of the cgame presentation. A few areas of the CGAME were left uses the old 
+// about 90% of the gameclient presentation. A few areas of the GAMECLIENT were left uses the old 
 // fonts since the code is shared with standard Q3A.
 //
 // If you include this font rendering code in a commercial product you MUST include the

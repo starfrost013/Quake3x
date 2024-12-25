@@ -2693,10 +2693,10 @@ static void vk_create_shader_modules( void )
 	SET_OBJECT_NAME( vk.modules.color_fs, "single-color fragment module", VK_DEBUG_REPORT_OBJECT_TYPE_SHADER_MODULE_EXT );
 
 	vk.modules.fog_vs = SHADER_MODULE( fog_vert_spv );
-	vk.modules.fog_fs = SHADER_MODULE( fog_frag_spv );
+	vk.modules.foENGINE_FS = SHADER_MODULE( fog_frag_spv );
 
 	SET_OBJECT_NAME( vk.modules.fog_vs, "fog-only vertex module", VK_DEBUG_REPORT_OBJECT_TYPE_SHADER_MODULE_EXT );
-	SET_OBJECT_NAME( vk.modules.fog_fs, "fog-only fragment module", VK_DEBUG_REPORT_OBJECT_TYPE_SHADER_MODULE_EXT );
+	SET_OBJECT_NAME( vk.modules.foENGINE_FS, "fog-only fragment module", VK_DEBUG_REPORT_OBJECT_TYPE_SHADER_MODULE_EXT );
 
 	vk.modules.dot_vs = SHADER_MODULE( dot_vert_spv );
 	vk.modules.dot_fs = SHADER_MODULE( dot_frag_spv );
@@ -4254,7 +4254,7 @@ void vk_shutdown( refShutdownCode_t code )
 	qvkDestroyShaderModule( vk.device, vk.modules.color_vs, NULL );
 
 	qvkDestroyShaderModule(vk.device, vk.modules.fog_vs, NULL);
-	qvkDestroyShaderModule(vk.device, vk.modules.fog_fs, NULL);
+	qvkDestroyShaderModule(vk.device, vk.modules.foENGINE_FS, NULL);
 
 	qvkDestroyShaderModule(vk.device, vk.modules.dot_vs, NULL);
 	qvkDestroyShaderModule(vk.device, vk.modules.dot_fs, NULL);
@@ -5353,7 +5353,7 @@ VkPipeline create_pipeline( const Vk_Pipeline_Def *def, renderPass_t renderPassI
 
 		case TYPE_FOG_ONLY:
 			vs_module = &vk.modules.fog_vs;
-			fs_module = &vk.modules.fog_fs;
+			fs_module = &vk.modules.foENGINE_FS;
 			break;
 
 		case TYPE_DOT:

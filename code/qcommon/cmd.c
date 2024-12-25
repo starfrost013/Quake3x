@@ -837,12 +837,12 @@ void Cmd_RemoveCommandSafe( const char *cmd_name )
 
 /*
 ============
-Cmd_RemoveCgameCommands
+Cmd_RemoveGameclientCommands
 
-Remove cgame-created commands
+Remove gameclient-created commands
 ============
 */
-void Cmd_RemoveCgameCommands( void )
+void Cmd_RemoveGameclientCommands( void )
 {
 	const cmd_function_t *cmd;
 	bool removed;
@@ -923,7 +923,7 @@ void Cmd_ExecuteString( const char *text ) {
 
 			// perform the action
 			if ( !cmd->function ) {
-				// let the cgame or game handle it
+				// let the gameclient or game handle it
 				break;
 			} else {
 				cmd->function();

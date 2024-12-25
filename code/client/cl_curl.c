@@ -1119,7 +1119,7 @@ bool Com_DL_Perform( download_t *dl )
 			else if ( clc.demoplaying )
 			{
 				// FIXME: there might be better solution than vid_restart
-				cls.startCgame = true;
+				cls.startGameclient = true;
 				Cbuf_ExecuteText( EXEC_APPEND, "vid_restart\n" );
 			}
 		}

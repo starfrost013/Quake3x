@@ -932,7 +932,7 @@ endif
 endif
 
 Q3OBJ = \
-  $(B)/client/cl_cgame.o \
+  $(B)/client/cl_gameclient.o \
   $(B)/client/cl_cin.o \
   $(B)/client/cl_console.o \
   $(B)/client/cl_input.o \

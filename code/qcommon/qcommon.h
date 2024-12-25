@@ -373,7 +373,7 @@ typedef enum {
 	VM_BAD = -1,
 	VM_GAME = 0,
 #ifndef USE_DEDICATED
-	VM_CGAME,
+	VM_GAMECLIENT,
 	VM_UI,
 	VM_MAP_SQUIRREL,
 #endif
@@ -482,7 +482,7 @@ void	Cmd_AddCommand( const char *cmd_name, xcommand_t function );
 // as a clc_clientCommand instead of executed locally
 
 void	Cmd_RemoveCommand( const char *cmd_name );
-void	Cmd_RemoveCgameCommands( void );
+void	Cmd_RemoveGameclientCommands( void );
 
 typedef void (*completionFunc_t)( const char *args, int argNum );
 
@@ -646,15 +646,15 @@ issues.
 // these are in loop specific order so don't change the order
 #define FS_GENERAL_REF	0x01
 #define FS_UI_REF		0x02
-#define FS_CGAME_REF	0x04
+#define FS_GAMECLIENT_REF	0x04
 // number of id paks that will never be autodownloaded from baseq3/missionpack
 #define NUM_ID_PAKS		9
 #define NUM_TA_PAKS		4
 
 typedef enum {
 	H_SYSTEM,
-	H_QAGAME,
-	H_CGAME,
+	H_GAMESERVER,
+	H_GAMECLIENT,
 	H_Q3UI
 } handleOwner_t;
 
@@ -1059,7 +1059,7 @@ server clipmap
 ---mark---
 renderer initialization (shaders, etc)
 UI vm
-cgame vm
+gameclient vm
 renderer map
 renderer models
 
@@ -1141,7 +1141,7 @@ void CL_ConsolePrint( const char *text );
 void CL_MapLoading( void );
 // do a screen update before starting to load a map
 // when the server is going to load a new map, the entire hunk
-// will be cleared, so the client must shutdown cgame, ui, and
+// will be cleared, so the client must shutdown gameclient, ui, and
 // the renderer
 
 void	CL_ForwardCommandToServer( const char *string );

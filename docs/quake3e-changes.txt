@@ -87,7 +87,7 @@
 
 14-Oct-2022:
 * preserve \cl_reconnectAgrs between online mod changes
-* fixed nested cgame command execution
+* fixed nested gameclient command execution
 * renderers: avoid potential division-by-zero for AGEN_PORTAL
 * CMake: numerous improvements
 * Vulkan: updated SDK headers, applied potential fix for molten-vk compatibility
@@ -358,7 +358,7 @@
 * Added 'novlcollapse' shader key - to bypass \r_vertexLight 1 setting
 * Now using more explicit control over vertex lighting approximation to provide more predictable renderer output:
  - always disable it for UI elements (this includes console shader)
- - enable it only for CGame module
+ - enable it only for Gameclient module
 * Improved memory management during image loading, removed practical MAX_DRAWIMAGES/MAX_QPATH limits (conditions left only for forward compatibility)
 * Implemented CTRL+Left and CTRL+Right hotkeys for in-game console to seek through words in command line
 * Tab-complete cvar values and bind values
@@ -459,7 +459,7 @@ Fixed non-working rconPassword2 on linux
 
 23-May-2018:
 * Fixed server crash induced by permanent rcon functionality
-* ioq3: Fix client kicked as unpure when missing the latest cgame/ui pk3s
+* ioq3: Fix client kicked as unpure when missing the latest gameclient/ui pk3s
 
 19-May-2018:
 * Improved mod compatibility

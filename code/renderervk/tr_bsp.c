@@ -2141,7 +2141,7 @@ static void R_LoadEntities( const lump_t *l ) {
 
 	p = (const char *)(fileBase + l->fileofs);
 
-	// store for reference by the cgame
+	// store for reference by the gameclient
 	w->entityString = ri.Hunk_Alloc( l->filelen + 1, h_low );
 	strcpy( w->entityString, p );
 	w->entityParsePoint = w->entityString;
@@ -2231,7 +2231,7 @@ bool RE_GetEntityToken( char *buffer, int size ) {
 =================
 RE_LoadWorldMap
 
-Called directly from cgame
+Called directly from gameclient
 =================
 */
 void RE_LoadWorldMap( const char *name ) {

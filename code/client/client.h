@@ -25,8 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "../renderercommon/tr_public.h"
 #include "../qcommon/vm_local.h"
-#include "../ui/ui_public.h"
-#include "../cgame/cg_public.h"
+#include "../../../game/public/ui_public.h"
+#include "../../../game/public/client_public.h"
 #include "../game/bg_public.h"
 #include "snd_public.h"
 #include "keys.h"
@@ -99,7 +99,7 @@ typedef struct {
 	int			oldFrameServerTime;	// to check tournament restarts
 	int			serverTimeDelta;	// cl.serverTime = cls.realtime + cl.serverTimeDelta
 									// this value changes as net lag varies
-	bool	extrapolatedSnapshot;	// set if any cgame frame has been forced to extrapolate
+	bool	extrapolatedSnapshot;	// set if any gameclient frame has been forced to extrapolate
 									// cleared when CL_AdjustTimeDelta looks at it
 	bool	newSnapshots;		// set on parse of any valid packet
 
@@ -112,9 +112,9 @@ typedef struct {
 	int			mouseIndex;
 	int			joystickAxis[MAX_JOYSTICK_AXIS];	// set by joystick events
 
-	// cgame communicates a few values to the client system
-	int			cgameUserCmdValue;	// current weapon to add to usercmd_t
-	float		cgameSensitivity;
+	// gameclient communicates a few values to the client system
+	int			gameclientUserCmdValue;	// current weapon to add to usercmd_t
+	float		gameclientSensitivity;
 
 	// cmds[cmdNumber] is the predicted command, [cmdNumber-1] is the last
 	// properly generated command
@@ -302,7 +302,7 @@ typedef struct {
 	bool	soundStarted;
 	bool	soundRegistered;
 	bool	uiStarted;
-	bool	cgameStarted;
+	bool	gameclientStarted;
 
 	int			framecount;
 	int			frametime;			// msec since last frame
@@ -340,7 +340,7 @@ typedef struct {
 	int			lastVidRestart;
 	int			soundMuted;
 
-	bool	startCgame;
+	bool	startGameclient;
 
 	int			captureWidth;
 	int			captureHeight;
@@ -377,7 +377,7 @@ bool	CL_Download( const char *cmd, const char *pakname, bool autoDownload );
 
 //=============================================================================
 
-extern	vm_t			*cgvm;	// interface to cgame dll or vm
+extern	vm_t			*cgvm;	// interface to gameclient dll or vm
 extern	vm_t			*uivm;	// interface to ui dll or vm
 extern	refexport_t		re;		// interface to refresh .dll
 
@@ -559,13 +559,13 @@ void CIN_UploadCinematic(int handle);
 void CIN_CloseAllVideos(void);
 
 //
-// cl_cgame.c
+// cl_gameclient.c
 //
-void CL_InitCGame( void );
-void CL_ShutdownCGame( void );
+void CL_InitGameclient( void );
+void CL_ShutdownGameclient( void );
 bool CL_GameCommand( void );
-void CL_CGameRendering( stereoFrame_t stereo );
-void CL_SetCGameTime( void );
+void CL_GameclientRendering( stereoFrame_t stereo );
+void CL_SetGameclientTime( void );
 
 //
 // cl_ui.c

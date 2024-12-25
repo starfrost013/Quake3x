@@ -1269,7 +1269,7 @@ static void SV_NextDownload_f( client_t *cl )
 	}
 	// We aren't getting an acknowledge for the correct block, drop the client
 	// FIXME: this is bad... the client will never parse the disconnect message
-	//			because the cgame isn't loaded yet
+	//			because the gameclient isn't loaded yet
 	SV_DropClient( cl, "broken download" );
 }
 
@@ -1584,7 +1584,7 @@ SV_VerifyPaks_f
 
 If we are pure, disconnect the client if they do no meet the following conditions:
 
-1. the first two checksums match our view of cgame and ui
+1. the first two checksums match our view of gameclient and ui
 2. there are no any additional checksums that we do not have
 
 This routine would be a bit simpler with a goto but i abstained
@@ -1599,15 +1599,15 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 
 	// if we are pure, we "expect" the client to load certain things from
 	// certain pk3 files, namely we want the client to have loaded the
-	// ui and cgame that we think should be loaded based on the pure setting
+	// ui and gameclient that we think should be loaded based on the pure setting
 	//
 	if ( sv.pure != 0 ) {
 
 		nChkSum1 = nChkSum2 = 0;
 
-		// we run the game, so determine which cgame and ui the client "should" be running
-		bGood = FS_FileIsInPAK( "vm/cgame.qvm", &nChkSum1, NULL );
-		bGood &= FS_FileIsInPAK( "vm/ui.qvm", &nChkSum2, NULL );
+		// we run the game, so determine which gameclient and ui the client "should" be running
+
+		// todo: write new code here for dlls
 
 		nClientPaks = Cmd_Argc();
 
@@ -1633,13 +1633,13 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 		// we basically use this while loop to avoid using 'goto' :)
 		while (bGood) {
 
-			// must be at least 6: "cl_paks cgame ui @ firstref ... numChecksums"
+			// must be at least 6: "cl_paks gameclient ui @ firstref ... numChecksums"
 			// numChecksums is encoded
 			if (nClientPaks < 6) {
 				bGood = false;
 				break;
 			}
-			// verify first to be the cgame checksum
+			// verify first to be the gameclient checksum
 			pArg = Cmd_Argv(nCurArg++);
 			if ( !*pArg || *pArg == '@' || atoi(pArg) != nChkSum1 ) {
 				bGood = false;

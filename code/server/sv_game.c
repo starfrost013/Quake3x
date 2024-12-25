@@ -339,123 +339,123 @@ The module is making a system call
 */
 static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	switch( args[0] ) {
-	case G_PRINT:
+	case ENGINE_PRINT:
 		Com_Printf( "%s", (const char*)VMA(1) );
 		return 0;
-	case G_ERROR:
+	case ENGINE_ERROR:
 		Com_Error( ERR_DROP, "%s", (const char*)VMA(1) );
 		return 0;
-	case G_MILLISECONDS:
+	case ENGINE_MILLISECONDS:
 		return Sys_Milliseconds();
-	case G_CVAR_REGISTER:
+	case ENGINE_CVAR_REGISTER:
 		Cvar_Register( VMA(1), VMA(2), VMA(3), args[4], gvm->privateFlag ); 
 		return 0;
-	case G_CVAR_UPDATE:
+	case ENGINE_CVAR_UPDATE:
 		Cvar_Update( VMA(1), gvm->privateFlag );
 		return 0;
-	case G_CVAR_SET:
+	case ENGINE_CVAR_SET:
 		Cvar_SetSafe( (const char *)VMA(1), (const char *)VMA(2) );
 		return 0;
-	case G_CVAR_VARIABLE_INTEGER_VALUE:
+	case ENGINE_CVAR_VARIABLE_INTEGER_VALUE:
 		return Cvar_VariableIntegerValue( (const char *)VMA(1) );
-	case G_CVAR_VARIABLE_STRING_BUFFER:
+	case ENGINE_CVAR_VARIABLE_STRING_BUFFER:
 		Cvar_VariableStringBufferSafe( VMA(1), VMA(2), args[3], gvm->privateFlag );
 		return 0;
-	case G_ARGC:
+	case ENGINE_ARGC:
 		return Cmd_Argc();
-	case G_ARGV:
+	case ENGINE_ARGV:
 		Cmd_ArgvBuffer( args[1], VMA(2), args[3] );
 		return 0;
-	case G_SEND_CONSOLE_COMMAND:
+	case ENGINE_SEND_CONSOLE_COMMAND:
 		Cbuf_ExecuteText( args[1], VMA(2) );
 		return 0;
 
-	case G_FS_FOPEN_FILE:
-		return FS_VM_OpenFile( VMA(1), VMA(2), args[3], H_QAGAME );
-	case G_FS_READ:
+	case ENGINE_FS_FOPEN_FILE:
+		return FS_VM_OpenFile( VMA(1), VMA(2), args[3], H_GAMESERVER );
+	case ENGINE_FS_READ:
 		if ( args[3] == 0 ) // UrT may pass this with args[2]=-1 and cause false bounds check error
 			return 0;
-		return FS_VM_ReadFile( VMA(1), args[2], args[3], H_QAGAME );
-	case G_FS_WRITE:
-		FS_VM_WriteFile( VMA(1), args[2], args[3], H_QAGAME );
+		return FS_VM_ReadFile( VMA(1), args[2], args[3], H_GAMESERVER );
+	case ENGINE_FS_WRITE:
+		FS_VM_WriteFile( VMA(1), args[2], args[3], H_GAMESERVER );
 		return 0;
-	case G_FS_FCLOSE_FILE:
-		FS_VM_CloseFile( args[1], H_QAGAME );
+	case ENGINE_FS_FCLOSE_FILE:
+		FS_VM_CloseFile( args[1], H_GAMESERVER );
 		return 0;
-	case G_FS_SEEK:
-		return FS_VM_SeekFile( args[1], args[2], args[3], H_QAGAME );
+	case ENGINE_FS_SEEK:
+		return FS_VM_SeekFile( args[1], args[2], args[3], H_GAMESERVER );
 
-	case G_FS_GETFILELIST:
+	case ENGINE_FS_GETFILELIST:
 		return FS_GetFileList( VMA(1), VMA(2), VMA(3), args[4] );
 
-	case G_LOCATE_GAME_DATA:
+	case ENGINE_LOCATE_GAME_DATA:
 		SV_LocateGameData( VMA(1), args[2], args[3], VMA(4), args[5] );
 		return 0;
-	case G_DROP_CLIENT:
+	case ENGINE_DROP_CLIENT:
 		SV_GameDropClient( args[1], VMA(2) );
 		return 0;
-	case G_SEND_SERVER_COMMAND:
+	case ENGINE_SEND_SERVER_COMMAND:
 		SV_GameSendServerCommand( args[1], VMA(2) );
 		return 0;
-	case G_LINKENTITY:
+	case ENGINE_LINKENTITY:
 		SV_LinkEntity( VMA(1) );
 		return 0;
-	case G_UNLINKENTITY:
+	case ENGINE_UNLINKENTITY:
 		SV_UnlinkEntity( VMA(1) );
 		return 0;
-	case G_ENTITIES_IN_BOX:
+	case ENGINE_ENTITIES_IN_BOX:
 		return SV_AreaEntities( VMA(1), VMA(2), VMA(3), args[4] );
-	case G_ENTITY_CONTACT:
+	case ENGINE_ENTITY_CONTACT:
 		return SV_EntityContact( VMA(1), VMA(2), VMA(3), /*int capsule*/ false );
-	case G_ENTITY_CONTACTCAPSULE:
+	case ENGINE_ENTITY_CONTACTCAPSULE:
 		return SV_EntityContact( VMA(1), VMA(2), VMA(3), /*int capsule*/ true );
-	case G_TRACE:
+	case ENGINE_TRACE:
 		SV_Trace( VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], /*int capsule*/ false );
 		return 0;
-	case G_TRACECAPSULE:
+	case ENGINE_TRACECAPSULE:
 		SV_Trace( VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], /*int capsule*/ true );
 		return 0;
-	case G_POINT_CONTENTS:
+	case ENGINE_POINT_CONTENTS:
 		return SV_PointContents( VMA(1), args[2] );
-	case G_SET_BRUSH_MODEL:
+	case ENGINE_SET_BRUSH_MODEL:
 		SV_SetBrushModel( VMA(1), VMA(2) );
 		return 0;
-	case G_IN_PVS:
+	case ENGINE_IN_PVS:
 		return SV_inPVS( VMA(1), VMA(2) );
-	case G_IN_PVS_IGNORE_PORTALS:
+	case ENGINE_IN_PVS_IGNORE_PORTALS:
 		return SV_inPVSIgnorePortals( VMA(1), VMA(2) );
 
-	case G_SET_CONFIGSTRING:
+	case ENGINE_SET_CONFIGSTRING:
 		SV_SetConfigstring( args[1], VMA(2) );
 		return 0;
-	case G_GET_CONFIGSTRING:
+	case ENGINE_GET_CONFIGSTRING:
 		SV_GetConfigstring( args[1], VMA(2), args[3] );
 		return 0;
-	case G_SET_USERINFO:
+	case ENGINE_SET_USERINFO:
 		SV_SetUserinfo( args[1], VMA(2) );
 		return 0;
-	case G_GET_USERINFO:
+	case ENGINE_GET_USERINFO:
 		SV_GetUserinfo( args[1], VMA(2), args[3] );
 		return 0;
-	case G_GET_SERVERINFO:
+	case ENGINE_GET_SERVERINFO:
 		SV_GetServerinfo( VMA(1), args[2] );
 		return 0;
-	case G_ADJUST_AREA_PORTAL_STATE:
+	case ENGINE_ADJUST_AREA_PORTAL_STATE:
 		SV_AdjustAreaPortalState( VMA(1), args[2] );
 		return 0;
-	case G_AREAS_CONNECTED:
+	case ENGINE_AREAS_CONNECTED:
 		return CM_AreasConnected( args[1], args[2] );
 
-	case G_BOT_ALLOCATE_CLIENT:
+	case ENGINE_BOT_ALLOCATE_CLIENT:
 		return SV_BotAllocateClient();
-	case G_BOT_FREE_CLIENT:
+	case ENGINE_BOT_FREE_CLIENT:
 		SV_BotFreeClient( args[1] );
 		return 0;
 
-	case G_GET_USERCMD:
+	case ENGINE_GET_USERCMD:
 		SV_GetUsercmd( args[1], VMA(2) );
 		return 0;
-	case G_GET_ENTITY_TOKEN:
+	case ENGINE_GET_ENTITY_TOKEN:
 		{
 			char *s = (char*)COM_Parse( &sv.entityParsePoint );
 			//Q_strncpyz( VMA(1), s, args[2] );
@@ -476,14 +476,14 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 			}
 		}
 
-	case G_DEBUG_POLYGON_CREATE:
+	case ENGINE_DEBUG_POLYGON_CREATE:
 		return BotImport_DebugPolygonCreate( args[1], args[2], VMA(3) );
-	case G_DEBUG_POLYGON_DELETE:
+	case ENGINE_DEBUG_POLYGON_DELETE:
 		BotImport_DebugPolygonDelete( args[1] );
 		return 0;
-	case G_REAL_TIME:
+	case ENGINE_REAL_TIME:
 		return Com_RealTime( VMA(1) );
-	case G_SNAPVECTOR:
+	case ENGINE_SNAPVECTOR:
 		Sys_SnapVector( VMA(1) );
 		return 0;
 
@@ -860,31 +860,31 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 
 	// shared syscalls
 
-	case G_MATRIXMULTIPLY:
+	case ENGINE_MATRIXMULTIPLY:
 		MatrixMultiply( VMA(1), VMA(2), VMA(3) );
 		return 0;
 
-	case G_ANGLEVECTORS:
+	case ENGINE_ANGLEVECTORS:
 		AngleVectors( VMA(1), VMA(2), VMA(3), VMA(4) );
 		return 0;
 
-	case G_PERPENDICULARVECTOR:
+	case ENGINE_PERPENDICULARVECTOR:
 		PerpendicularVector( VMA(1), VMA(2) );
 		return 0;
 
-	case G_FLOOR:
+	case ENGINE_FLOOR:
 		return FloatAsInt( floor( VMF(1) ) );
 
-	case G_CEIL:
+	case ENGINE_CEIL:
 		return FloatAsInt( ceil( VMF(1) ) );
 
-	case G_TESTPRINTINT:
+	case ENGINE_TESTPRINTINT:
 		return sprintf( VMA(1), "%i", (int)args[2] );
 
-	case G_TESTPRINTFLOAT:
+	case ENGINE_TESTPRINTFLOAT:
 		return sprintf( VMA(1), "%f", VMF(2) );
 
-	case G_TRAP_GETVALUE:
+	case ENGINE_TRAP_GETVALUE:
 		return SV_GetValue( VMA(1), args[2], VMA(3) );
 
 	default:
@@ -932,7 +932,7 @@ void SV_ShutdownGameProgs( void ) {
 	VM_Call( gvm, 1, GAME_SHUTDOWN, false );
 	VM_Free( gvm );
 	gvm = NULL;
-	FS_VM_CloseFiles( H_QAGAME );
+	FS_VM_CloseFiles( H_GAMESERVER );
 }
 
 

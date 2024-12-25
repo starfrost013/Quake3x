@@ -1404,9 +1404,6 @@ static bool FS_GeneralRef( const char *filename )
 
 	if ( FS_HasExt( filename, extList, ARRAY_LEN( extList ) ) )
 		return false;
-	
-	if ( !Q_stricmp( filename, "vm/qagame.qvm" ) )
-		return false;
 
 	if ( strstr( filename, "levelshots" ) )
 		return false;
@@ -1444,18 +1441,12 @@ static int FS_OpenFileInPak( fileHandle_t *file, pack_t *pak, fileInPack_t *pakF
 	unz_s *zfi;
 	FILE *temp;
 
-	// mark the pak as having been referenced and mark specifics on cgame and ui
+	// mark the pak as having been referenced and mark specifics on gameclient and ui
 	// these are loaded from all pk3s
 	// from every pk3 file.
 
 	if ( !( pak->referenced & FS_GENERAL_REF ) && FS_GeneralRef( pakFile->name ) ) {
 		pak->referenced |= FS_GENERAL_REF;
-	}
-	if ( !( pak->referenced & FS_CGAME_REF ) && !strcmp( pakFile->name, "vm/cgame.qvm" ) ) {
-		pak->referenced |= FS_CGAME_REF;
-	}
-	if ( !( pak->referenced & FS_UI_REF ) && !strcmp( pakFile->name, "vm/ui.qvm" ) ) {
-		pak->referenced |= FS_UI_REF;
 	}
 
 	if ( !pak->handle ) {
@@ -1703,8 +1694,8 @@ void FS_TouchFileInPak( const char *filename ) {
 					if ( !( pak->referenced & FS_GENERAL_REF ) && FS_GeneralRef( filename ) ) {
 						pak->referenced |= FS_GENERAL_REF;
 					}
-					if ( !( pak->referenced & FS_CGAME_REF ) && !strcmp( filename, "vm/cgame.qvm" ) ) {
-						pak->referenced |= FS_CGAME_REF;
+					if ( !( pak->referenced & FS_GAMECLIENT_REF ) && !strcmp( filename, "vm/gameclient.qvm" ) ) {
+						pak->referenced |= FS_GAMECLIENT_REF;
 					}
 					if ( !( pak->referenced & FS_UI_REF ) && !strcmp( filename, "vm/ui.qvm" ) ) {
 						pak->referenced |= FS_UI_REF;
@@ -4930,7 +4921,7 @@ FS_ReferencedPakPureChecksums
 Returns a space separated string containing the pure checksums of all referenced pk3 files.
 Servers with sv_pure set will get this string back from clients for pure validation 
 
-The string has a specific order, "cgame ui @ ref1 ref2 ref3 ..."
+The string has a specific order, "gameclient ui @ ref1 ref2 ref3 ..."
 =====================
 */
 const char *FS_ReferencedPakPureChecksums( int maxlen ) {
@@ -4945,7 +4936,7 @@ const char *FS_ReferencedPakPureChecksums( int maxlen ) {
 
 	checksum = fs_checksumFeed;
 	numPaks = 0;
-	for ( nFlags = FS_CGAME_REF; nFlags; nFlags = nFlags >> 1 ) {
+	for ( nFlags = FS_GAMECLIENT_REF; nFlags; nFlags = nFlags >> 1 ) {
 		if ( nFlags & FS_GENERAL_REF ) {
 			// add a delimiter between must haves and general refs
 			s = Q_stradd( s, "@ " );
@@ -4958,7 +4949,7 @@ const char *FS_ReferencedPakPureChecksums( int maxlen ) {
 				s = Q_stradd( s, va( "%i ", search->pack->pure_checksum ) );
 				if ( s > max ) // client-side overflow
 					break;
-				if ( nFlags & (FS_CGAME_REF | FS_UI_REF) ) {
+				if ( nFlags & (FS_GAMECLIENT_REF | FS_UI_REF) ) {
 					break;
 				}
 				checksum ^= search->pack->pure_checksum;

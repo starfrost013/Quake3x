@@ -82,7 +82,7 @@ struct vm_s {
 
 	//------------------------------------
 
-	const char	*name;				// module should be bare: "cgame", not "cgame.dll" or "vm/cgame.qvm"
+	const char	*name;				// module should be bare: "gameclient", not "gameclient.dll" or "vm/gameclient.qvm"
 	vmIndex_t	index;
 
 	// for dynamic linked modules

@@ -49,7 +49,7 @@ static struct vm_s vmTable[ VM_COUNT ];
 
 static const char *vmName[ VM_COUNT ] = {
 	"qagame",
-	"cgame",
+	"gameclient",
 	"ui"
 };
 
@@ -69,7 +69,7 @@ VM_Init
 void VM_Init( void ) {
 #ifndef DEDICATED
 	Cvar_Get( "vm_ui", "0", CVAR_ARCHIVE | CVAR_PROTECTED );	// !@# SHIP WITH SET TO 2
-	Cvar_Get( "vm_cgame", "0", CVAR_ARCHIVE | CVAR_PROTECTED );	// !@# SHIP WITH SET TO 2
+	Cvar_Get( "vm_gameclient", "0", CVAR_ARCHIVE | CVAR_PROTECTED );	// !@# SHIP WITH SET TO 2
 #endif
 	Cvar_Get( "vm_game", "0", CVAR_ARCHIVE | CVAR_PROTECTED );	// !@# SHIP WITH SET TO 2
 
@@ -326,10 +326,10 @@ static vm_t *VM_NameToVM( const char *name )
 {
 	vmIndex_t index;
 
-	if ( !Q_stricmp( name, "game" ) )
+	if ( !Q_stricmp( name, "gameserver" ) )
 		index = VM_GAME;
-	else if ( !Q_stricmp( name, "cgame" ) )
-		index = VM_CGAME;
+	else if ( !Q_stricmp( name, "gameclient" ) )
+		index = VM_GAMECLIENT;
 	else if ( !Q_stricmp( name, "ui" ) )
 		index = VM_UI;
 	else if ( !Q_stricmp( name, "map_squirrel" ) )
