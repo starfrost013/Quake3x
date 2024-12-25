@@ -810,7 +810,7 @@ static void CL_ParseCommandString( msg_t *msg ) {
 #endif
 	// -EC- : we may stuck on downloading because of non-working cgvm
 	// or in "awaiting snapshot..." state so handle "disconnect" here
-	if ( ( !cgvm && cls.state == CA_CONNECTED && clc.download != FS_INVALID_HANDLE ) || ( cgvm && cls.state == CA_PRIMED ) ) {
+	if ( ( !gameClientVm && cls.state == CA_CONNECTED && clc.download != FS_INVALID_HANDLE ) || ( gameClientVm && cls.state == CA_PRIMED ) ) {
 		const char *text;
 		Cmd_TokenizeString( s );
 		if ( !Q_stricmp( Cmd_Argv(0), "disconnect" ) ) {

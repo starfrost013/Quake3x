@@ -609,7 +609,7 @@ static void CL_KeyDownEvent( int key, unsigned time )
 		// escape always gets out of GAMECLIENT stuff
 		if (Key_GetCatcher( ) & KEYCATCH_GAMECLIENT) {
 			Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_GAMECLIENT );
-			VM_Call( cgvm, 1, CG_EVENT_HANDLING, GAMECLIENT_EVENT_NONE );
+			VM_Call( gameClientVm, 1, CLIENT_EVENT_HANDLING, GAMECLIENT_EVENT_NONE );
 			return;
 		}
 
@@ -644,8 +644,8 @@ static void CL_KeyDownEvent( int key, unsigned time )
 			VM_Call( uivm, 2, UI_KEY_EVENT, key, true );
 		}
 	} else if ( Key_GetCatcher( ) & KEYCATCH_GAMECLIENT ) {
-		if ( cgvm ) {
-			VM_Call( cgvm, 2, CG_KEY_EVENT, key, true );
+		if ( gameClientVm ) {
+			VM_Call( gameClientVm, 2, CLIENT_KEY_EVENT, key, true );
 		}
 	} else if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE ) {
 		Message_Key( key );
@@ -704,8 +704,8 @@ static void CL_KeyUpEvent( int key, unsigned time )
 			VM_Call( uivm, 2, UI_KEY_EVENT, key, false );
 		}
 	} else if ( Key_GetCatcher() & KEYCATCH_GAMECLIENT ) {
-		if ( cgvm ) {
-			VM_Call( cgvm, 2, CG_KEY_EVENT, key, false );
+		if ( gameClientVm ) {
+			VM_Call( gameClientVm, 2, CLIENT_KEY_EVENT, key, false );
 		}
 	}
 }

@@ -48,9 +48,9 @@ static int forced_unload;
 static struct vm_s vmTable[ VM_COUNT ];
 
 static const char *vmName[ VM_COUNT ] = {
-	"qagame",
+	"gameserver",
 	"gameclient",
-	"ui"
+	"gameui"
 };
 
 static void VM_VmInfo_f( void );
@@ -327,10 +327,10 @@ static vm_t *VM_NameToVM( const char *name )
 	vmIndex_t index;
 
 	if ( !Q_stricmp( name, "gameserver" ) )
-		index = VM_GAME;
+		index = VM_GAMESERVER;
 	else if ( !Q_stricmp( name, "gameclient" ) )
 		index = VM_GAMECLIENT;
-	else if ( !Q_stricmp( name, "ui" ) )
+	else if ( !Q_stricmp( name, "gameui" ) )
 		index = VM_UI;
 	else if ( !Q_stricmp( name, "map_squirrel" ) )
 		index = VM_MAP_SQUIRREL;

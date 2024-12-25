@@ -382,15 +382,15 @@ void CL_ShutdownGameclient( void ) {
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_GAMECLIENT );
 	cls.gameclientStarted = false;
 
-	if ( !cgvm ) {
+	if ( !gameClientVm ) {
 		return;
 	}
 
 	re.VertexLighting( false );
 
-	VM_Call( cgvm, 0, CG_SHUTDOWN );
-	VM_Free( cgvm );
-	cgvm = NULL;
+	VM_Call( gameClientVm, 0, CLIENT_SHUTDOWN );
+	VM_Free( gameClientVm );
+	gameClientVm = NULL;
 	FS_VM_CloseFiles( H_GAMECLIENT );
 }
 
@@ -404,7 +404,7 @@ static int FloatAsInt( float f ) {
 
 static void *VM_ArgPtr( intptr_t intValue ) {
 
-	if ( !intValue || cgvm == NULL )
+	if ( !intValue || gameClientVm == NULL )
 	  return NULL;
 
 	return (void *)(intValue);
@@ -414,22 +414,22 @@ static void *VM_ArgPtr( intptr_t intValue ) {
 static bool CL_GetValue( char* value, int valueSize, const char* key ) {
 
 	if ( !Q_stricmp( key, "trap_R_AddRefEntityToScene2" ) ) {
-		Com_sprintf( value, valueSize, "%i", CG_R_ADDREFENTITYTOSCENE2 );
+		Com_sprintf( value, valueSize, "%i", ENGINE_R_ADDREFENTITYTOSCENE2 );
 		return true;
 	}
 
 	if ( !Q_stricmp( key, "trap_R_ForceFixedDLights" ) ) {
-		Com_sprintf( value, valueSize, "%i", CG_R_FORCEFIXEDDLIGHTS );
+		Com_sprintf( value, valueSize, "%i", ENGINE_R_FORCEFIXEDDLIGHTS );
 		return true;
 	}
 
 	if ( !Q_stricmp( key, "trap_R_AddLinearLightToScene_Q3E" ) && re.AddLinearLightToScene ) {
-		Com_sprintf( value, valueSize, "%i", CG_R_ADDLINEARLIGHTTOSCENE );
+		Com_sprintf( value, valueSize, "%i", ENGINE_R_ADDLINEARLIGHTTOSCENE );
 		return true;
 	}
 
 	if ( !Q_stricmp( key, "trap_IsRecordingDemo" ) ) {
-		Com_sprintf( value, valueSize, "%i", CG_IS_RECORDING_DEMO );
+		Com_sprintf( value, valueSize, "%i", ENGINE_IS_RECORDING_DEMO );
 		return true;
 	}
 
@@ -465,10 +465,10 @@ static intptr_t CL_GameclientSystemCalls( intptr_t *args ) {
 	case ENGINE_MILLISECONDS:
 		return Sys_Milliseconds();
 	case ENGINE_CVAR_REGISTER:
-		Cvar_Register( VMA(1), VMA(2), VMA(3), args[4], cgvm->privateFlag );
+		Cvar_Register( VMA(1), VMA(2), VMA(3), args[4], gameClientVm->privateFlag );
 		return 0;
 	case ENGINE_CVAR_UPDATE:
-		Cvar_Update( VMA(1), cgvm->privateFlag );
+		Cvar_Update( VMA(1), gameClientVm->privateFlag );
 		return 0;
 	case ENGINE_CVAR_SET:
 		Cvar_SetSafe( VMA(1), VMA(2) );
@@ -811,8 +811,8 @@ void CL_InitGameclient( void ) {
 	// load the dll or bytecode
 	interpret = Cvar_VariableIntegerValue( "vm_gameclient" );
 
-	cgvm = VM_Create( VM_GAMECLIENT, CL_GameclientSystemCalls, CL_DllSyscall, interpret );
-	if ( !cgvm ) {
+	gameClientVm = VM_Create( VM_GAMECLIENT, CL_GameclientSystemCalls, CL_DllSyscall, interpret );
+	if ( !gameClientVm ) {
 		Com_Error( ERR_DROP, "VM_Create on gameclient failed" );
 	}
 	cls.state = CA_LOADING;
@@ -820,7 +820,7 @@ void CL_InitGameclient( void ) {
 	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
 	// otherwise server commands sent just before a gamestate are dropped
-	VM_Call( cgvm, 3, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
+	VM_Call( gameClientVm, 3, CLIENT_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 
 	// reset any CVAR_CHEAT cvars registered by gameclient
 	if ( !clc.demoplaying && !cl_connectedToCheatServer )
@@ -862,11 +862,11 @@ See if the current console command is claimed by the gameclient
 bool CL_GameCommand( void ) {
 	bool bRes;
 
-	if ( !cgvm ) {
+	if ( !gameClientVm ) {
 		return false;
 	}
 
-	bRes = (bool)VM_Call( cgvm, 0, CG_CONSOLE_COMMAND );
+	bRes = (bool)VM_Call( gameClientVm, 0, CLIENT_CONSOLE_COMMAND );
 
 	Cbuf_NestedReset();
 
@@ -880,7 +880,7 @@ CL_GameclientRendering
 =====================
 */
 void CL_GameclientRendering( stereoFrame_t stereo ) {
-	VM_Call( cgvm, 3, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
+	VM_Call( gameClientVm, 3, CLIENT_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
 #ifdef DEBUG
 	VM_Debug( 0 );
 #endif

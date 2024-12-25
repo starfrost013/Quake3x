@@ -377,7 +377,7 @@ bool	CL_Download( const char *cmd, const char *pakname, bool autoDownload );
 
 //=============================================================================
 
-extern	vm_t			*cgvm;	// interface to gameclient dll or vm
+extern	vm_t			*gameClientVm;	// interface to gameclient dll or vm
 extern	vm_t			*uivm;	// interface to ui dll or vm
 extern	refexport_t		re;		// interface to refresh .dll
 

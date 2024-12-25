@@ -133,7 +133,7 @@ Con_MessageMode3_f
 ================
 */
 static void Con_MessageMode3_f( void ) {
-	chat_playerNum = cgvm ? VM_Call( cgvm, 0, CG_CROSSHAIR_PLAYER ) : -1;
+	chat_playerNum = gameClientVm ? VM_Call( gameClientVm, 0, CLIENT_CROSSHAIR_PLAYER ) : -1;
 	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
 		chat_playerNum = -1;
 		return;
@@ -151,7 +151,7 @@ Con_MessageMode4_f
 ================
 */
 static void Con_MessageMode4_f( void ) {
-	chat_playerNum = cgvm ? VM_Call( cgvm, 0, CG_LAST_ATTACKER ) : -1;
+	chat_playerNum = gameClientVm ? VM_Call( gameClientVm, 0, CLIENT_LAST_ATTACKER ) : -1;
 	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
 		chat_playerNum = -1;
 		return;

@@ -558,7 +558,7 @@ static void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		case CA_LOADING:
 		case CA_PRIMED:
 			// draw the game information screen and loading progress
-			if ( cgvm ) {
+			if ( gameClientVm ) {
 				CL_GameclientRendering( stereoFrame );
 			}
 			// also draw the connection information, so it doesn't

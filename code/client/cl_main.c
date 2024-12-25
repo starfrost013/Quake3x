@@ -97,7 +97,7 @@ cvar_t *cl_drawBuffer;
 clientActive_t		cl;
 clientConnection_t	clc;
 clientStatic_t		cls;
-vm_t				*cgvm = NULL;
+vm_t				*gameClientVm = NULL;
 
 netadr_t			rcon_address;
 
@@ -1238,7 +1238,7 @@ bool CL_Disconnect( bool showMainMenu ) {
 		CL_CloseAVI( false );
 	}
 
-	if ( cgvm ) {
+	if ( gameClientVm ) {
 		// do that right after we rendered last video frame
 		CL_ShutdownGameclient();
 	}
@@ -1457,7 +1457,7 @@ void CL_Disconnect_f( void ) {
 	SCR_StopCinematic();
 	Cvar_Set( "ui_singlePlayerActive", "0" );
 	if ( cls.state != CA_DISCONNECTED && cls.state != CA_CINEMATIC ) {
-		if ( (uivm && uivm->callLevel) || (cgvm && cgvm->callLevel) ) {
+		if ( (uivm && uivm->callLevel) || (gameClientVm && gameClientVm->callLevel) ) {
 			Com_Error( ERR_DISCONNECT, "Disconnected from server" );
 		} else {
 			// clear any previous "server full" type messages
