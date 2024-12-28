@@ -740,8 +740,15 @@ void SV_Init( void )
 	// systeminfo
 	Cvar_Get( "sv_cheats", "1", CVAR_SYSTEMINFO | CVAR_ROM );
 	sv_serverid = Cvar_Get( "sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM );
-	sv_pure = Cvar_Get( "sv_pure", "1", CVAR_SYSTEMINFO | CVAR_LATCH );
-	Cvar_SetDescription( sv_pure, "Requires clients to only get data from pk3 files the server is using." );
+
+	#ifndef FINAL_BUILD
+		sv_pure = Cvar_Get( "sv_pure", "0", CVAR_SYSTEMINFO | CVAR_LATCH );
+		Cvar_SetDescription( sv_pure, "Requires clients to only get data from pk3 files the server is using. (TURN ON IN FINAL BUILD!)" );
+	#else
+		sv_pure = Cvar_Get( "sv_pure", "1", CVAR_SYSTEMINFO | CVAR_LATCH );	
+		Cvar_SetDescription( sv_pure, "Requires clients to only get data from pk3 files the server is using." );
+	#endif	
+	
 	Cvar_Get( "sv_paks", "", CVAR_SYSTEMINFO | CVAR_ROM );
 	Cvar_Get( "sv_pakNames", "", CVAR_SYSTEMINFO | CVAR_ROM );
 	Cvar_Get( "sv_referencedPaks", "", CVAR_SYSTEMINFO | CVAR_ROM );

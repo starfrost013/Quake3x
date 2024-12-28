@@ -449,12 +449,12 @@ static void CL_ForceFixedDlights( void ) {
 
 /*
 ====================
-CL_GameclientSystemCalls
+CL_GameClientSystemCalls
 
 The gameclient module is making a system call
 ====================
 */
-static intptr_t CL_GameclientSystemCalls( intptr_t *args ) {
+static intptr_t CL_GameClientSystemCalls( intptr_t *args ) {
 	switch( args[0] ) {
 	case ENGINE_PRINT:
 		Com_Printf( "%s", (const char*)VMA(1) );
@@ -773,9 +773,9 @@ static intptr_t QDECL CL_DllSyscall( intptr_t arg, ... ) {
 		args[ i ] = va_arg( ap, intptr_t );
 	va_end( ap );
 
-	return CL_GameclientSystemCalls( args );
+	return CL_GameClientSystemCalls( args );
 #else
-	return CL_GameclientSystemCalls( &arg );
+	return CL_GameClientSystemCalls( &arg );
 #endif
 }
 
@@ -811,7 +811,7 @@ void CL_InitGameClient( void ) {
 	// load the dll or bytecode
 	interpret = Cvar_VariableIntegerValue( "vm_gameclient" );
 
-	gameClientVm = VM_Create( VM_GAMECLIENT, CL_GameclientSystemCalls, CL_DllSyscall, interpret );
+	gameClientVm = VM_Create( VM_GAMECLIENT, CL_GameClientSystemCalls, CL_DllSyscall, interpret );
 	if ( !gameClientVm ) {
 		Com_Error( ERR_DROP, "VM_Create on gameclient failed" );
 	}
