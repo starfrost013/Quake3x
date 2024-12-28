@@ -29,16 +29,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define Q3_VERSION            	"Q3X 0.10"
-#ifndef SVN_VERSION
-  #define SVN_VERSION Q3_VERSION
-#endif
-#define CLIENT_WINDOW_TITLE   	"Q3X"
-#define CONSOLE_WINDOW_TITLE  	"Q3X Console"
-// 1.32 released 7-10-2002
+#define Q3_VERSION            	"Project Air nightly-2024-12-27"
 
-//#define DEFAULT_GAME			"edawn"
-
+#define CLIENT_WINDOW_TITLE   	"Project Air"
+#define CONSOLE_WINDOW_TITLE  	"Project Air Console"
 
 #define BASEGAME				"air"
 #define BASEDEMO				"airdemo"

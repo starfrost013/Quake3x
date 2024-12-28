@@ -88,7 +88,7 @@ typedef struct campspot_s
 	struct campspot_s *next;
 } campspot_t;
 
-//FIXME: these are game specific
+// ***** DEPRECATED December 27, 2024 *****
 typedef enum {
 	GT_FFA,				// free for all
 	GT_TOURNAMENT,		// one on one tournament
@@ -98,11 +98,6 @@ typedef enum {
 
 	GT_TEAM,			// team deathmatch
 	GT_CTF,				// capture the flag
-#ifdef MISSIONPACK
-	GT_1FCTF,
-	GT_OBELISK,
-	GT_HARVESTER,
-#endif
 	GT_MAX_GAME_TYPE
 } gametype_t;
 
