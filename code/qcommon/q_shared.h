@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define Q3_VERSION            	"Project Air nightly-2024-12-27"
+#define Q3_VERSION            	"Project Air nightly-2025-01-05"
 
 #define CLIENT_WINDOW_TITLE   	"Project Air"
 #define CONSOLE_WINDOW_TITLE  	"Project Air Console"
