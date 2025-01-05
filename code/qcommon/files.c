@@ -4290,7 +4290,7 @@ bool FS_ComparePaks( char *neededpaks, int len, bool dlstring ) {
 		havepak = false;
 
 		// never autodownload any of the id paks
-		if ( FS_idPak(fs_serverReferencedPakNames[i], BASEGAME, NUM_ID_PAKS) || FS_idPak(fs_serverReferencedPakNames[i], BASETA, NUM_TA_PAKS) ) {
+		if ( FS_idPak(fs_serverReferencedPakNames[i], BASEGAME, NUM_ID_PAKS)) {
 			continue;
 		}
 

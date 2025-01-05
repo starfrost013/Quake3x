@@ -649,8 +649,6 @@ issues.
 #define FS_GAMECLIENT_REF	0x04
 // number of id paks that will never be autodownloaded from baseq3/missionpack
 #define NUM_ID_PAKS		9
-#define NUM_TA_PAKS		4
-
 typedef enum {
 	H_SYSTEM,
 	H_GAMESERVER,
